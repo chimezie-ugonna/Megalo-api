@@ -18,18 +18,25 @@ class SendSms
     $this->token = getenv("TWILIO_TOKEN");
   }
 
-  function send($phone_number)
+  function sendOtp($phone_number)
   {
-    $client = new Client($this->sid, $this->token);
-    $message = $client->messages->create(
-      $phone_number,
-      [
-        'from' => $this->sender_id,
-        'body' => 'Hello from Megalo!'
-      ]
-    );
-
-    print $message->sid;
+    try {
+      $otp = rand(100000, 999999);
+      $client = new Client($this->sid, $this->token);
+      $message = $client->messages->create(
+        $phone_number,
+        [
+          'from' => $this->sender_id,
+          'body' => 'This is your Megalo otp ' . strval($otp)
+        ]
+      );
+      if (isset($message)) {
+        return $otp;
+      } else {
+        return false;
+      }
+    } catch (\Exception) {
+      return false;
+    }
   }
-
 }
