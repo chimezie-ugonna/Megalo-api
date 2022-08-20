@@ -10,7 +10,7 @@ class UserController extends Controller
     public function sendOtp(Request $request)
     {
         $send = new SendSms();
-        $send->send($request->request->get("user_id"));
+        $send->send($request->request->get("phone_number"));
     }
 
     public function create(Request $request)
