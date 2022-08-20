@@ -38,6 +38,11 @@ class IncomingDataValidation
             $request->validate([
                 "phone_number" => ["bail", "required", "not_in:null"]
             ]);
+        } else if ($request->isMethod("post") && $request->path() == "api/v1/user/verify_otp") {
+            $request->validate([
+                "phone_number" => ["bail", "required", "not_in:null"],
+                "otp" => ["bail", "required", "not_in:null"]
+            ]);
         } else if ($request->isMethod("post") && $request->path() == "api/v1/user/create") {
             $request->validate([
                 "user_id" => ["bail", "required", "not_in:null"],

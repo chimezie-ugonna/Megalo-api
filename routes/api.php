@@ -22,6 +22,7 @@ Route::middleware([CheckHeader::class, IncomingDataValidation::class, TokenValid
     //All user endpoints.
     Route::controller(UserController::class)->group(function () {
         Route::post("/user/send_otp", "sendOtp");
+        Route::post("/user/verify_otp", "verifyOtp");
         Route::post("/user/create", "create");
         Route::get("/user/read", "read");
         Route::get("/user/read_all", "readAll");
