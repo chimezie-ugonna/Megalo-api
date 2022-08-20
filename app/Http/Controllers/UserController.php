@@ -10,13 +10,13 @@ class UserController extends Controller
     public function sendOtp(Request $request)
     {
         $send = new SendSms();
-        $send->sendOtp($request->request->get("phone_number"));
+        $otp = $send->sendOtp($request->request->get("phone_number"));
         if ($send != false && isset($send)) {
             return response()->json([
                 "status" => true,
                 "message" => "Otp was successfully sent.",
                 "data" => [
-                    "otp" => $send
+                    "otp" => $otp
                 ]
             ], 200);
         } else {
