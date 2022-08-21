@@ -14,11 +14,11 @@ class Authentication
         $this->token_key = getenv("APP_KEY");
     }
 
-    function encode($user_id)
+    function encode($data)
     {
         $payload = [
             'iat' => time(),
-            'user_id' => $user_id
+            'data' => $data
         ];
         return JWT::encode($payload, $this->token_key, 'HS512');
     }

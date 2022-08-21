@@ -19,10 +19,7 @@ return new class extends Migration
             $table->text("first_name");
             $table->text("last_name");
             $table->text("email");
-            $table->text("image_path");
-            $table->text("gender");
-            $table->text("dob");
-            $table->string("theme");
+            $table->string("type");
             $table->timestampTz("created_at");
             $table->timestampTz("updated_at");
         });

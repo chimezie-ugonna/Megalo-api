@@ -19,26 +19,47 @@ class TokenValidation
      */
     public function handle(Request $request, Closure $next)
     {
-        if ($request->path() != "api/v1/user/create" && $request->path() != "api/v1/login/create" && $request->path() != "api/v1/user/send_otp" && $request->path() != "api/v1/user/verify_otp") {
+        if ($request->path() != "api/v1/user/send_otp" && $request->path() != "api/v1/user/verify_otp") {
             if ($request->bearerToken() != "") {
                 $auth = new Authentication();
                 $data = $auth->decode($request->bearerToken());
-                if ($data != false && isset($data["user_id"])) {
-                    $user_id = $data["user_id"];
-                    if (!User::find($user_id)) {
-                        return response()->json([
-                            "status" => false,
-                            "message" => "Unauthorized access, unknown user."
-                        ], 401);
+                if ($data != false && isset($data["data"])) {
+                    if ($request->path() == "api/v1/user/create" || $request->path() == "api/v1/login/create") {
+                        if ($request->request->get("phone_number") == $data["data"]) {
+                            $user_id = "";
+                            if ($request->path() == "api/v1/user/create") {
+                                $user_id = uniqid(rand(), true);
+                            } else {
+                                $user_id = User::where("phone_number", $data["data"])->get("user_id");
+                            }
+                            $request->request->add(["user_id" => $user_id]);
+                            Login::where("user_id", $user_id)->where("device_token", $request->header("device_token"))->update([
+                                "device_brand" => $request->header("device_brand"),
+                                "device_model" => $request->header("device_model"),
+                                "app_version" => $request->header("app_version"),
+                                "os_version" => $request->header("os_version")
+                            ]);
+                        } else {
+                            return response()->json([
+                                "status" => false,
+                                "message" => "Unauthorized access, unknown user."
+                            ], 401);
+                        }
                     } else {
-                        $request->request->add(["user_id" => $user_id]);
-                        User::where("user_id", $user_id)->update(["theme" => $request->header("theme")]);
-                        Login::where("user_id", $user_id)->where("device_token", $request->header("device_token"))->update([
-                            "device_brand" => $request->header("device_brand"),
-                            "device_model" => $request->header("device_model"),
-                            "app_version" => $request->header("app_version"),
-                            "os_version" => $request->header("os_version")
-                        ]);
+                        if (User::find($data["data"])) {
+                            $request->request->add(["user_id" => $data["data"]]);
+                            Login::where("user_id", $data["data"])->where("device_token", $request->header("device_token"))->update([
+                                "device_brand" => $request->header("device_brand"),
+                                "device_model" => $request->header("device_model"),
+                                "app_version" => $request->header("app_version"),
+                                "os_version" => $request->header("os_version")
+                            ]);
+                        } else {
+                            return response()->json([
+                                "status" => false,
+                                "message" => "Unauthorized access, unknown user."
+                            ], 401);
+                        }
                     }
                 } else {
                     return response()->json([
