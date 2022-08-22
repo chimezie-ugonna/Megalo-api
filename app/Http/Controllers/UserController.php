@@ -33,16 +33,13 @@ class UserController extends Controller
         $status = $send->verifyOtp($request->request->get("phone_number"), $request->request->get("otp"));
         if ($status != false && isset($status)) {
             if ($status->status == "approved") {
-                $new_user = false;
-                if (User::where("phone_number", $request->request->get("phone_number"))->count() == 0) {
-                    $new_user = true;
-                }
+                $user_exists = User::where("phone_number", $request->request->get("phone_number"))->exists();
                 return response()->json([
                     "status" => true,
                     "message" => "Otp was successfully verified.",
                     "data" => [
                         "token" => $auth->encode($request->request->get("phone_number")),
-                        "new_user" => $new_user
+                        "user_exists" => $user_exists
                     ]
                 ], 200);
             } else if ($status->status == "pending") {
