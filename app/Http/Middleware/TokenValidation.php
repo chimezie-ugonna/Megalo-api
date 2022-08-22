@@ -28,7 +28,7 @@ class TokenValidation
                         if ($request->request->get("phone_number") == $data["data"]) {
                             $user_id = "";
                             if (User::where("phone_number", $data["data"])->exists()) {
-                                $user_id = User::where("phone_number", $data["data"])->get("user_id");
+                                $user_id = User::where("phone_number", $data["data"])->first()->get("user_id");
                             } else {
                                 $user_id = uniqid(rand(), true);
                             }
