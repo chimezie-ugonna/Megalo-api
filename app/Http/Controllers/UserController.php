@@ -87,7 +87,7 @@ class UserController extends Controller
         $auth = new Authentication();
         return response()->json([
             "status" => true,
-            "message" => "User created successfully.",
+            "message" => "User registered successfully.",
             "data" => [
                 "token" => $auth->encode($request->request->get("user_id"))
             ]
