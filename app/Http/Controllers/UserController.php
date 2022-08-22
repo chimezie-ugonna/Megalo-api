@@ -34,7 +34,7 @@ class UserController extends Controller
         if ($status != false && isset($status)) {
             if ($status->status == "approved") {
                 $new_user = false;
-                if (!User::where("phone_number", $request->request->get("phone_number"))) {
+                if (User::where("phone_number", $request->request->get("phone_number"))->count == 0) {
                     $new_user = true;
                 }
                 return response()->json([
