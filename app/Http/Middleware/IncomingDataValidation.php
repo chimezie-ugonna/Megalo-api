@@ -50,6 +50,10 @@ class IncomingDataValidation
                 "email" => ["bail", "required", "email", "not_in:null"],
                 "type" => ["bail", "required", "not_in:null"]
             ]);
+        } else if ($request->isMethod("post") && $request->path() == "api/v1/login/create") {
+            $request->validate([
+                "phone_number" => ["bail", "required", "not_in:null"]
+            ]);
         }
         return $next($request);
     }
