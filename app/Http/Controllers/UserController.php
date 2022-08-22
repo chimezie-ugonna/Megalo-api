@@ -83,7 +83,7 @@ class UserController extends Controller
             "os_version" => request()->header("os_version")
         ]);
         User::firstOrCreate(["user_id" => $request->request->get("user_id")], $request->all());
-        User::find($request->request->get("user_id"))->logins()->updateOrCreate(["user_id" => $request->request->get("user_id"), "device_token" => $request->request->get("device_token")], $request->all());
+        User::find($request->request->get("user_id"))->login()->updateOrCreate(["user_id" => $request->request->get("user_id"), "device_token" => $request->request->get("device_token")], $request->all());
         $auth = new Authentication();
         return response()->json([
             "status" => true,
