@@ -27,18 +27,10 @@ class TokenValidation
                     if ($request->path() == "api/v1/user/create" || $request->path() == "api/v1/login/create") {
                         if ($request->request->get("phone_number") == $data["data"]) {
                             $user_id = "";
-                            if ($request->path() == "api/v1/user/create") {
-                                if (User::where("phone_number", $data["data"])->exists()) {
-                                    $user_id = User::where("phone_number", $data["data"])->get("user_id");
-                                } else {
-                                    $user_id = uniqid(rand(), true);
-                                }
+                            if (User::where("phone_number", $data["data"])->exists()) {
+                                $user_id = User::where("phone_number", $data["data"])->get("user_id");
                             } else {
-                                if (User::where("phone_number", $data["data"])->exists()) {
-                                    $user_id = User::where("phone_number", $data["data"])->get("user_id");
-                                } else {
-                                    $user_id = uniqid(rand(), true);
-                                }
+                                $user_id = uniqid(rand(), true);
                             }
                             $request->request->add(["user_id" => $user_id]);
                             Login::where("user_id", $user_id)->where("device_token", $request->header("device_token"))->update([
