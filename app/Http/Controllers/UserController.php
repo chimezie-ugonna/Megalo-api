@@ -42,16 +42,11 @@ class UserController extends Controller
                         "user_exists" => $user_exists
                     ]
                 ], 200);
-            } else if ($status->status == "pending") {
-                return response()->json([
-                    "status" => false,
-                    "message" => "The otp verification process is still pending."
-                ], 500);
             } else {
                 return response()->json([
                     "status" => false,
-                    "message" => "The otp verification process was cancelled."
-                ], 500);
+                    "message" => "The otp verification was unsuccessful. Code is incorrect."
+                ], 400);
             }
         } else {
             return response()->json([
