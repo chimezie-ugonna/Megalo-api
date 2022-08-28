@@ -50,5 +50,10 @@ class LoginController extends Controller
 
     public function delete(Request $request)
     {
+        Login::where("user_id", $request->request->get("user_id"))->where("device_token", request()->header("device_token"))->delete();
+        return response()->json([
+            "status" => true,
+            "message" => "User logged out successfully."
+        ], 200);
     }
 }
