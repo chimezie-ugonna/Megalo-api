@@ -28,10 +28,8 @@ class IncomingDataValidation
                     "phone_number" => ["bail", "prohibited"],
                     "full_name" => ["bail", "not_in:null"],
                     "email" => ["bail", "email", "not_in:null"],
-                    "image" => ["bail", "not_in:null"],
                     "gender" => ["bail", "not_in:null"],
-                    "dob" => ["bail", "not_in:null"],
-                    "theme" => ["bail", "not_in:null"]
+                    "dob" => ["bail", "not_in:null"]
                 ]);
             }
         } else if ($request->isMethod("post") && $request->path() == "api/v1/user/send_otp") {
@@ -46,7 +44,9 @@ class IncomingDataValidation
         } else if ($request->isMethod("post") && $request->path() == "api/v1/user/create") {
             $request->validate([
                 "phone_number" => ["bail", "required", "not_in:null"],
+                "country_name_code" => ["bail", "required", "not_in:null"],
                 "full_name" => ["bail", "required", "not_in:null"],
+                "dob" => ["bail", "required", "date_format:d/m/Y", "not_in:null"],
                 "email" => ["bail", "required", "email", "not_in:null"],
                 "type" => ["bail", "required", "not_in:null"]
             ]);

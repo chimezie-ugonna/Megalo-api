@@ -14,12 +14,15 @@ return new class extends Migration
     public function up()
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->string("user_id")->primary();
+            $table->text("user_id")->primary();
             $table->text("phone_number");
+            $table->text("country_name_code");
             $table->text("first_name");
             $table->text("last_name");
+            $table->text("dob");
+            $table->text("gender");
             $table->text("email");
-            $table->string("type");
+            $table->text("type");
             $table->timestampTz("created_at");
             $table->timestampTz("updated_at");
         });
