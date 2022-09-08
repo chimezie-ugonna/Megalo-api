@@ -19,11 +19,10 @@ class User extends Model
         "first_name",
         "last_name",
         "dob",
-        "gender",
         "email",
         "type"
     ];
-    protected $casts = ["country_name_code" => "encrypted", "first_name" => "encrypted", "last_name" => "encrypted", "dob" => "encrypted", "gender" => "encrypted", "email" => "encrypted"];
+    protected $casts = ["country_name_code" => "encrypted", "first_name" => "encrypted", "last_name" => "encrypted", "dob" => "encrypted", "email" => "encrypted"];
 
     public function login()
     {

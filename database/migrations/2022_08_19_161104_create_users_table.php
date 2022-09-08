@@ -20,7 +20,6 @@ return new class extends Migration
             $table->text("first_name");
             $table->text("last_name");
             $table->text("dob");
-            $table->text("gender");
             $table->text("email");
             $table->text("type");
             $table->timestampTz("created_at");
