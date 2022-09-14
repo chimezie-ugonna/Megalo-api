@@ -13,11 +13,11 @@ class LoginController extends Controller
     {
         $request->request->add([
             "access_type" => request()->header("access_type"),
-            "device_token" => request()->header("device_token"),
-            "device_brand" => request()->header("device_brand"),
-            "device_model" => request()->header("device_model"),
-            "app_version" => request()->header("app_version"),
-            "os_version" => request()->header("os_version")
+            "device_token" => request()->header("device_token", ""),
+            "device_brand" => request()->header("device_brand", ""),
+            "device_model" => request()->header("device_model", ""),
+            "app_version" => request()->header("app_version", ""),
+            "os_version" => request()->header("os_version", "")
         ]);
 
         if (User::find($request->request->get("user_id"))) {
@@ -52,7 +52,7 @@ class LoginController extends Controller
 
     public function delete(Request $request)
     {
-        Login::where("user_id", $request->request->get("user_id"))->where("access_type", request()->header("access_type"))->where("device_token", request()->header("device_token"))->delete();
+        Login::where("user_id", $request->request->get("user_id"))->where("access_type", request()->header("access_type"))->where("device_token", request()->header("device_token", ""))->delete();
         return response()->json([
             "status" => true,
             "message" => "User logged out successfully."
