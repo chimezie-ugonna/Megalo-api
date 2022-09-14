@@ -21,7 +21,7 @@ class SendSms
     try {
       return $this->client->verify->v2->services($this->service_sid)
         ->verifications
-        ->create($phone_number, "sms");
+        ->create($phone_number, "sms", ["appHash" => getenv("APP_HASH")]);
     } catch (\Exception) {
       return false;
     }

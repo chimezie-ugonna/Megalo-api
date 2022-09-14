@@ -4,14 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Custom\Authentication;
 use Illuminate\Http\Request;
-use App\Custom\SendSms;
+use App\Custom\OtpHandler;
 use App\Models\User;
 
 class UserController extends Controller
 {
     public function sendOtp(Request $request)
     {
-        $send = new SendSms();
+        $send = new OtpHandler();
         $status = $send->sendOtp($request->request->get("phone_number"));
         if ($status != false && isset($status)) {
             return response()->json([
@@ -28,7 +28,7 @@ class UserController extends Controller
 
     public function verifyOtp(Request $request)
     {
-        $send = new SendSms();
+        $send = new OtpHandler();
         $auth = new Authentication();
         $status = $send->verifyOtp($request->request->get("phone_number"), $request->request->get("otp"));
         if ($status != false && isset($status)) {
