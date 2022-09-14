@@ -32,8 +32,9 @@ class TokenValidation
                             } else {
                                 $user_id = uniqid(rand(), true);
                             }
+
                             $request->request->add(["user_id" => $user_id]);
-                            Login::where("user_id", $user_id)->where("device_token", $request->header("device_token"))->update([
+                            Login::where("user_id", $user_id)->where("access_type", $request->header("access_type"))->where("device_token", $request->header("device_token"))->update([
                                 "device_brand" => $request->header("device_brand"),
                                 "device_model" => $request->header("device_model"),
                                 "app_version" => $request->header("app_version"),
@@ -48,7 +49,7 @@ class TokenValidation
                     } else {
                         if (User::find($data["data"])) {
                             $request->request->add(["user_id" => $data["data"]]);
-                            Login::where("user_id", $data["data"])->where("device_token", $request->header("device_token"))->update([
+                            Login::where("user_id", $data["data"])->where("access_type", $request->header("access_type"))->where("device_token", $request->header("device_token"))->update([
                                 "device_brand" => $request->header("device_brand"),
                                 "device_model" => $request->header("device_model"),
                                 "app_version" => $request->header("app_version"),

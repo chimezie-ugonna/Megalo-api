@@ -16,7 +16,6 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->text("user_id")->primary();
             $table->text("phone_number");
-            $table->text("country_name_code");
             $table->text("first_name");
             $table->text("last_name");
             $table->text("dob");

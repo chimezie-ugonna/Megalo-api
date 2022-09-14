@@ -13,6 +13,7 @@ class Login extends Model
     public $incrementing = false;
     protected $fillable = [
         "user_id",
+        "access_type",
         "device_token",
         "device_brand",
         "device_model",

@@ -15,6 +15,7 @@ return new class extends Migration
     {
         Schema::create('logins', function (Blueprint $table) {
             $table->string("user_id");
+            $table->text("access_type");
             $table->text("device_token");
             $table->string("device_brand");
             $table->string("device_model");

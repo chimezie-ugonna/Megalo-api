@@ -71,14 +71,16 @@ class UserController extends Controller
         $request->request->add([
             "first_name" => $first_name,
             "last_name" => $last_name,
+            "access_type" => request()->header("access_type"),
             "device_token" => request()->header("device_token"),
             "device_brand" => request()->header("device_brand"),
             "device_model" => request()->header("device_model"),
             "app_version" => request()->header("app_version"),
             "os_version" => request()->header("os_version")
         ]);
+
         User::firstOrCreate(["user_id" => $request->request->get("user_id")], $request->all());
-        User::find($request->request->get("user_id"))->login()->updateOrCreate(["user_id" => $request->request->get("user_id"), "device_token" => $request->request->get("device_token")], $request->all());
+        User::find($request->request->get("user_id"))->login()->updateOrCreate(["user_id" => $request->request->get("user_id"), "access_type" => $request->request->get("access_type"), "device_token" => $request->request->get("device_token")], $request->all());
         $auth = new Authentication();
         return response()->json([
             "status" => true,
