@@ -30,7 +30,6 @@ class IncomingDataValidation
                 $request->validate([
                     "user_id" => ["bail", "prohibited"],
                     "phone_number" => ["bail", "required", "not_in:null"],
-                    "country_name_code" => ["bail", "required", "not_in:null"],
                     "full_name" => ["bail", "required", "not_in:null"],
                     "dob" => ["bail", "required", "date_format:d/m/Y", "not_in:null"],
                     "email" => ["bail", "required", "email", "not_in:null"],
