@@ -25,6 +25,6 @@ class Property extends Model
 
     public function investment()
     {
-        return $this->hasMany(Investment::class);
+        return $this->hasMany(Investment::class, "property_id");
     }
 }
