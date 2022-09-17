@@ -70,13 +70,7 @@ class UserController extends Controller
 
         $request->request->add([
             "first_name" => $first_name,
-            "last_name" => $last_name,
-            "access_type" => request()->header("access_type"),
-            "device_token" => request()->header("device_token", ""),
-            "device_brand" => request()->header("device_brand", ""),
-            "device_model" => request()->header("device_model", ""),
-            "app_version" => request()->header("app_version", ""),
-            "os_version" => request()->header("os_version", "")
+            "last_name" => $last_name
         ]);
 
         User::firstOrCreate(["user_id" => $request->request->get("user_id")], $request->all());
@@ -93,17 +87,72 @@ class UserController extends Controller
 
     public function read(Request $request)
     {
+        if (sizeof(User::where("user_id", $request->request->get("user_id"))->get()) > 0) {
+            return response()->json([
+                "status" => true,
+                "message" => "User data retrieved successfully.",
+                "data" => User::where("user_id", $request->request->get("user_id"))->get()
+            ], 200);
+        } else {
+            return response()->json([
+                "status" => false,
+                "message" => "User data not found."
+            ], 404);
+        }
     }
 
     public function readAll()
     {
+        if (User::all()) {
+            return response()->json([
+                "status" => true,
+                "message" => "All user data retrieved successfully.",
+                "data" => User::all()
+            ], 200);
+        } else {
+            return response()->json([
+                "status" => false,
+                "message" => "No user data found."
+            ], 404);
+        }
     }
 
     public function update(Request $request)
     {
+        if (sizeof(User::where("user_id", $request->request->get("user_id"))->get()) > 0) {
+            if ($request->request->has("full_name")) {
+                $full_name_split = explode(" ", $request->request->get("full_name"), 2);
+                $first_name = $full_name_split[0];
+                $last_name = "";
+                if (count($full_name_split) > 1) {
+                    $last_name = $full_name_split[1];
+                }
+                $request->request->add([
+                    "first_name" => $first_name,
+                    "last_name" => $last_name
+                ]);
+            }
+            User::where("user_id", $request->request->get("user_id"))->update($request->all());
+            return response()->json([
+                "status" => true,
+                "message" => "User data updated successfully.",
+            ], 200);
+        } else {
+            return response()->json([
+                "status" => false,
+                "message" => "User data not found."
+            ], 404);
+        }
     }
 
     public function delete(Request $request)
     {
+        User::find($request->request->get("user_id"))->login()->delete();
+        User::find($request->request->get("user_id"))->investment()->delete();
+        User::destroy($request->request->get("user_id"));
+        return response()->json([
+            "status" => true,
+            "message" => "User deleted successfully."
+        ], 200);
     }
 }

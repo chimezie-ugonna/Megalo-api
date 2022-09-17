@@ -19,9 +19,21 @@ class OtpHandler
   function sendOtp($phone_number)
   {
     try {
-      return $this->client->verify->v2->services($this->service_sid)
-        ->verifications
-        ->create($phone_number, "sms", ["appHash" => getenv("APP_HASH")]);
+      if (request()->header("access_type") == "mobile") {
+        if (request()->header("device_os") == "android") {
+          return $this->client->verify->v2->services($this->service_sid)
+            ->verifications
+            ->create($phone_number, "sms", ["appHash" => getenv("APP_HASH")]);
+        } else {
+          return $this->client->verify->v2->services($this->service_sid)
+            ->verifications
+            ->create($phone_number, "sms");
+        }
+      } else {
+        return $this->client->verify->v2->services($this->service_sid)
+          ->verifications
+          ->create($phone_number, "sms");
+      }
     } catch (\Exception) {
       return false;
     }

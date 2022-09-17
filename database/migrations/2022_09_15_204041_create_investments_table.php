@@ -13,15 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('logins', function (Blueprint $table) {
+        Schema::create('investments', function (Blueprint $table) {
+            $table->text("property_id");
             $table->text("user_id");
-            $table->text("access_type");
-            $table->text("device_os");
-            $table->text("device_token");
-            $table->text("device_brand");
-            $table->text("device_model");
-            $table->text("app_version");
-            $table->text("os_version");
+            $table->decimal("share");
             $table->timestampTz("created_at");
             $table->timestampTz("updated_at");
         });
@@ -34,6 +29,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('logins');
+        Schema::dropIfExists('investments');
     }
 };

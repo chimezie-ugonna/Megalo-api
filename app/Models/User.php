@@ -25,6 +25,11 @@ class User extends Model
 
     public function login()
     {
-        return $this->hasMany(Login::class, "user_id");
+        return $this->hasMany(Login::class);
+    }
+
+    public function investment()
+    {
+        return $this->hasMany(Investment::class);
     }
 }

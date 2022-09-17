@@ -26,61 +26,74 @@ class CheckHeader
                 "status" => false,
                 "message" => "The access-type header is missing."
             ], 400)->throwResponse();
+        } else if ($request->header("access-type") != "" && $request->header("access-type") != "mobile" && $request->header("access-type") != "web" && $request->header("access-type") != "postman") {
+            return response()->json([
+                "status" => false,
+                "message" => "Invalid value in the access-type header. Value can only be 'mobile', 'web' or 'postman'."
+            ], 400)->throwResponse();
+        } else if ($request->header("access-type") == "mobile") {
+            if ($request->hasHeader("device-os") == null || $request->header("device-os") == "") {
+                return response()->json([
+                    "status" => false,
+                    "message" => "The device-os header is missing."
+                ], 400)->throwResponse();
+            } else if ($request->hasHeader("device-token") == null || $request->header("device-token") == "") {
+                return response()->json([
+                    "status" => false,
+                    "message" => "The device-token header is missing."
+                ], 400)->throwResponse();
+            } else if ($request->hasHeader("device-brand") == null || $request->header("device-brand") == "") {
+                return response()->json([
+                    "status" => false,
+                    "message" => "The device-brand header is missing."
+                ], 400)->throwResponse();
+            } else if ($request->hasHeader("device-model") == null || $request->header("device-model") == "") {
+                return response()->json([
+                    "status" => false,
+                    "message" => "The device-model header is missing."
+                ], 400)->throwResponse();
+            } else if ($request->hasHeader("app-version") == null || $request->header("app-version") == "") {
+                return response()->json([
+                    "status" => false,
+                    "message" => "The app-version header is missing."
+                ], 400)->throwResponse();
+            } else if ($request->hasHeader("os-version") == null || $request->header("os-version") == "") {
+                return response()->json([
+                    "status" => false,
+                    "message" => "The os-version header is missing."
+                ], 400)->throwResponse();
+            }
         } else {
-            if ($request->header("access-type") == "mobile") {
-                if ($request->hasHeader("device-token") == null || $request->header("device-token") == "") {
-                    return response()->json([
-                        "status" => false,
-                        "message" => "The device-token header is missing."
-                    ], 400)->throwResponse();
-                } else if ($request->hasHeader("device-brand") == null || $request->header("device-brand") == "") {
-                    return response()->json([
-                        "status" => false,
-                        "message" => "The device-brand header is missing."
-                    ], 400)->throwResponse();
-                } else if ($request->hasHeader("device-model") == null || $request->header("device-model") == "") {
-                    return response()->json([
-                        "status" => false,
-                        "message" => "The device-model header is missing."
-                    ], 400)->throwResponse();
-                } else if ($request->hasHeader("app-version") == null || $request->header("app-version") == "") {
-                    return response()->json([
-                        "status" => false,
-                        "message" => "The app-version header is missing."
-                    ], 400)->throwResponse();
-                } else if ($request->hasHeader("os-version") == null || $request->header("os-version") == "") {
-                    return response()->json([
-                        "status" => false,
-                        "message" => "The os-version header is missing."
-                    ], 400)->throwResponse();
-                }
-            } else {
-                if ($request->hasHeader("device-token") != null && $request->header("device-token") != "") {
-                    return response()->json([
-                        "status" => false,
-                        "message" => "The device-token header should be blank since the access-type header is not 'mobile'."
-                    ], 400)->throwResponse();
-                } else if ($request->hasHeader("device-brand") != null && $request->header("device-brand") != "") {
-                    return response()->json([
-                        "status" => false,
-                        "message" => "The device-brand header should be blank since the access-type header is not 'mobile'."
-                    ], 400)->throwResponse();
-                } else if ($request->hasHeader("device-model") != null && $request->header("device-model") != "") {
-                    return response()->json([
-                        "status" => false,
-                        "message" => "The device-model header should be blank since the access-type header is not 'mobile'."
-                    ], 400)->throwResponse();
-                } else if ($request->hasHeader("app-version") != null && $request->header("app-version") != "") {
-                    return response()->json([
-                        "status" => false,
-                        "message" => "The app-version header should be blank since the access-type header is not 'mobile'."
-                    ], 400)->throwResponse();
-                } else if ($request->hasHeader("os-version") != null && $request->header("os-version") != "") {
-                    return response()->json([
-                        "status" => false,
-                        "message" => "The os-version header should be blank since the access-type header is not 'mobile'."
-                    ], 400)->throwResponse();
-                }
+            if ($request->hasHeader("device-os") != null && $request->header("device-os") != "") {
+                return response()->json([
+                    "status" => false,
+                    "message" => "The device-os header should be blank since the access-type header is not 'mobile'."
+                ], 400)->throwResponse();
+            } else if ($request->hasHeader("device-token") != null && $request->header("device-token") != "") {
+                return response()->json([
+                    "status" => false,
+                    "message" => "The device-token header should be blank since the access-type header is not 'mobile'."
+                ], 400)->throwResponse();
+            } else if ($request->hasHeader("device-brand") != null && $request->header("device-brand") != "") {
+                return response()->json([
+                    "status" => false,
+                    "message" => "The device-brand header should be blank since the access-type header is not 'mobile'."
+                ], 400)->throwResponse();
+            } else if ($request->hasHeader("device-model") != null && $request->header("device-model") != "") {
+                return response()->json([
+                    "status" => false,
+                    "message" => "The device-model header should be blank since the access-type header is not 'mobile'."
+                ], 400)->throwResponse();
+            } else if ($request->hasHeader("app-version") != null && $request->header("app-version") != "") {
+                return response()->json([
+                    "status" => false,
+                    "message" => "The app-version header should be blank since the access-type header is not 'mobile'."
+                ], 400)->throwResponse();
+            } else if ($request->hasHeader("os-version") != null && $request->header("os-version") != "") {
+                return response()->json([
+                    "status" => false,
+                    "message" => "The os-version header should be blank since the access-type header is not 'mobile'."
+                ], 400)->throwResponse();
             }
         }
         return $next($request);

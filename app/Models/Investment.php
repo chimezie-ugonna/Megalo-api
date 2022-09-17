@@ -5,25 +5,26 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Login extends Model
+class Investment extends Model
 {
     use HasFactory;
 
     protected $primaryKey = null;
     public $incrementing = false;
     protected $fillable = [
+        "property_id",
         "user_id",
-        "access_type",
-        "device_os",
-        "device_token",
-        "device_brand",
-        "device_model",
-        "app_version",
-        "os_version"
+        "share"
     ];
+    protected $casts = ["share" => "encrypted"];
 
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function property()
+    {
+        return $this->belongsTo(Property::class);
     }
 }

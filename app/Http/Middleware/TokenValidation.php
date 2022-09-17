@@ -24,32 +24,32 @@ class TokenValidation
                 $auth = new Authentication();
                 $data = $auth->decode($request->bearerToken());
                 if ($data != false && isset($data["data"])) {
+                    $user_id = $data["data"];
                     if ($request->path() == "api/v1/user/create" || $request->path() == "api/v1/login/create") {
                         if ($request->request->get("phone_number") == $data["data"]) {
-                            $user_id = "";
                             if (User::where("phone_number", $data["data"])->exists()) {
                                 $user_id = User::where("phone_number", $data["data"])->value("user_id");
                             } else {
                                 $user_id = uniqid(rand(), true);
                             }
-
-                            $request->request->add(["user_id" => $user_id]);
-                            Login::where("user_id", $user_id)->where("access_type", $request->header("access_type"))->where("device_token", $request->header("device_token", ""))->update([
-                                "device_brand" => $request->header("device_brand", ""),
-                                "device_model" => $request->header("device_model", ""),
-                                "app_version" => $request->header("app_version", ""),
-                                "os_version" => $request->header("os_version", "")
-                            ]);
                         } else {
                             return response()->json([
                                 "status" => false,
                                 "message" => "Unauthorized access, unknown user."
                             ], 401);
                         }
+                        $request->request->add([
+                            "access_type" => $request->header("access_type"),
+                            "device_os" => $request->header("device_os", ""),
+                            "device_token" => $request->header("device_token", ""),
+                            "device_brand" => $request->header("device_brand", ""),
+                            "device_model" => $request->header("device_model", ""),
+                            "app_version" => $request->header("app_version", ""),
+                            "os_version" => $request->header("os_version", "")
+                        ]);
                     } else {
-                        if (User::find($data["data"])) {
-                            $request->request->add(["user_id" => $data["data"]]);
-                            Login::where("user_id", $data["data"])->where("access_type", $request->header("access_type"))->where("device_token", $request->header("device_token", ""))->update([
+                        if (User::find($user_id)) {
+                            Login::where("user_id", $user_id)->where("access_type", $request->header("access_type"))->where("device_os", $request->header("device_os", ""))->where("device_token", $request->header("device_token", ""))->update([
                                 "device_brand" => $request->header("device_brand", ""),
                                 "device_model" => $request->header("device_model", ""),
                                 "app_version" => $request->header("app_version", ""),
@@ -62,6 +62,7 @@ class TokenValidation
                             ], 401);
                         }
                     }
+                    $request->request->add(["user_id" => $user_id]);
                 } else {
                     return response()->json([
                         "status" => false,
