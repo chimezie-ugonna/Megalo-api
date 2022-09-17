@@ -18,7 +18,8 @@ class MediaManager
   {
     if ($media_type == "image") {
       return $this->upload->upload($image_string, [
-        'overwrite' => TRUE
+        "overwrite" => TRUE,
+        "folder" => "properties"
       ]);
     }
   }
