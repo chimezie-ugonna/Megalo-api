@@ -39,21 +39,21 @@ class TokenValidation
                             ], 401);
                         }
                         $request->request->add([
-                            "access_type" => $request->header("access_type"),
-                            "device_os" => $request->header("device_os", ""),
-                            "device_token" => $request->header("device_token", ""),
-                            "device_brand" => $request->header("device_brand", ""),
-                            "device_model" => $request->header("device_model", ""),
-                            "app_version" => $request->header("app_version", ""),
-                            "os_version" => $request->header("os_version", "")
+                            "access_type" => $request->header("access-type"),
+                            "device_os" => $request->header("device-os", ""),
+                            "device_token" => $request->header("device-token", ""),
+                            "device_brand" => $request->header("device-brand", ""),
+                            "device_model" => $request->header("device-model", ""),
+                            "app_version" => $request->header("app-version", ""),
+                            "os_version" => $request->header("os-version", "")
                         ]);
                     } else {
                         if (User::find($user_id)) {
-                            Login::where("user_id", $user_id)->where("access_type", $request->header("access_type"))->where("device_os", $request->header("device_os", ""))->where("device_token", $request->header("device_token", ""))->update([
-                                "device_brand" => $request->header("device_brand", ""),
-                                "device_model" => $request->header("device_model", ""),
-                                "app_version" => $request->header("app_version", ""),
-                                "os_version" => $request->header("os_version", "")
+                            Login::where("user_id", $user_id)->where("access_type", $request->header("access-type"))->where("device_os", $request->header("device-os", ""))->where("device_token", $request->header("device-token", ""))->update([
+                                "device_brand" => $request->header("device-brand", ""),
+                                "device_model" => $request->header("device-model", ""),
+                                "app_version" => $request->header("app-version", ""),
+                                "os_version" => $request->header("os-version", "")
                             ]);
                         } else {
                             return response()->json([
