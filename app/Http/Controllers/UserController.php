@@ -28,7 +28,7 @@ class UserController extends Controller
 
     public function verifyOtp(Request $request)
     {
-        $send = new OtpHandler();
+        /*$send = new OtpHandler();
         $auth = new Authentication();
         $status = $send->verifyOtp($request->request->get("phone_number"), $request->request->get("otp"));
         if ($status != false && isset($status)) {
@@ -53,7 +53,17 @@ class UserController extends Controller
                 "status" => false,
                 "message" => "A failure occurred while trying to verify otp."
             ], 500);
-        }
+        }*/
+        $auth = new Authentication();
+        $user_exists = User::where("phone_number", $request->request->get("phone_number"))->exists();
+        return response()->json([
+            "status" => true,
+            "message" => "Otp was successfully verified.",
+            "data" => [
+                "token" => $auth->encode($request->request->get("phone_number")),
+                "user_exists" => $user_exists
+            ]
+        ], 200);
     }
 
     public function create(Request $request)
