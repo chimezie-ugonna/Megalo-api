@@ -92,6 +92,10 @@ class IncomingDataValidation
                         ], 400)->throwResponse();
                     }
                 }
+                return response()->json([
+                    "status" => false,
+                    "message" => $request->all()
+                ], 400)->throwResponse();
             }
         } else if ($request->isMethod("get")) {
             if ($request->path() == "api/v1/investment/read_specific") {
