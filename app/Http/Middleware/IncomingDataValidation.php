@@ -79,18 +79,11 @@ class IncomingDataValidation
                     }
                 }
             } else if ($request->path() == "api/v1/user/update") {
-                if (count($request->all()) == 0) {
+                if (!$request->request->has("phone_number") && !$request->request->has("full_name") && !$request->request->has("dob") && !$request->request->has("email") && !$request->request->has("type")) {
                     return response()->json([
                         "status" => false,
-                        "message" => "There is nothing to update."
+                        "message" => "You provided an invalid key. Size " . strval(sizeof($request->all()))
                     ], 400)->throwResponse();
-                } else {
-                    if (!$request->request->has("phone_number") && !$request->request->has("full_name") && !$request->request->has("dob") && !$request->request->has("email") && !$request->request->has("type")) {
-                        return response()->json([
-                            "status" => false,
-                            "message" => "You provided an invalid key."
-                        ], 400)->throwResponse();
-                    }
                 }
             }
         } else if ($request->isMethod("get")) {
