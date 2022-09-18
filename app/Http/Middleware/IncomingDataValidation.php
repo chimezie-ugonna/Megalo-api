@@ -79,10 +79,10 @@ class IncomingDataValidation
                     }
                 }
             } else if ($request->path() == "api/v1/user/update") {
-                if (!$request->request->has("phone_number") && !$request->request->has("full_name") && !$request->request->has("dob") && !$request->request->has("email") && !$request->request->has("type")) {
+                if (!$request->has("phone_number") && !$request->has("full_name") && !$request->has("dob") && !$request->has("email") && !$request->has("type")) {
                     return response()->json([
                         "status" => false,
-                        "message" => "You provided an invalid key. Size " . strval(sizeof($request->all()))
+                        "message" => "You provided an invalid key."
                     ], 400)->throwResponse();
                 }
             }
