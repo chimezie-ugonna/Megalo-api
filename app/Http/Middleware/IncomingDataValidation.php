@@ -79,7 +79,7 @@ class IncomingDataValidation
                     }
                 }
             } else if ($request->path() == "api/v1/user/update") {
-                if (sizeof($request->all()) == 0) {
+                if (count($request->all()) == 0) {
                     return response()->json([
                         "status" => false,
                         "message" => "There is nothing to update."
