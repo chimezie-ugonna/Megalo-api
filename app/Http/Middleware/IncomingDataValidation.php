@@ -94,7 +94,7 @@ class IncomingDataValidation
                 }
                 return response()->json([
                     "status" => false,
-                    "message" => $request->all()
+                    "message" => sizeof($request->all())
                 ], 400)->throwResponse();
             }
         } else if ($request->isMethod("get")) {
