@@ -74,7 +74,7 @@ class UserController extends Controller
     {
         $first_name = "";
         $last_name = "";
-        if ($request->request->has("full_name")) {
+        if ($request->request->has("full_name") && $request->filled("full_name")) {
             $full_name_split = explode(" ", $request->request->get("full_name"), 2);
             $first_name = $full_name_split[0];
             if (count($full_name_split) > 1) {
@@ -134,7 +134,7 @@ class UserController extends Controller
     public function update(Request $request)
     {
         if (sizeof(User::where("user_id", $request->request->get("user_id"))->get()) > 0) {
-            if ($request->request->has("full_name")) {
+            if ($request->request->has("full_name") && $request->filled("full_name")) {
                 $full_name_split = explode(" ", $request->request->get("full_name"), 2);
                 $first_name = $full_name_split[0];
                 $last_name = "";
