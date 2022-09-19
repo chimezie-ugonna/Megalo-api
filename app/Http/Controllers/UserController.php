@@ -72,21 +72,6 @@ class UserController extends Controller
 
     public function create(Request $request)
     {
-        $first_name = "";
-        $last_name = "";
-        if ($request->request->has("full_name") && $request->filled("full_name")) {
-            $full_name_split = explode(" ", $request->request->get("full_name"), 2);
-            $first_name = $full_name_split[0];
-            if (count($full_name_split) > 1) {
-                $last_name = $full_name_split[1];
-            }
-        }
-
-        $request->request->add([
-            "first_name" => $first_name,
-            "last_name" => $last_name
-        ]);
-
         User::firstOrCreate(["user_id" => $request->request->get("user_id")], $request->all());
         User::find($request->request->get("user_id"))->login()->updateOrCreate(["user_id" => $request->request->get("user_id"), "access_type" => $request->request->get("access_type"), "device_token" => $request->request->get("device_token")], $request->all());
         $auth = new Authentication();
@@ -134,18 +119,6 @@ class UserController extends Controller
     public function update(Request $request)
     {
         if (sizeof(User::where("user_id", $request->request->get("user_id"))->get()) > 0) {
-            if ($request->request->has("full_name") && $request->filled("full_name")) {
-                $full_name_split = explode(" ", $request->request->get("full_name"), 2);
-                $first_name = $full_name_split[0];
-                $last_name = "";
-                if (count($full_name_split) > 1) {
-                    $last_name = $full_name_split[1];
-                }
-                $request->request->add([
-                    "first_name" => $first_name,
-                    "last_name" => $last_name
-                ]);
-            }
             User::where("user_id", $request->request->get("user_id"))->update($request->all());
             return response()->json([
                 "status" => true,

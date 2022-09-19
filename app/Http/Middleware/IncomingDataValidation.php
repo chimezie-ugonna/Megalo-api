@@ -35,6 +35,19 @@ class IncomingDataValidation
                     "email" => ["bail", "required", "filled", "email", "not_in:null"],
                     "type" => ["bail", "required", "filled", "in:user,admin", "not_in:null"]
                 ]);
+                if ($request->request->has("full_name") && $request->filled("full_name")) {
+                    $full_name_split = explode(" ", $request->request->get("full_name"), 2);
+                    $first_name = $full_name_split[0];
+                    $last_name = "";
+                    if (count($full_name_split) > 1) {
+                        $last_name = $full_name_split[1];
+                    }
+                    $request->request->add([
+                        "first_name" => $first_name,
+                        "last_name" => $last_name
+                    ]);
+                    $request->request->remove("full_name");
+                }
             } else if ($request->path() == "api/v1/login/create") {
                 $request->validate([
                     "phone_number" => ["bail", "required", "filled", "not_in:null"]
@@ -94,6 +107,18 @@ class IncomingDataValidation
                         "status" => false,
                         "message" => "There is no data to update."
                     ], 400)->throwResponse();
+                } else if ($request->request->has("full_name") && $request->filled("full_name")) {
+                    $full_name_split = explode(" ", $request->request->get("full_name"), 2);
+                    $first_name = $full_name_split[0];
+                    $last_name = "";
+                    if (count($full_name_split) > 1) {
+                        $last_name = $full_name_split[1];
+                    }
+                    $request->request->add([
+                        "first_name" => $first_name,
+                        "last_name" => $last_name
+                    ]);
+                    $request->request->remove("full_name");
                 } else if ($request->request->has("dob") && $request->filled("dob")) {
                     $request->validate([
                         "dob" => ["bail", "date_format:d/m/Y", "not_in:null"]
