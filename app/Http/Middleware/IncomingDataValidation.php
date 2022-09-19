@@ -84,18 +84,17 @@ class IncomingDataValidation
                         "status" => false,
                         "message" => "There is nothing to update."
                     ], 400)->throwResponse();
-                } else {
-                    if (!$request->request->has("phone_number") && !$request->request->has("full_name") && !$request->request->has("dob") && !$request->request->has("email") && !$request->request->has("type")) {
-                        return response()->json([
-                            "status" => false,
-                            "message" => "You provided an invalid key."
-                        ], 400)->throwResponse();
-                    }
+                } else if (!$request->request->has("phone_number") && !$request->request->has("full_name") && !$request->request->has("dob") && !$request->request->has("email") && !$request->request->has("type")) {
+                    return response()->json([
+                        "status" => false,
+                        "message" => "You provided an invalid key."
+                    ], 400)->throwResponse();
+                } else if (!$request->filled("phone_number") && !$request->filled("full_name") && !$request->filled("dob") && !$request->filled("email") && !$request->filled("type")) {
+                    return response()->json([
+                        "status" => false,
+                        "message" => "There is no data to update."
+                    ], 400)->throwResponse();
                 }
-                return response()->json([
-                    "status" => false,
-                    "message" => sizeof($request->all())
-                ], 400)->throwResponse();
             }
         } else if ($request->isMethod("get")) {
             if ($request->path() == "api/v1/investment/read_specific") {
