@@ -37,6 +37,11 @@ class CheckHeader
                     "status" => false,
                     "message" => "The device-os header is missing."
                 ], 400)->throwResponse();
+            } else if ($request->header("device-os") != "" && $request->header("device-os") != "android" && $request->header("device-os") != "ios") {
+                return response()->json([
+                    "status" => false,
+                    "message" => "Invalid value in the device-os header. Value can only be 'android' or 'ios'."
+                ], 400)->throwResponse();
             } else if ($request->hasHeader("device-token") == null || $request->header("device-token") == "") {
                 return response()->json([
                     "status" => false,
