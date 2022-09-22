@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::create('logins', function (Blueprint $table) {
-            $table->increments('id');
+            $table->increments('id')->primary();
             $table->text("user_id");
             $table->text("access_type");
             $table->text("device_os");

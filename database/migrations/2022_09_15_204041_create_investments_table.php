@@ -14,6 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::create('investments', function (Blueprint $table) {
+            $table->increments('id')->primary();
             $table->text("property_id");
             $table->text("user_id");
             $table->decimal("share");
