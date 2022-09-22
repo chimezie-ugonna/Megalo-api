@@ -9,8 +9,6 @@ class Login extends Model
 {
     use HasFactory;
 
-    protected $primaryKey = null;
-    public $incrementing = false;
     protected $fillable = [
         "user_id",
         "access_type",
