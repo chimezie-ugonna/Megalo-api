@@ -62,7 +62,7 @@ class PropertyController extends Controller
 
     public function readAll()
     {
-        if (Property::all()) {
+        if (sizeof(Property::all()) > 0) {
             return response()->json([
                 "status" => true,
                 "message" => "All property data retrieved successfully.",

@@ -102,7 +102,7 @@ class UserController extends Controller
 
     public function readAll()
     {
-        if (User::all()) {
+        if (sizeof(User::all()) > 0) {
             return response()->json([
                 "status" => true,
                 "message" => "All user data retrieved successfully.",

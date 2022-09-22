@@ -34,7 +34,7 @@ class InvestmentController extends Controller
 
     public function readAll()
     {
-        if (Investment::all()) {
+        if (sizeof(Investment::all()) > 0) {
             return response()->json([
                 "status" => true,
                 "message" => "All investment data retrieved successfully.",
