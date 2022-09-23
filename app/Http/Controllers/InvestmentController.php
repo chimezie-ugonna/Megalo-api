@@ -11,12 +11,18 @@ class InvestmentController extends Controller
     public function create(Request $request)
     {
         if (!Property::find($request->request->get("property_id"))) {
-            Investment::firstOrCreate(["property_id" => $request->request->get("property_id"), "user_id" => $request->request->get("user_id")], $request->all());
+            if (Investment::where("property_id", $request->request->get("property_id"))->where("user_id", $request->request->get("user_id"))->exists()) {
+                $previous_share = Investment::where("property_id", $request->request->get("property_id"))->where("user_id", $request->request->get("user_id"))->get("share");
+                $new_share = $previous_share + $request->request->get("share");
+                $request->request->remove("share");
+                $request->request->add(["share" => $new_share]);
+            }
+            Investment::updateOrCreate(["property_id" => $request->request->get("property_id"), "user_id" => $request->request->get("user_id")], $request->all());
             return response()->json([
                 "status" => true,
                 "message" => "Investment created successfully."
             ], 201);
-        }else{
+        } else {
             return response()->json([
                 "status" => false,
                 "message" => "Property not found."
