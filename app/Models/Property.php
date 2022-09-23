@@ -23,11 +23,7 @@ class Property extends Model
     ];
     protected $casts = [
         "address" => "encrypted",
-        "value_usd" => "encrypted",
-        "image_urls" => "encrypted",
-        "available_shares" => "encrypted",
-        "size_sf" => "encrypted",
-        "dividend_ps_usd" => "encrypted"
+        "image_urls" => "encrypted"
     ];
 
     public function investment()

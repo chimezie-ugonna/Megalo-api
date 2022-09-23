@@ -10,7 +10,7 @@ class InvestmentController extends Controller
 {
     public function create(Request $request)
     {
-        if (!Property::find($request->request->get("property_id"))) {
+        if (Property::find($request->request->get("property_id"))) {
             Investment::firstOrCreate(["property_id" => $request->request->get("property_id"), "user_id" => $request->request->get("user_id")], $request->all());
             return response()->json([
                 "status" => true,

@@ -14,8 +14,6 @@ class Investment extends Model
         "user_id",
         "share"
     ];
-    
-    protected $casts = ["share" => "encrypted"];
 
     public function user()
     {
