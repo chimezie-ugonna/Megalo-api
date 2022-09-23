@@ -3,17 +3,25 @@
 namespace App\Http\Controllers;
 
 use App\Models\Investment;
+use App\Models\Property;
 use Illuminate\Http\Request;
 
 class InvestmentController extends Controller
 {
     public function create(Request $request)
     {
-        Investment::firstOrCreate(["property_id" => $request->request->get("property_id"), "user_id" => $request->request->get("user_id")], $request->all());
-        return response()->json([
-            "status" => true,
-            "message" => "Investment created successfully."
-        ], 201);
+        if (!Property::find($request->request->get("property_id"))) {
+            Investment::firstOrCreate(["property_id" => $request->request->get("property_id"), "user_id" => $request->request->get("user_id")], $request->all());
+            return response()->json([
+                "status" => true,
+                "message" => "Investment created successfully."
+            ], 201);
+        }else{
+            return response()->json([
+                "status" => false,
+                "message" => "Property not found."
+            ], 404);
+        }
     }
 
     public function read(Request $request)

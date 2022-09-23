@@ -9,13 +9,12 @@ class Investment extends Model
 {
     use HasFactory;
 
-    protected $primaryKey = null;
-    public $incrementing = false;
     protected $fillable = [
         "property_id",
         "user_id",
         "share"
     ];
+    
     protected $casts = ["share" => "encrypted"];
 
     public function user()
