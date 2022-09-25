@@ -19,6 +19,7 @@ class User extends Model
         "last_name",
         "dob",
         "email",
+        "balance_usd",
         "type"
     ];
     protected $casts = [
