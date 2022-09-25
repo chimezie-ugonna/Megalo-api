@@ -55,7 +55,7 @@ class IncomingDataValidation
             } else if ($request->path() == "api/v1/investment/create") {
                 $request->validate([
                     "property_id" => ["bail", "required", "filled", "not_in:null"],
-                    "share" => ["bail", "required", "filled", "numeric", "not_in:null"]
+                    "amount_usd" => ["bail", "required", "filled", "numeric", "not_in:null"]
                 ]);
             } else if ($request->path() == "api/v1/property/create") {
                 $request->validate([
@@ -63,16 +63,16 @@ class IncomingDataValidation
                     "address" => ["bail", "required", "filled", "not_in:null"],
                     "value_usd" => ["bail", "required", "filled", "numeric", "not_in:null"],
                     "image_strings" => ["bail", "required", "filled", "not_in:null"],
-                    "available_shares" => ["bail", "required", "filled", "numeric", "not_in:null"],
+                    "percentage_available" => ["bail", "required", "filled", "numeric", "not_in:null"],
                     "size_sf" => ["bail", "required", "filled", "numeric", "not_in:null"],
-                    "dividend_ps_usd" => ["bail", "required", "filled", "numeric", "not_in:null"]
+                    "dividend_usd" => ["bail", "required", "filled", "numeric", "not_in:null"]
                 ]);
             }
         } else if ($request->isMethod("put") || $request->isMethod("patch")) {
             if ($request->path() == "api/v1/investment/update") {
                 $request->validate([
                     "property_id" => ["bail", "required", "filled", "not_in:null"],
-                    "share" => ["bail", "required", "filled", "not_in:null"]
+                    "amount_usd" => ["bail", "required", "filled", "not_in:null"]
                 ]);
             } else if ($request->path() == "api/v1/property/update") {
                 $request->validate([
@@ -83,12 +83,12 @@ class IncomingDataValidation
                         "status" => false,
                         "message" => "There is nothing to update."
                     ], 400)->throwResponse();
-                } else if (!$request->request->has("address") && !$request->request->has("value_usd") && !$request->request->has("image_strings") && !$request->request->has("available_shares") && !$request->request->has("size_sf") && !$request->request->has("dividend_ps_usd")) {
+                } else if (!$request->request->has("address") && !$request->request->has("value_usd") && !$request->request->has("image_strings") && !$request->request->has("percentage_available") && !$request->request->has("size_sf") && !$request->request->has("dividend_usd")) {
                     return response()->json([
                         "status" => false,
                         "message" => "You provided an invalid key."
                     ], 400)->throwResponse();
-                } else if (!$request->filled("address") && !$request->filled("value_usd") && !$request->filled("image_strings") && !$request->filled("available_shares") && !$request->filled("size_sf") && !$request->filled("dividend_ps_usd")) {
+                } else if (!$request->filled("address") && !$request->filled("value_usd") && !$request->filled("image_strings") && !$request->filled("percentage_available") && !$request->filled("size_sf") && !$request->filled("dividend_usd")) {
                     return response()->json([
                         "status" => false,
                         "message" => "There is no data to update."
@@ -121,13 +121,13 @@ class IncomingDataValidation
                             $request->request->remove("image_strings");
                         }
                     }
-                    if ($request->request->has("available_shares")) {
-                        if ($request->filled("available_shares")) {
+                    if ($request->request->has("percentage_available")) {
+                        if ($request->filled("percentage_available")) {
                             $request->validate([
-                                "available_shares" => ["bail", "numeric", "not_in:null"]
+                                "percentage_available" => ["bail", "numeric", "not_in:null"]
                             ]);
                         } else {
-                            $request->request->remove("available_shares");
+                            $request->request->remove("percentage_available");
                         }
                     }
                     if ($request->request->has("size_sf")) {
@@ -139,13 +139,13 @@ class IncomingDataValidation
                             $request->request->remove("size_sf");
                         }
                     }
-                    if ($request->request->has("dividend_ps_usd")) {
-                        if ($request->filled("dividend_ps_usd")) {
+                    if ($request->request->has("dividend_usd")) {
+                        if ($request->filled("dividend_usd")) {
                             $request->validate([
-                                "dividend_ps_usd" => ["bail", "numeric", "not_in:null"]
+                                "dividend_usd" => ["bail", "numeric", "not_in:null"]
                             ]);
                         } else {
-                            $request->request->remove("dividend_ps_usd");
+                            $request->request->remove("dividend_usd");
                         }
                     }
                 }

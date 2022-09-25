@@ -13,13 +13,12 @@ class Property extends Model
     public $incrementing = false;
     protected $keyType = "string";
     protected $fillable = [
-        "property_id",
         "address",
         "value_usd",
         "image_urls",
-        "available_shares",
+        "percentage_available",
         "size_sf",
-        "dividend_ps_usd"
+        "dividend_usd"
     ];
     protected $casts = [
         "address" => "encrypted",

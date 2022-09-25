@@ -18,17 +18,14 @@ return new class extends Migration
             $table->text("property_id")->primary();
             $table->text("address");
             $table->decimal("value_usd");
+            $table->decimal("percentage_available");
+            $table->decimal("dividend_usd");
+            $table->decimal("size_sf");
         });
         DB::statement("ALTER TABLE properties ADD COLUMN image_urls text[],
-            ADD COLUMN available_shares numeric(8, 2),
-            ADD COLUMN size_sf numeric(8, 2),
-            ADD COLUMN dividend_ps_usd numeric(8, 2),
             ADD COLUMN created_at TIMESTAMP(0) with time zone,
             ADD COLUMN updated_at TIMESTAMP(0) with time zone");
         DB::statement("ALTER TABLE properties ALTER COLUMN image_urls SET NOT NULL,
-            ALTER COLUMN available_shares SET NOT NULL,
-            ALTER COLUMN size_sf SET NOT NULL,
-            ALTER COLUMN dividend_ps_usd SET NOT NULL,
             ALTER COLUMN created_at SET NOT NULL,
             ALTER COLUMN updated_at SET NOT NULL");
     }

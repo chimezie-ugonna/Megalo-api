@@ -13,12 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('investments', function (Blueprint $table) {
-            $table->increments('id');
-            $table->text("property_id");
+        Schema::create('notifications', function (Blueprint $table) {
+            $table->text("notification_id")->primary();
             $table->text("user_id");
-            $table->text("payment_id");
-            $table->decimal("percentage");
+            $table->text("message");
+            $table->text("seen")->default("no");
             $table->timestampTz("created_at");
             $table->timestampTz("updated_at");
         });
@@ -31,6 +30,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('investments');
+        Schema::dropIfExists('notifications');
     }
 };

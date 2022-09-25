@@ -37,4 +37,9 @@ class User extends Model
     {
         return $this->hasMany(Investment::class, "user_id");
     }
+
+    public function notification()
+    {
+        return $this->hasMany(Notification::class, "user_id");
+    }
 }

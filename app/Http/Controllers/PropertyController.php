@@ -11,9 +11,6 @@ class PropertyController extends Controller
     public function create(Request $request)
     {
         $status = "good";
-        $request->request->add([
-            "property_id" => uniqid(rand(), true)
-        ]);
         if ($request->request->has("image_strings") && $request->filled("image_strings")) {
             $image_strings = $request->request->get("image_strings");
             $image_urls = array();

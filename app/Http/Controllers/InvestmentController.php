@@ -10,18 +10,21 @@ class InvestmentController extends Controller
 {
     public function create(Request $request)
     {
-        if (!Property::find($request->request->get("property_id"))) {
-            if (Investment::where("property_id", $request->request->get("property_id"))->where("user_id", $request->request->get("user_id"))->exists()) {
-                $previous_share = Investment::where("property_id", $request->request->get("property_id"))->where("user_id", $request->request->get("user_id"))->get("share");
-                $new_share = $previous_share + $request->request->get("share");
-                $request->request->remove("share");
-                $request->request->add(["share" => $new_share]);
+        if (Property::find($request->request->get("property_id"))) {
+            /*if (Investment::where("property_id", $request->request->get("property_id"))->where("user_id", $request->request->get("user_id"))->exists()) {
+                $previous_amount_usd = Investment::where("property_id", $request->request->get("property_id"))->where("user_id", $request->request->get("user_id"))->value("amount_usd");
+                $new_amount_usd = $previous_amount_usd + floatval();
+                $request->request->remove("amount_usd");
+                if ($new_amount_usd <= 100.0) {
+                    $request->request->add(["amount_usd" => $new_amount_usd]);
+                } else {
+                }
             }
             Investment::updateOrCreate(["property_id" => $request->request->get("property_id"), "user_id" => $request->request->get("user_id")], $request->all());
             return response()->json([
                 "status" => true,
                 "message" => "Investment created successfully."
-            ], 201);
+            ], 201);*/
         } else {
             return response()->json([
                 "status" => false,
@@ -69,22 +72,6 @@ class InvestmentController extends Controller
                 "status" => true,
                 "message" => "Investment data retrieved successfully.",
                 "data" => Investment::where("property_id", $request->request->get("property_id"))->where("user_id", $request->request->get("user_id"))->get()
-            ], 200);
-        } else {
-            return response()->json([
-                "status" => false,
-                "message" => "Investment data not found."
-            ], 404);
-        }
-    }
-
-    public function update(Request $request)
-    {
-        if (sizeof(Investment::where("property_id", $request->request->get("property_id"))->where("user_id", $request->request->get("user_id"))->get()) > 0) {
-            Investment::where("property_id", $request->request->get("property_id"))->where("user_id", $request->request->get("user_id"))->update($request->all());
-            return response()->json([
-                "status" => true,
-                "message" => "Investment data updated successfully.",
             ], 200);
         } else {
             return response()->json([

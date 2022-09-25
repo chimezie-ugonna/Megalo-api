@@ -20,6 +20,7 @@ return new class extends Migration
             $table->text("last_name");
             $table->text("dob");
             $table->text("email");
+            $table->decimal("balance_usd")->default(0);
             $table->text("type");
             $table->timestampTz("created_at");
             $table->timestampTz("updated_at");

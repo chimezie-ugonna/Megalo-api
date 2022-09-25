@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\InvestmentController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\CheckHeader;
@@ -55,7 +57,24 @@ Route::middleware([CheckHeader::class, IncomingDataValidation::class, TokenValid
         Route::get("/investment/read", "read");
         Route::get("/investment/read_all", "readAll");
         Route::get("/investment/read_specific", "readSpecific");
-        Route::put("/investment/update", "update");
         Route::delete("/investment/delete", "delete");
+    });
+
+    //All payment endpoints.
+    Route::controller(PaymentController::class)->group(function () {
+        Route::post("/payment/create", "create");
+        Route::get("/payment/read", "read");
+        Route::get("/payment/read_all", "readAll");
+        Route::get("/payment/read_specific", "readSpecific");
+        Route::delete("/payment/delete", "delete");
+    });
+
+    //All notification endpoints.
+    Route::controller(NotificationController::class)->group(function () {
+        Route::post("/notification/create", "create");
+        Route::get("/notification/read", "read");
+        Route::get("/notification/read_all", "readAll");
+        Route::get("/notification/read_specific", "readSpecific");
+        Route::delete("/notification/delete", "delete");
     });
 });

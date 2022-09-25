@@ -49,6 +49,17 @@ class TokenValidation
                         ]);
                     } else {
                         if (User::find($user_id)) {
+                            switch ($request->path()) {
+                                case "api/v1/property/create":
+                                    $request->request->add(["property_id" => uniqid(rand(), true)]);
+                                    break;
+                                case "api/v1/payment/create":
+                                    $request->request->add(["payment_id" => uniqid(rand(), true)]);
+                                    break;
+                                case "api/v1/notification/create":
+                                    $request->request->add(["notification_id" => uniqid(rand(), true)]);
+                                    break;
+                            }
                             Login::where("user_id", $user_id)->where("access_type", $request->header("access-type"))->where("device_os", $request->header("device-os", ""))->where("device_token", $request->header("device-token", ""))->update([
                                 "device_brand" => $request->header("device-brand", ""),
                                 "device_model" => $request->header("device-model", ""),
