@@ -43,7 +43,7 @@ class PropertyController extends Controller
 
     public function read(Request $request)
     {
-        if (sizeof(Property::where("property_id", $request->request->get("property_id"))->get()) > 0) {
+        if (Property::find($request->request->get("property_id"))) {
             return response()->json([
                 "status" => true,
                 "message" => "Property data retrieved successfully.",
@@ -59,7 +59,7 @@ class PropertyController extends Controller
 
     public function readAll()
     {
-        if (sizeof(Property::all()) > 0) {
+        if (Property::all()) {
             return response()->json([
                 "status" => true,
                 "message" => "All property data retrieved successfully.",
@@ -75,8 +75,8 @@ class PropertyController extends Controller
 
     public function update(Request $request)
     {
-        if (sizeof(Property::where("property_id", $request->request->get("property_id"))->get()) > 0) {
-            Property::where("property_id", $request->request->get("property_id"))->update($request->all());
+        if (Property::find($request->request->get("property_id"))) {
+            Property::find($request->request->get("property_id"))->update($request->all());
             return response()->json([
                 "status" => true,
                 "message" => "Property data updated successfully.",

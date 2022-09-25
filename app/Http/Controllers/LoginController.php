@@ -47,7 +47,7 @@ class LoginController extends Controller
 
     public function readAll()
     {
-        if (sizeof(Login::all()) > 0) {
+        if (Login::all()) {
             return response()->json([
                 "status" => true,
                 "message" => "All login data retrieved successfully.",

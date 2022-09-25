@@ -86,7 +86,7 @@ class UserController extends Controller
 
     public function read(Request $request)
     {
-        if (sizeof(User::where("user_id", $request->request->get("user_id"))->get()) > 0) {
+        if (User::find($request->request->get("user_id"))) {
             return response()->json([
                 "status" => true,
                 "message" => "User data retrieved successfully.",
@@ -102,7 +102,7 @@ class UserController extends Controller
 
     public function readAll()
     {
-        if (sizeof(User::all()) > 0) {
+        if (User::all()) {
             return response()->json([
                 "status" => true,
                 "message" => "All user data retrieved successfully.",
@@ -118,8 +118,8 @@ class UserController extends Controller
 
     public function update(Request $request)
     {
-        if (sizeof(User::where("user_id", $request->request->get("user_id"))->get()) > 0) {
-            User::where("user_id", $request->request->get("user_id"))->update($request->all());
+        if (User::find($request->request->get("user_id"))) {
+            User::find($request->request->get("user_id"))->update($request->all());
             return response()->json([
                 "status" => true,
                 "message" => "User data updated successfully.",
