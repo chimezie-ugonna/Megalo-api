@@ -136,6 +136,7 @@ class UserController extends Controller
     {
         User::find($request->request->get("user_id"))->login()->delete();
         User::find($request->request->get("user_id"))->investment()->delete();
+        User::find($request->request->get("user_id"))->notification()->delete();
         User::destroy($request->request->get("user_id"));
         return response()->json([
             "status" => true,
