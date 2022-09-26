@@ -13,6 +13,7 @@ class Notification extends Model
     public $incrementing = false;
     protected $keyType = "string";
     protected $fillable = [
+        "notification_id",
         "user_id",
         "message"
     ];

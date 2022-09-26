@@ -13,6 +13,7 @@ class Property extends Model
     public $incrementing = false;
     protected $keyType = "string";
     protected $fillable = [
+        "property_id",
         "address",
         "value_usd",
         "image_urls",

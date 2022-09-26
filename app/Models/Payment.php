@@ -13,6 +13,7 @@ class Payment extends Model
     public $incrementing = false;
     protected $keyType = "string";
     protected $fillable = [
+        "payment_id",
         "type",
         "reference",
         "amount_usd"
