@@ -22,8 +22,7 @@ class Property extends Model
         "size_sf"
     ];
     protected $casts = [
-        "address" => "encrypted",
-        "image_urls" => "encrypted"
+        "address" => "encrypted"
     ];
 
     public function investment()

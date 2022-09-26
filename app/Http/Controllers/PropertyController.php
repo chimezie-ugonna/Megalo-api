@@ -34,7 +34,7 @@ class PropertyController extends Controller
             Property::firstOrCreate(["property_id" => $request->request->get("property_id")], $request->all());
             return response()->json([
                 "status" => true,
-                "message" => "Property created successfully."
+                "message" => "Property added successfully."
             ], 201);
         } else {
             return response()->json([
