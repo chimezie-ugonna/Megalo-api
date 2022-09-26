@@ -11,21 +11,20 @@ class PropertyController extends Controller
     public function create(Request $request)
     {
         $status = "good";
-        if ($request->request->has("image_strings") && $request->filled("image_strings")) {
-            $image_strings = explode("+", $request->request->get("image_strings"));
-            $image_urls = array();
+        if ($request->request->has("image_urls") && $request->filled("image_urls")) {
+            $image_urls = explode(", ", $request->request->get("image_urls"));
+            $cloudinary_image_urls = array();
             $media_manager = new MediaManager();
-            for ($i = 0; $i < count($image_strings); $i++) {
-                $data = $media_manager->uploadMedia("image", $image_strings[$i]);
+            for ($i = 0; $i < count($image_urls); $i++) {
+                $data = $media_manager->uploadMedia("image", $image_urls[$i]);
                 if ($data != false && isset($data["url"]) && isset($data["public_id"])) {
-                    $image_urls[$i] = $data["url"] . "+" . $data["public_id"];
+                    $cloudinary_image_urls[$i] = $data["url"] . "+ " . $data["public_id"];
                 } else {
                     $status = "bad";
                     break;
                 }
             }
-            $request->request->remove("image_strings");
-            $request->request->add(["image_urls" => $image_urls]);
+            $request->request->set("image_urls", $cloudinary_image_urls);
         }
         if ($status == "good") {
             Property::firstOrCreate(["property_id" => $request->request->get("property_id")], $request->all());
@@ -96,7 +95,7 @@ class PropertyController extends Controller
             $image_urls = Property::where("property_id", $request->request->get("property_id"))->get("image_urls");
             $media_manager = new MediaManager();
             for ($i = 0; $i < count($image_urls); $i++) {
-                $data = explode("+", $image_urls[$i]);
+                $data = explode("+ ", $image_urls[$i]);
                 if (count($data) > 1) {
                     $data = $media_manager->deleteMedia("image", $data[1]);
                     if ($data != false && isset($data["result"]) && $data["result"] == "ok") {

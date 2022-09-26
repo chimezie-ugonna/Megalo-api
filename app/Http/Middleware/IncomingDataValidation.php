@@ -61,7 +61,7 @@ class IncomingDataValidation
                     "property_id" => ["bail", "prohibited"],
                     "address" => ["bail", "required", "filled", "not_in:null"],
                     "value_usd" => ["bail", "required", "filled", "numeric", "not_in:null"],
-                    "image_strings" => ["bail", "required", "filled", "not_in:null"],
+                    "image_urls" => ["bail", "required", "filled", "not_in:null"],
                     "percentage_available" => ["bail", "prohibited"],
                     "size_sf" => ["bail", "required", "filled", "numeric", "not_in:null"],
                     "dividend_usd" => ["bail", "prohibited"]
@@ -82,12 +82,12 @@ class IncomingDataValidation
                         "status" => false,
                         "message" => "There is nothing to update."
                     ], 400)->throwResponse();
-                } else if (!$request->request->has("address") && !$request->request->has("value_usd") && !$request->request->has("image_strings") && !$request->request->has("percentage_available") && !$request->request->has("size_sf") && !$request->request->has("dividend_usd")) {
+                } else if (!$request->request->has("address") && !$request->request->has("value_usd") && !$request->request->has("image_urls") && !$request->request->has("percentage_available") && !$request->request->has("size_sf") && !$request->request->has("dividend_usd")) {
                     return response()->json([
                         "status" => false,
                         "message" => "You provided an invalid key."
                     ], 400)->throwResponse();
-                } else if (!$request->filled("address") && !$request->filled("value_usd") && !$request->filled("image_strings") && !$request->filled("percentage_available") && !$request->filled("size_sf") && !$request->filled("dividend_usd")) {
+                } else if (!$request->filled("address") && !$request->filled("value_usd") && !$request->filled("image_urls") && !$request->filled("percentage_available") && !$request->filled("size_sf") && !$request->filled("dividend_usd")) {
                     return response()->json([
                         "status" => false,
                         "message" => "There is no data to update."
@@ -111,13 +111,13 @@ class IncomingDataValidation
                             $request->request->remove("value_usd");
                         }
                     }
-                    if ($request->request->has("image_strings")) {
-                        if ($request->filled("image_strings")) {
+                    if ($request->request->has("image_urls")) {
+                        if ($request->filled("image_urls")) {
                             $request->validate([
-                                "image_strings" => ["bail", "not_in:null"]
+                                "image_urls" => ["bail", "not_in:null"]
                             ]);
                         } else {
-                            $request->request->remove("image_strings");
+                            $request->request->remove("image_urls");
                         }
                     }
                     if ($request->request->has("percentage_available")) {
