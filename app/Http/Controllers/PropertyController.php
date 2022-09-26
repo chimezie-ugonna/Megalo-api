@@ -12,10 +12,10 @@ class PropertyController extends Controller
     {
         $status = "good";
         if ($request->request->has("image_strings") && $request->filled("image_strings")) {
-            $image_strings = $request->request->get("image_strings");
+            $image_strings = explode(" ", $request->request->get("image_strings"));
             $image_urls = array();
             $media_manager = new MediaManager();
-            for ($i = 0; $i < count(explode(" ", $image_strings)); $i++) {
+            for ($i = 0; $i < count($image_strings); $i++) {
                 $data = $media_manager->uploadMedia("image", $image_strings[$i]);
                 if ($data != false && isset($data["url"]) && isset($data["public_id"])) {
                     $image_urls[$i] = $data["url"] . "+" . $data["public_id"];
