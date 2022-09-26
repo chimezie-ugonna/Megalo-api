@@ -19,11 +19,11 @@ class PropertyController extends Controller
                 $data = $media_manager->uploadMedia("image", $image_urls[$i]);
                 if ($data != false && isset($data["url"]) && isset($data["public_id"])) {
                     if ($i = 0) {
-                        $cloudinary_image_urls += $data["url"] . "+ " . $data["public_id"];
+                        $cloudinary_image_urls .= $data["url"] . "+ " . $data["public_id"];
                     } else if ($i = count($image_urls) - 1) {
-                        $cloudinary_image_urls += $data["url"] . "+ " . $data["public_id"];
+                        $cloudinary_image_urls .= $data["url"] . "+ " . $data["public_id"];
                     } else {
-                        $cloudinary_image_urls += $data["url"] . "+ " . $data["public_id"] . ", ";
+                        $cloudinary_image_urls .= $data["url"] . "+ " . $data["public_id"] . ", ";
                     }
                 } else {
                     $status = "bad";
