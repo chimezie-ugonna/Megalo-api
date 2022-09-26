@@ -2,6 +2,7 @@
 
 namespace App\Custom;
 
+use Cloudinary\Configuration\Configuration;
 use Cloudinary\Api\Upload\UploadApi;
 
 class MediaManager
@@ -11,6 +12,7 @@ class MediaManager
 
   function __construct()
   {
+    Configuration::instance(getenv("CLOUDINARY_URL"));
     $this->upload = new UploadApi();
   }
 
