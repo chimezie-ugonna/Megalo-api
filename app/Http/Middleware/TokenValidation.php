@@ -49,6 +49,15 @@ class TokenValidation
                         ]);
                     } else {
                         if (User::find($user_id)) {
+                            if ($request->path() == "api/v1/user/read_all" || $request->path() == "api/v1/login/read" || $request->path() == "api/v1/login/read_all" || $request->path() == "api/v1/property/create" || $request->path() == "api/v1/property/read_all" || $request->path() == "api/v1/property/update" || $request->path() == "api/v1/property/delete" || $request->path() == "api/v1/investment/read_all" || $request->path() == "api/v1/payment/read_all" || $request->path() == "api/v1/notification/read_all") {
+                                if (User::find($user_id)->value("type") != "admin") {
+                                    return response()->json([
+                                        "status" => false,
+                                        "message" => "Unauthorized access, only admins can access this endpoint."
+                                    ], 401);
+                                }
+                            }
+                            
                             switch ($request->path()) {
                                 case "api/v1/property/create":
                                     $request->request->add(["property_id" => uniqid(rand(), true)]);
@@ -60,6 +69,7 @@ class TokenValidation
                                     $request->request->add(["notification_id" => uniqid(rand(), true)]);
                                     break;
                             }
+
                             Login::where("user_id", $user_id)->where("access_type", $request->header("access-type"))->where("device_os", $request->header("device-os", ""))->where("device_token", $request->header("device-token", ""))->update([
                                 "device_brand" => $request->header("device-brand", ""),
                                 "device_model" => $request->header("device-model", ""),

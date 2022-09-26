@@ -18,9 +18,7 @@ class User extends Model
         "first_name",
         "last_name",
         "dob",
-        "email",
-        "balance_usd",
-        "type"
+        "email"
     ];
     protected $casts = [
         "first_name" => "encrypted",

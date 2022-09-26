@@ -32,8 +32,7 @@ class IncomingDataValidation
                     "phone_number" => ["bail", "required", "filled", "not_in:null"],
                     "full_name" => ["bail", "required", "filled", "not_in:null"],
                     "dob" => ["bail", "required", "filled", "date_format:d/m/Y", "not_in:null"],
-                    "email" => ["bail", "required", "filled", "email", "not_in:null"],
-                    "type" => ["bail", "required", "filled", "in:user,admin", "not_in:null"]
+                    "email" => ["bail", "required", "filled", "email", "not_in:null"]
                 ]);
                 if ($request->request->has("full_name") && $request->filled("full_name")) {
                     $full_name_split = explode(" ", $request->request->get("full_name"), 2);
@@ -158,12 +157,12 @@ class IncomingDataValidation
                         "status" => false,
                         "message" => "There is nothing to update."
                     ], 400)->throwResponse();
-                } else if (!$request->request->has("phone_number") && !$request->request->has("full_name") && !$request->request->has("dob") && !$request->request->has("email") && !$request->request->has("type")) {
+                } else if (!$request->request->has("phone_number") && !$request->request->has("full_name") && !$request->request->has("dob") && !$request->request->has("email")) {
                     return response()->json([
                         "status" => false,
                         "message" => "You provided an invalid key."
                     ], 400)->throwResponse();
-                } else if (!$request->filled("phone_number") && !$request->filled("full_name") && !$request->filled("dob") && !$request->filled("email") && !$request->filled("type")) {
+                } else if (!$request->filled("phone_number") && !$request->filled("full_name") && !$request->filled("dob") && !$request->filled("email")) {
                     return response()->json([
                         "status" => false,
                         "message" => "There is no data to update."
@@ -212,15 +211,6 @@ class IncomingDataValidation
                             ]);
                         } else {
                             $request->request->remove("email");
-                        }
-                    }
-                    if ($request->request->has("type")) {
-                        if ($request->filled("type")) {
-                            $request->validate([
-                                "type" => ["bail", "in:user,admin", "not_in:null"]
-                            ]);
-                        } else {
-                            $request->request->remove("type");
                         }
                     }
                 }
