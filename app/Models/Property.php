@@ -15,15 +15,15 @@ class Property extends Model
     protected $fillable = [
         "property_id",
         "address",
-        "value_usd",
         "image_urls",
+        "value_usd",
         "percentage_available",
-        "size_sf",
-        "dividend_usd"
+        "dividend_usd",
+        "size_sf"
     ];
     protected $casts = [
         "address" => "encrypted",
-        "image_urls" => "array"
+        "image_urls" => "encrypted"
     ];
 
     public function investment()

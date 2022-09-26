@@ -13,18 +13,24 @@ class PropertyController extends Controller
         $status = "good";
         if ($request->request->has("image_urls") && $request->filled("image_urls")) {
             $image_urls = explode(", ", $request->request->get("image_urls"));
-            $cloudinary_image_urls = array();
+            $cloudinary_image_urls = "";
             $media_manager = new MediaManager();
             for ($i = 0; $i < count($image_urls); $i++) {
                 $data = $media_manager->uploadMedia("image", $image_urls[$i]);
                 if ($data != false && isset($data["url"]) && isset($data["public_id"])) {
-                    $cloudinary_image_urls[$i] = $data["url"] . "+ " . $data["public_id"];
+                    if ($i = 0) {
+                        $cloudinary_image_urls += $data["url"] . "+ " . $data["public_id"];
+                    } else if ($i = count($image_urls) - 1) {
+                        $cloudinary_image_urls += $data["url"] . "+ " . $data["public_id"];
+                    } else {
+                        $cloudinary_image_urls += $data["url"] . "+ " . $data["public_id"] . ", ";
+                    }
                 } else {
                     $status = "bad";
                     break;
                 }
             }
-            $request->request->set("image_urls", json_encode($cloudinary_image_urls));
+            $request->request->set("image_urls", $cloudinary_image_urls);
         }
         if ($status == "good") {
             Property::firstOrCreate(["property_id" => $request->request->get("property_id")], $request->all());
@@ -92,7 +98,7 @@ class PropertyController extends Controller
     {
         $status = "good";
         if (Property::find($request->request->get("property_id"))) {
-            $image_urls = Property::where("property_id", $request->request->get("property_id"))->get("image_urls");
+            $image_urls = explode(", ", Property::where("property_id", $request->request->get("property_id"))->get("image_urls"));
             $media_manager = new MediaManager();
             for ($i = 0; $i < count($image_urls); $i++) {
                 $data = explode("+ ", $image_urls[$i]);

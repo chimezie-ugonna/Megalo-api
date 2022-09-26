@@ -17,17 +17,14 @@ return new class extends Migration
         Schema::create('properties', function (Blueprint $table) {
             $table->text("property_id")->primary();
             $table->text("address");
+            $table->text("image_urls");
             $table->decimal("value_usd");
             $table->decimal("percentage_available")->default(75);
             $table->decimal("dividend_usd")->default(0);
             $table->decimal("size_sf");
+            $table->timestampTz("created_at");
+            $table->timestampTz("updated_at");
         });
-        DB::statement("ALTER TABLE properties ADD COLUMN image_urls text[],
-            ADD COLUMN created_at TIMESTAMP(0) with time zone,
-            ADD COLUMN updated_at TIMESTAMP(0) with time zone");
-        DB::statement("ALTER TABLE properties ALTER COLUMN image_urls SET NOT NULL,
-            ALTER COLUMN created_at SET NOT NULL,
-            ALTER COLUMN updated_at SET NOT NULL");
     }
 
     /**
