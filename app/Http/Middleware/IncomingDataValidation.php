@@ -149,9 +149,6 @@ class IncomingDataValidation
                     }
                 }
             } else if ($request->path() == "api/v1/user/update") {
-                $request->validate([
-                    "balance_usd" => ["bail", "prohibited"]
-                ]);
                 if (sizeof($request->all()) == 0) {
                     return response()->json([
                         "status" => false,
