@@ -17,7 +17,7 @@ return new class extends Migration
             $table->text("payment_id")->primary();
             $table->text("type");
             $table->text("reference");
-            $table->decimal("amount_usd");
+            $table->decimal("amount_usd", 11, 2);
             $table->timestampTz("created_at");
             $table->timestampTz("updated_at");
         });
