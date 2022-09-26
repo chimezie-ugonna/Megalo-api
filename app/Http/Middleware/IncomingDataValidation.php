@@ -62,9 +62,9 @@ class IncomingDataValidation
                     "address" => ["bail", "required", "filled", "not_in:null"],
                     "value_usd" => ["bail", "required", "filled", "numeric", "not_in:null"],
                     "image_strings" => ["bail", "required", "filled", "not_in:null"],
-                    "percentage_available" => ["bail", "required", "filled", "numeric", "not_in:null"],
+                    "percentage_available" => ["bail", "prohibited"],
                     "size_sf" => ["bail", "required", "filled", "numeric", "not_in:null"],
-                    "dividend_usd" => ["bail", "required", "filled", "numeric", "not_in:null"]
+                    "dividend_usd" => ["bail", "prohibited"]
                 ]);
             }
         } else if ($request->isMethod("put") || $request->isMethod("patch")) {

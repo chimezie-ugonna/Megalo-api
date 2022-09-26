@@ -18,8 +18,8 @@ return new class extends Migration
             $table->text("property_id")->primary();
             $table->text("address");
             $table->decimal("value_usd");
-            $table->decimal("percentage_available");
-            $table->decimal("dividend_usd");
+            $table->decimal("percentage_available")->default(75);
+            $table->decimal("dividend_usd")->default(0);
             $table->decimal("size_sf");
         });
         DB::statement("ALTER TABLE properties ADD COLUMN image_urls text[],
