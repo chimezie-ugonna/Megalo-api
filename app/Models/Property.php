@@ -23,7 +23,6 @@ class Property extends Model
     ];
     protected $casts = [
         "address" => "encrypted",
-        "image_urls" => "encrypted"
     ];
 
     public function investment()
