@@ -18,7 +18,7 @@ class PropertyController extends Controller
             for ($i = 0; $i < count($image_urls); $i++) {
                 $data = $media_manager->uploadMedia("image", $image_urls[$i]);
                 if ($data != false && isset($data["url"]) && isset($data["public_id"])) {
-                    if ($i = count($image_urls) - 1) {
+                    if ($i == count($image_urls) - 1) {
                         $cloudinary_image_urls .= $data["url"] . "+ " . $data["public_id"];
                     } else {
                         $cloudinary_image_urls .= $data["url"] . "+ " . $data["public_id"] . ", ";
