@@ -24,7 +24,7 @@ class PropertyController extends Controller
                     break;
                 }
             }
-            $request->request->set("image_urls", $cloudinary_image_urls);
+            $request->request->set("image_urls", json_encode($cloudinary_image_urls));
         }
         if ($status == "good") {
             Property::firstOrCreate(["property_id" => $request->request->get("property_id")], $request->all());
