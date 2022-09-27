@@ -55,7 +55,7 @@ class PropertyController extends Controller
         } else {
             return response()->json([
                 "status" => false,
-                "message" => "Property data not found. test " . $request->get("property_id")
+                "message" => "Property data not found."
             ], 404);
         }
     }
