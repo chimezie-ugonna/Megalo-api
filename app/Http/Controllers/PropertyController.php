@@ -102,16 +102,16 @@ class PropertyController extends Controller
                 $data = explode("+ ", $image_urls[$i]);
                 if (count($data) > 1) {
                     $data = $media_manager->deleteMedia("image", $data[1]);
-                    if ($data != false && isset($data["result"]) && $data["result"] == "ok") {
-                        $status = "good";
-                    } else {
+                    if ($data == false || !isset($data["result"]) || $data["result"] != "ok") {
                         $status = "bad";
+                        break;
                     }
                 }
             }
         }
         if ($status == "good") {
-            Property::where("property_id", $request->request->get("property_id"))->delete();
+            Property::find($request->request->get("property_id"))->investment()->delete();
+            Property::destroy($request->request->get("property_id"));
             return response()->json([
                 "status" => true,
                 "message" => "Property data deleted successfully.",
