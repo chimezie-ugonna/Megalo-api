@@ -46,16 +46,16 @@ class PropertyController extends Controller
 
     public function read(Request $request)
     {
-        if (Property::find($request->request->get("property_id"))) {
+        if (Property::find($request->get("property_id"))) {
             return response()->json([
                 "status" => true,
                 "message" => "Property data retrieved successfully.",
-                "data" => Property::where("property_id", $request->request->get("property_id"))->get()
+                "data" => Property::where("property_id", $request->get("property_id"))->get()
             ], 200);
         } else {
             return response()->json([
                 "status" => false,
-                "message" => "Property data not found." . $request->request->get("property_id")
+                "message" => "Property data not found. test " . $request->get("property_id")
             ], 404);
         }
     }
