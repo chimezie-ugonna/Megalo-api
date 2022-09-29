@@ -118,10 +118,17 @@ class InvestmentController extends Controller
 
     public function delete(Request $request)
     {
-        Investment::where("property_id", $request->request->get("property_id"))->where("user_id", $request->request->get("user_id"))->delete();
-        return response()->json([
-            "status" => true,
-            "message" => "Investment data deleted successfully.",
-        ], 200);
+        if (sizeof(Investment::where("property_id", $request->request->get("property_id"))->where("user_id", $request->request->get("user_id"))->get()) > 0) {
+            Investment::where("property_id", $request->request->get("property_id"))->where("user_id", $request->request->get("user_id"))->delete();
+            return response()->json([
+                "status" => true,
+                "message" => "Investment data deleted successfully.",
+            ], 200);
+        } else {
+            return response()->json([
+                "status" => false,
+                "message" => "Investment data not found."
+            ], 404);
+        }
     }
 }

@@ -14,22 +14,24 @@ class PropertyController extends Controller
         $status = "good";
         if ($request->request->has("image_urls") && $request->filled("image_urls")) {
             $image_urls = explode(", ", $request->request->get("image_urls"));
-            $cloudinary_image_urls = "";
-            $media_manager = new MediaManager();
-            for ($i = 0; $i < count($image_urls); $i++) {
-                $data = $media_manager->uploadMedia("image", $image_urls[$i]);
-                if ($data != false && isset($data["url"]) && isset($data["public_id"])) {
-                    if ($i == count($image_urls) - 1) {
-                        $cloudinary_image_urls .= $data["url"] . "+ " . $data["public_id"];
+            if (count($image_urls) > 0) {
+                $cloudinary_image_urls = "";
+                $media_manager = new MediaManager();
+                for ($i = 0; $i < count($image_urls); $i++) {
+                    $data = $media_manager->uploadMedia("image", $image_urls[$i]);
+                    if ($data != false && isset($data["url"]) && isset($data["public_id"])) {
+                        if ($i == count($image_urls) - 1) {
+                            $cloudinary_image_urls .= $data["url"] . "+ " . $data["public_id"];
+                        } else {
+                            $cloudinary_image_urls .= $data["url"] . "+ " . $data["public_id"] . ", ";
+                        }
                     } else {
-                        $cloudinary_image_urls .= $data["url"] . "+ " . $data["public_id"] . ", ";
+                        $status = "bad";
+                        break;
                     }
-                } else {
-                    $status = "bad";
-                    break;
                 }
+                $request->request->set("image_urls", $cloudinary_image_urls);
             }
-            $request->request->set("image_urls", $cloudinary_image_urls);
         }
         if ($status == "good") {
             Property::firstOrCreate(["property_id" => $request->request->get("property_id")], $request->all());
@@ -85,36 +87,40 @@ class PropertyController extends Controller
             $status = "good";
             if ($request->request->has("image_urls") && $request->filled("image_urls")) {
                 $image_urls = explode(", ", Property::where("property_id", $request->request->get("property_id"))->value("image_urls"));
-                $media_manager = new MediaManager();
-                for ($i = 0; $i < count($image_urls); $i++) {
-                    $data = explode("+ ", $image_urls[$i]);
-                    if (count($data) > 1) {
-                        $data = $media_manager->deleteMedia("image", $data[1]);
-                        if ($data == false || !isset($data["result"]) || $data["result"] != "ok") {
-                            $status = "bad";
-                            break;
+                if (count($image_urls) > 0) {
+                    $media_manager = new MediaManager();
+                    for ($i = 0; $i < count($image_urls); $i++) {
+                        $data = explode("+ ", $image_urls[$i]);
+                        if (count($data) > 1) {
+                            $data = $media_manager->deleteMedia("image", $data[1]);
+                            if ($data == false || !isset($data["result"]) || $data["result"] != "ok") {
+                                $status = "bad";
+                                break;
+                            }
                         }
                     }
                 }
 
                 if ($status == "good") {
                     $image_urls = explode(", ", $request->request->get("image_urls"));
-                    $cloudinary_image_urls = "";
-                    $media_manager = new MediaManager();
-                    for ($i = 0; $i < count($image_urls); $i++) {
-                        $data = $media_manager->uploadMedia("image", $image_urls[$i]);
-                        if ($data != false && isset($data["url"]) && isset($data["public_id"])) {
-                            if ($i == count($image_urls) - 1) {
-                                $cloudinary_image_urls .= $data["url"] . "+ " . $data["public_id"];
+                    if (count($image_urls) > 0) {
+                        $cloudinary_image_urls = "";
+                        $media_manager = new MediaManager();
+                        for ($i = 0; $i < count($image_urls); $i++) {
+                            $data = $media_manager->uploadMedia("image", $image_urls[$i]);
+                            if ($data != false && isset($data["url"]) && isset($data["public_id"])) {
+                                if ($i == count($image_urls) - 1) {
+                                    $cloudinary_image_urls .= $data["url"] . "+ " . $data["public_id"];
+                                } else {
+                                    $cloudinary_image_urls .= $data["url"] . "+ " . $data["public_id"] . ", ";
+                                }
                             } else {
-                                $cloudinary_image_urls .= $data["url"] . "+ " . $data["public_id"] . ", ";
+                                $status = "bad";
+                                break;
                             }
-                        } else {
-                            $status = "bad";
-                            break;
                         }
+                        $request->request->set("image_urls", $cloudinary_image_urls);
                     }
-                    $request->request->set("image_urls", $cloudinary_image_urls);
                 }
             }
             if ($status == "good") {
@@ -139,33 +145,43 @@ class PropertyController extends Controller
 
     public function delete(Request $request)
     {
-        $status = "good";
         if (Property::find($request->request->get("property_id"))) {
+            $status = "good";
             $image_urls = explode(", ", Property::where("property_id", $request->request->get("property_id"))->value("image_urls"));
-            $media_manager = new MediaManager();
-            for ($i = 0; $i < count($image_urls); $i++) {
-                $data = explode("+ ", $image_urls[$i]);
-                if (count($data) > 1) {
-                    $data = $media_manager->deleteMedia("image", $data[1]);
-                    if ($data == false || !isset($data["result"]) || $data["result"] != "ok") {
-                        $status = "bad";
-                        break;
+            if (count($image_urls) > 0) {
+                $media_manager = new MediaManager();
+                for ($i = 0; $i < count($image_urls); $i++) {
+                    $data = explode("+ ", $image_urls[$i]);
+                    if (count($data) > 1) {
+                        $data = $media_manager->deleteMedia("image", $data[1]);
+                        if ($data == false || !isset($data["result"]) || $data["result"] != "ok") {
+                            $status = "bad";
+                            break;
+                        }
                     }
                 }
             }
-        }
-        if ($status == "good") {
-            Property::find($request->request->get("property_id"))->investment()->delete();
-            Property::destroy($request->request->get("property_id"));
-            return response()->json([
-                "status" => true,
-                "message" => "Property data deleted successfully.",
-            ], 200);
+
+            if ($status == "good") {
+                if (Property::find($request->request->get("property_id"))->investment()) {
+                    Property::find($request->request->get("property_id"))->investment()->delete();
+                }
+                Property::destroy($request->request->get("property_id"));
+                return response()->json([
+                    "status" => true,
+                    "message" => "Property data deleted successfully.",
+                ], 200);
+            } else {
+                return response()->json([
+                    "status" => false,
+                    "message" => "An error occurred while deleting property image, property data could not be deleted."
+                ], 500);
+            }
         } else {
             return response()->json([
                 "status" => false,
-                "message" => "An error occurred while deleting property image, property data could not be deleted."
-            ], 500);
+                "message" => "Property data not found."
+            ], 404);
         }
     }
 }

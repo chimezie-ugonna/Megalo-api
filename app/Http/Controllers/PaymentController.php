@@ -74,11 +74,20 @@ class PaymentController extends Controller
 
     public function delete(Request $request)
     {
-        Payment::find($request->request->get("payment_id"))->investment()->delete();
-        Payment::destroy($request->request->get("payment_id"));
-        return response()->json([
-            "status" => true,
-            "message" => "Payment data deleted successfully."
-        ], 200);
+        if (Payment::find($request->request->get("payment_id"))) {
+            if (Payment::find($request->request->get("payment_id"))->investment()) {
+                Payment::find($request->request->get("payment_id"))->investment()->delete();
+            }
+            Payment::destroy($request->request->get("payment_id"));
+            return response()->json([
+                "status" => true,
+                "message" => "Payment data deleted successfully."
+            ], 200);
+        } else {
+            return response()->json([
+                "status" => false,
+                "message" => "Payment data not found."
+            ], 404);
+        }
     }
 }

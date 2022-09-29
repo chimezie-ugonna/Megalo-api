@@ -63,10 +63,17 @@ class LoginController extends Controller
 
     public function delete(Request $request)
     {
-        Login::where("user_id", $request->request->get("user_id"))->where("access_type", $request->header("access-type"))->where("device_os", $request->header("device-os", ""))->where("device_token", $request->header("device-token", ""))->delete();
-        return response()->json([
-            "status" => true,
-            "message" => "User logged out successfully."
-        ], 200);
+        if (sizeof(Login::where("user_id", $request->request->get("user_id"))->where("access_type", $request->header("access-type"))->where("device_os", $request->header("device-os", ""))->where("device_token", $request->header("device-token", ""))->get()) > 0) {
+            Login::where("user_id", $request->request->get("user_id"))->where("access_type", $request->header("access-type"))->where("device_os", $request->header("device-os", ""))->where("device_token", $request->header("device-token", ""))->delete();
+            return response()->json([
+                "status" => true,
+                "message" => "User logged out successfully."
+            ], 200);
+        } else {
+            return response()->json([
+                "status" => false,
+                "message" => "Login data not found."
+            ], 404);
+        }
     }
 }
