@@ -55,7 +55,7 @@ class IncomingDataValidation
                 $request->validate([
                     "property_id" => ["bail", "required", "not_in:null"],
                     "amount_usd" => ["bail", "required", "numeric", "not_in:null"],
-                    "percentage" => ["bail", "required", "numeric", "not_in:null"]
+                    "percentage" => ["bail", "prohibited"]
                 ]);
             } else if ($request->path() == "api/v1/property/create") {
                 $request->validate([
