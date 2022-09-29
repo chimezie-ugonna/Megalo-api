@@ -135,24 +135,12 @@ class UserController extends Controller
     public function delete(Request $request)
     {
         if (User::find($request->request->get("user_id"))) {
-            if (User::find($request->request->get("user_id"))->login()) {
-                User::find($request->request->get("user_id"))->login()->delete();
-            }
-            if (User::find($request->request->get("user_id"))->investment()) {
-                User::find($request->request->get("user_id"))->investment()->delete();
-            }
-            if (User::find($request->request->get("user_id"))->notificationSender()) {
-                User::find($request->request->get("user_id"))->notificationSender()->delete();
-            }
-            if (User::find($request->request->get("user_id"))->notificationReceiver()) {
-                User::find($request->request->get("user_id"))->notificationReceiver()->delete();
-            }
-            if (User::find($request->request->get("user_id"))->payment()) {
-                User::find($request->request->get("user_id"))->payment()->delete();
-            }
-            if (User::find($request->request->get("user_id"))->paymentMethod()) {
-                User::find($request->request->get("user_id"))->paymentMethod()->delete();
-            }
+            User::find($request->request->get("user_id"))->login()->delete();
+            User::find($request->request->get("user_id"))->investment()->delete();
+            User::find($request->request->get("user_id"))->notificationSender()->delete();
+            User::find($request->request->get("user_id"))->notificationReceiver()->delete();
+            User::find($request->request->get("user_id"))->payment()->delete();
+            User::find($request->request->get("user_id"))->paymentMethod()->delete();
             User::destroy($request->request->get("user_id"));
             return response()->json([
                 "status" => true,

@@ -145,18 +145,7 @@ class PropertyController extends Controller
 
     public function delete(Request $request)
     {
-        if (Property::find($request->request->get("property_id"))->investment()) {
-            return response()->json([
-                "status" => false,
-                "message" => "Investment data present."
-            ], 404);
-        } else {
-            return response()->json([
-                "status" => false,
-                "message" => "Investment data not found."
-            ], 404);
-        }
-        /*if (Property::find($request->request->get("property_id"))) {
+        if (Property::find($request->request->get("property_id"))) {
             $status = "good";
             $image_urls = explode(", ", Property::where("property_id", $request->request->get("property_id"))->value("image_urls"));
             if (count($image_urls) > 0) {
@@ -174,14 +163,7 @@ class PropertyController extends Controller
             }
 
             if ($status == "good") {
-                if (Property::find($request->request->get("property_id"))->investment()) {
-                    Property::find($request->request->get("property_id"))->investment()->delete();
-                } else {
-                    return response()->json([
-                        "status" => false,
-                        "message" => "Investment data not found."
-                    ], 404);
-                }
+                Property::find($request->request->get("property_id"))->investment()->delete();
                 Property::destroy($request->request->get("property_id"));
                 return response()->json([
                     "status" => true,
@@ -198,6 +180,6 @@ class PropertyController extends Controller
                 "status" => false,
                 "message" => "Property data not found."
             ], 404);
-        }*/
+        }
     }
 }
