@@ -145,8 +145,7 @@ class PropertyController extends Controller
 
     public function delete(Request $request)
     {
-        if (Property::find($request->request->get("property_id"))) {
-            $status = "good";
+        $status = "good";
             $image_urls = explode(", ", Property::where("property_id", $request->request->get("property_id"))->value("image_urls"));
             if (count($image_urls) > 0) {
                 $media_manager = new MediaManager();
@@ -165,6 +164,11 @@ class PropertyController extends Controller
             if ($status == "good") {
                 if (Property::find($request->request->get("property_id"))->investment()) {
                     Property::find($request->request->get("property_id"))->investment()->delete();
+                } else {
+                    return response()->json([
+                        "status" => false,
+                        "message" => "Investment data not found."
+                    ], 404);
                 }
                 Property::destroy($request->request->get("property_id"));
                 return response()->json([
@@ -177,11 +181,5 @@ class PropertyController extends Controller
                     "message" => "An error occurred while deleting property image, property data could not be deleted."
                 ], 500);
             }
-        } else {
-            return response()->json([
-                "status" => false,
-                "message" => "Property data not found."
-            ], 404);
-        }
     }
 }
