@@ -162,7 +162,7 @@ class PropertyController extends Controller
             }
 
             if ($status == "good") {
-                if (sizeof(Property::find($request->request->get("property_id"))->investment()->get()) > 0) {
+                if (Property::find($request->request->get("property_id"))->investment()) {
                     Property::find($request->request->get("property_id"))->investment()->delete();
                 } else {
                     return response()->json([
