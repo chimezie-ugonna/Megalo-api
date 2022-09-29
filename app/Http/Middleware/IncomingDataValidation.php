@@ -32,7 +32,8 @@ class IncomingDataValidation
                     "phone_number" => ["bail", "required", "not_in:null"],
                     "full_name" => ["bail", "required", "not_in:null"],
                     "dob" => ["bail", "required", "date_format:d/m/Y", "not_in:null"],
-                    "email" => ["bail", "required", "email", "not_in:null"]
+                    "email" => ["bail", "required", "email", "not_in:null"],
+                    "balance_usd" => ["bail", "prohibited"]
                 ]);
                 if ($request->request->has("full_name") && $request->filled("full_name")) {
                     $full_name_split = explode(" ", $request->request->get("full_name"), 2);
@@ -54,7 +55,8 @@ class IncomingDataValidation
             } else if ($request->path() == "api/v1/investment/create") {
                 $request->validate([
                     "property_id" => ["bail", "required", "not_in:null"],
-                    "amount_usd" => ["bail", "required", "numeric", "not_in:null"],
+                    "user_id" => ["bail", "prohibited"],
+                    "amount_paid_usd" => ["bail", "required", "numeric", "not_in:null"],
                     "percentage" => ["bail", "prohibited"]
                 ]);
             } else if ($request->path() == "api/v1/property/create") {
@@ -173,6 +175,10 @@ class IncomingDataValidation
                     }
                 }
             } else if ($request->path() == "api/v1/user/update") {
+                $request->validate([
+                    "user_id" => ["bail", "prohibited"],
+                    "balance_usd" => ["bail", "prohibited"]
+                ]);
                 if (sizeof($request->all()) == 0) {
                     return response()->json([
                         "status" => false,
@@ -235,15 +241,18 @@ class IncomingDataValidation
                         }
                     }
                 }
+            } else if ($request->path() == "api/v1/investment/liquidate") {
+                $request->validate([
+                    "property_id" => ["bail", "required", "not_in:null"],
+                    "user_id" => ["bail", "prohibited"],
+                    "amount_usd" => ["bail", "required", "numeric", "not_in:null"],
+                    "percentage" => ["bail", "prohibited"]
+                ]);
             }
         } else if ($request->isMethod("get")) {
             if ($request->path() == "api/v1/investment/read_user_and_property_specific" || $request->path() == "api/v1/investment/read_property_specific") {
                 $request->validate([
                     "property_id" => ["bail", "required", "not_in:null"]
-                ]);
-            } else if ($request->path() == "api/v1/investment/read_payment_specific") {
-                $request->validate([
-                    "payment_id" => ["bail", "required", "not_in:null"]
                 ]);
             } else if ($request->path() == "api/v1/property/read") {
                 $request->validate([

@@ -12,7 +12,7 @@ class Investment extends Model
     protected $fillable = [
         "property_id",
         "user_id",
-        "amount_usd",
+        "amount_paid_usd",
         "percentage"
     ];
 
