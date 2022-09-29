@@ -18,7 +18,7 @@ return new class extends Migration
             $table->text("address");
             $table->text("image_urls");
             $table->decimal("value_usd", 11, 2);
-            $table->decimal("percentage_available", 3, 2);
+            $table->decimal("percentage_available", 5, 2);
             $table->decimal("dividend_usd", 11, 2);
             $table->integer("size_sf");
             $table->timestampTz("created_at");
