@@ -146,7 +146,10 @@ class PropertyController extends Controller
     public function delete(Request $request)
     {
         if (Property::find($request->request->get("property_id"))->investment()) {
-            Property::find($request->request->get("property_id"))->investment()->delete();
+            return response()->json([
+                "status" => false,
+                "message" => "Investment data present."
+            ], 404);
         } else {
             return response()->json([
                 "status" => false,
