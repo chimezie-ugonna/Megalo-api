@@ -58,7 +58,6 @@ Route::middleware([CheckHeader::class, IncomingDataValidation::class, TokenValid
         Route::get("/investment/read_all", "readAll");
         Route::get("/investment/read_user_specific", "readUserSpecific");
         Route::get("/investment/read_user_and_property_specific", "readUserAndPropertySpecific");
-        Route::get("/investment/read_payment_specific", "readPaymentSpecific");
         Route::get("/investment/read_property_specific", "readPropertySpecific");
         Route::delete("/investment/delete", "delete");
     });

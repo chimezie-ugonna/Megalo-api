@@ -12,7 +12,7 @@ class Investment extends Model
     protected $fillable = [
         "property_id",
         "user_id",
-        "payment_id",
+        "amount_usd",
         "percentage"
     ];
 
@@ -24,10 +24,5 @@ class Investment extends Model
     public function property()
     {
         return $this->belongsTo(Property::class, "property_id");
-    }
-
-    public function payment()
-    {
-        return $this->belongsTo(Payment::class, "payment_id");
     }
 }

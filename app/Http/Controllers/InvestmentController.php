@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Investment;
-use App\Models\Payment;
 use App\Models\Property;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class InvestmentController extends Controller
@@ -12,12 +12,18 @@ class InvestmentController extends Controller
     public function create(Request $request)
     {
         if (Property::find($request->request->get("property_id"))) {
-            if (Payment::find($request->request->get("payment_id"))) {
+            $payment_amount = number_format($request->request->get("amount_usd"));
+            $user_balance = User::find($request->request->get("user_id"))->value("balance_usd");
+            if ($user_balance >= $payment_amount) {
                 $property_value = Property::find($request->request->get("property_id"))->value("value_usd");
-                $payment_amount = Payment::find($request->request->get("payment_id"))->value("amount_usd");
                 $investment_percentage = ($payment_amount / $property_value) * 100;
+                $current_property_percentage_available = Property::find($request->request->get("property_id"))->value("percentage_available");
+                $new_property_percentage_available = $current_property_percentage_available - $investment_percentage;
+                Property::find($request->request->get("property_id"))->update(["percentage_available" => $new_property_percentage_available]);
                 $request->request->add(["percentage" => $investment_percentage]);
-                Investment::firstOrCreate(["payment_id" => $request->request->get("payment_id")], $request->all());
+                Investment::Create($request->all());
+                $new_user_balance = $user_balance - $payment_amount;
+                User::find($request->request->get("user_id"))->update(["balance_usd" => $new_user_balance]);
                 return response()->json([
                     "status" => true,
                     "message" => "Investment created successfully."
@@ -25,8 +31,8 @@ class InvestmentController extends Controller
             } else {
                 return response()->json([
                     "status" => false,
-                    "message" => "Payment not found."
-                ], 404);
+                    "message" => "User does not have sufficient fund in balance for this investment."
+                ], 402);
             }
         } else {
             return response()->json([
@@ -75,22 +81,6 @@ class InvestmentController extends Controller
                 "status" => true,
                 "message" => "Investment data retrieved successfully.",
                 "data" => Investment::where("user_id", $request->request->get("user_id"))->get()
-            ], 200);
-        } else {
-            return response()->json([
-                "status" => false,
-                "message" => "Investment data not found."
-            ], 404);
-        }
-    }
-
-    public function readPaymentSpecific(Request $request)
-    {
-        if (sizeof(Investment::where("payment_id", $request->get("payment_id"))->get()) > 0) {
-            return response()->json([
-                "status" => true,
-                "message" => "Investment data retrieved successfully.",
-                "data" => Investment::where("payment_id", $request->get("payment_id"))->get()
             ], 200);
         } else {
             return response()->json([

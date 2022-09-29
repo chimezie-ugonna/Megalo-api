@@ -27,9 +27,4 @@ class Payment extends Model
     {
         return $this->belongsTo(User::class, "user_id");
     }
-
-    public function investment()
-    {
-        return $this->hasMany(Investment::class, "payment_id");
-    }
 }
