@@ -12,7 +12,7 @@ class InvestmentController extends Controller
     public function create(Request $request)
     {
         if (Property::find($request->request->get("property_id"))) {
-            $payment_amount = number_format($request->request->get("amount_paid_usd"));
+            $payment_amount = $request->request->get("amount_paid_usd");
             $user_balance = User::find($request->request->get("user_id"))->value("balance_usd");
             if ($user_balance >= $payment_amount) {
                 $property_value = Property::find($request->request->get("property_id"))->value("value_usd");
@@ -123,7 +123,7 @@ class InvestmentController extends Controller
     public function liquidate(Request $request)
     {
         if (sizeof(Investment::where("property_id", $request->request->get("property_id"))->where("user_id", $request->request->get("user_id"))->get()) > 0) {
-            $liquidation_amount = number_format($request->request->get("amount_usd"));
+            $liquidation_amount = $request->request->get("amount_usd");
             $current_investment_percentage = Investment::where("user_id", $request->request->get("user_id"))->where("property_id", $request->request->get("property_id"))->value("percentage");
             $current_amount_paid = Investment::where("user_id", $request->request->get("user_id"))->where("property_id", $request->request->get("property_id"))->value("amount_paid_usd");
             $property_value = Property::find($request->request->get("property_id"))->value("value_usd");
