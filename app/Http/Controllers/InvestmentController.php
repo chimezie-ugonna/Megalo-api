@@ -18,22 +18,30 @@ class InvestmentController extends Controller
                 $property_value = Property::find($request->request->get("property_id"))->value("value_usd");
                 $investment_percentage = ($payment_amount / $property_value) * 100;
                 $current_property_percentage_available = Property::find($request->request->get("property_id"))->value("percentage_available");
-                $new_property_percentage_available = $current_property_percentage_available - $investment_percentage;
-                Property::find($request->request->get("property_id"))->update(["percentage_available" => $new_property_percentage_available]);
-                if (sizeof(Investment::where("user_id", $request->request->get("user_id"))->where("property_id", $request->request->get("property_id"))->get()) > 0) {
-                    $current_amount_paid = Investment::where("user_id", $request->request->get("user_id"))->where("property_id", $request->request->get("property_id"))->value("amount_paid_usd");
-                    $request->request->set("amount_paid_usd", $payment_amount + $current_amount_paid);
-                    $current_investment_percentage = Investment::where("user_id", $request->request->get("user_id"))->where("property_id", $request->request->get("property_id"))->value("percentage");
-                    $investment_percentage = $current_investment_percentage + $investment_percentage;
+                $current_property_value_available = $property_value * ($current_property_percentage_available / 100);
+                if ($current_property_value_available >= $payment_amount) {
+                    $new_property_percentage_available = $current_property_percentage_available - $investment_percentage;
+                    Property::find($request->request->get("property_id"))->update(["percentage_available" => $new_property_percentage_available]);
+                    if (sizeof(Investment::where("user_id", $request->request->get("user_id"))->where("property_id", $request->request->get("property_id"))->get()) > 0) {
+                        $current_amount_paid = Investment::where("user_id", $request->request->get("user_id"))->where("property_id", $request->request->get("property_id"))->value("amount_paid_usd");
+                        $request->request->set("amount_paid_usd", $payment_amount + $current_amount_paid);
+                        $current_investment_percentage = Investment::where("user_id", $request->request->get("user_id"))->where("property_id", $request->request->get("property_id"))->value("percentage");
+                        $investment_percentage = $current_investment_percentage + $investment_percentage;
+                    }
+                    $request->request->add(["percentage" => $investment_percentage]);
+                    Investment::updateOrCreate(["user_id" => $request->request->get("user_id"), "property_id" => $request->request->get("property_id")], $request->all());
+                    $new_user_balance = $user_balance - $payment_amount;
+                    User::find($request->request->get("user_id"))->update(["balance_usd" => $new_user_balance]);
+                    return response()->json([
+                        "status" => true,
+                        "message" => "Investment created successfully."
+                    ], 201);
+                } else {
+                    return response()->json([
+                        "status" => false,
+                        "message" => "Investment amount exceeds the available amount on property."
+                    ], 402);
                 }
-                $request->request->add(["percentage" => $investment_percentage]);
-                Investment::updateOrCreate(["user_id" => $request->request->get("user_id"), "property_id" => $request->request->get("property_id")], $request->all());
-                $new_user_balance = $user_balance - $payment_amount;
-                User::find($request->request->get("user_id"))->update(["balance_usd" => $new_user_balance]);
-                return response()->json([
-                    "status" => true,
-                    "message" => "Investment created successfully."
-                ], 201);
             } else {
                 return response()->json([
                     "status" => false,
