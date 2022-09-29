@@ -54,7 +54,8 @@ class IncomingDataValidation
             } else if ($request->path() == "api/v1/investment/create") {
                 $request->validate([
                     "property_id" => ["bail", "required", "not_in:null"],
-                    "amount_usd" => ["bail", "required", "numeric", "not_in:null"]
+                    "payment_id" => ["bail", "required", "not_in:null"],
+                    "percentage" => ["bail", "required", "numeric", "not_in:null"]
                 ]);
             } else if ($request->path() == "api/v1/property/create") {
                 $request->validate([
@@ -66,14 +67,37 @@ class IncomingDataValidation
                     "size_sf" => ["bail", "required", "numeric", "not_in:null"],
                     "dividend_usd" => ["bail", "required", "numeric", "not_in:null"]
                 ]);
+            } else if ($request->path() == "api/v1/payment/create") {
+                $request->validate([
+                    "payment_id" => ["bail", "prohibited"],
+                    "type" => ["bail", "required", "in:deposit,withdrawal"],
+                    "reference" => ["bail", "required", "not_in:null"],
+                    "amount_usd" => ["bail", "required", "numeric", "not_in:null"]
+                ]);
+            } else if ($request->path() == "api/v1/notification/create") {
+                $request->validate([
+                    "notification_id" => ["bail", "prohibited"],
+                    "seen" => ["bail", "prohibited"],
+                    "receiver_user_id" => ["bail", "required", "not_in:null"],
+                    "title" => ["bail", "required", "not_in:null"],
+                    "body" => ["bail", "required", "not_in:null"]
+                ]);
+
+                if ($request->request->has("sender_user_id") && !$request->filled("sender_user_id")) {
+                    $request->request->remove("sender_user_id");
+                }
+            } else if ($request->path() == "api/v1/notification/create_all") {
+                $request->validate([
+                    "notification_id" => ["bail", "prohibited"],
+                    "seen" => ["bail", "prohibited"],
+                    "sender_user_id" => ["bail", "prohibited"],
+                    "receiver_user_id" => ["bail", "prohibited"],
+                    "title" => ["bail", "required", "not_in:null"],
+                    "body" => ["bail", "required", "not_in:null"]
+                ]);
             }
         } else if ($request->isMethod("put") || $request->isMethod("patch")) {
-            if ($request->path() == "api/v1/investment/update") {
-                $request->validate([
-                    "property_id" => ["bail", "required", "not_in:null"],
-                    "amount_usd" => ["bail", "required", "not_in:null"]
-                ]);
-            } else if ($request->path() == "api/v1/property/update") {
+            if ($request->path() == "api/v1/property/update") {
                 $request->validate([
                     "property_id" => ["bail", "required", "not_in:null"]
                 ]);
@@ -213,13 +237,25 @@ class IncomingDataValidation
                 }
             }
         } else if ($request->isMethod("get")) {
-            if ($request->path() == "api/v1/investment/read_specific") {
+            if ($request->path() == "api/v1/investment/read_user_and_property_specific" || $request->path() == "api/v1/investment/read_property_specific") {
                 $request->validate([
                     "property_id" => ["bail", "required", "not_in:null"]
+                ]);
+            } else if ($request->path() == "api/v1/investment/read_payment_specific") {
+                $request->validate([
+                    "payment_id" => ["bail", "required", "not_in:null"]
                 ]);
             } else if ($request->path() == "api/v1/property/read") {
                 $request->validate([
                     "property_id" => ["bail", "required", "not_in:null"]
+                ]);
+            } else if ($request->path() == "api/v1/payment/read" || $request->path() == "api/v1/payment/read_user_and_payment_specific") {
+                $request->validate([
+                    "payment_id" => ["bail", "required", "not_in:null"]
+                ]);
+            } else if ($request->path() == "api/v1/notification/read") {
+                $request->validate([
+                    "notification_id" => ["bail", "required", "not_in:null"]
                 ]);
             }
         } else if ($request->isMethod("delete")) {
@@ -230,6 +266,14 @@ class IncomingDataValidation
             } else if ($request->path() == "api/v1/property/delete") {
                 $request->validate([
                     "property_id" => ["bail", "required", "not_in:null"]
+                ]);
+            } else if ($request->path() == "api/v1/payment/delete") {
+                $request->validate([
+                    "payment_id" => ["bail", "required", "not_in:null"]
+                ]);
+            } else if ($request->path() == "api/v1/notification/delete") {
+                $request->validate([
+                    "notification_id" => ["bail", "required", "not_in:null"]
                 ]);
             }
         }

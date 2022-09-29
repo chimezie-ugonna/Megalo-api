@@ -5,31 +5,22 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Payment extends Model
+class PaymentMethod extends Model
 {
     use HasFactory;
 
-    protected $primaryKey = "payment_id";
+    protected $primaryKey = "payment_method_id";
     public $incrementing = false;
     protected $keyType = "string";
     protected $fillable = [
-        "payment_id",
+        "payment_method_id",
         "user_id",
-        "type",
-        "reference",
-        "amount_usd"
+        "type"
     ];
-    protected $casts = [
-        "reference" => "encrypted"
-    ];
+    protected $casts = [];
 
     public function user()
     {
         return $this->belongsTo(User::class, "user_id");
-    }
-
-    public function investment()
-    {
-        return $this->hasMany(Investment::class, "payment_id");
     }
 }

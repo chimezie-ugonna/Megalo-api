@@ -4,14 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Custom\Authentication;
 use Illuminate\Http\Request;
-use App\Custom\OtpHandler;
+use App\Custom\OtpManager;
 use App\Models\User;
 
 class UserController extends Controller
 {
     public function sendOtp(Request $request)
     {
-        /*$send = new OtpHandler();
+        /*$send = new OtpManager();
         $status = $send->sendOtp($request->request->get("phone_number"));
         if ($status != false && isset($status)) {
             return response()->json([
@@ -32,7 +32,7 @@ class UserController extends Controller
 
     public function verifyOtp(Request $request)
     {
-        /*$send = new OtpHandler();
+        /*$send = new OtpManager();
         $auth = new Authentication();
         $status = $send->verifyOtp($request->request->get("phone_number"), $request->request->get("otp"));
         if ($status != false && isset($status)) {
@@ -136,7 +136,10 @@ class UserController extends Controller
     {
         User::find($request->request->get("user_id"))->login()->delete();
         User::find($request->request->get("user_id"))->investment()->delete();
-        User::find($request->request->get("user_id"))->notification()->delete();
+        User::find($request->request->get("user_id"))->notificationSender()->delete();
+        User::find($request->request->get("user_id"))->notificationReceiver()->delete();
+        User::find($request->request->get("user_id"))->payment()->delete();
+        User::find($request->request->get("user_id"))->paymentMethod()->delete();
         User::destroy($request->request->get("user_id"));
         return response()->json([
             "status" => true,

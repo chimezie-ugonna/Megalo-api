@@ -49,7 +49,14 @@ class TokenValidation
                         ]);
                     } else {
                         if (User::find($user_id)) {
-                            if ($request->path() == "api/v1/user/read_all" || $request->path() == "api/v1/login/read" || $request->path() == "api/v1/login/read_all" || $request->path() == "api/v1/property/create" || $request->path() == "api/v1/property/read_all" || $request->path() == "api/v1/property/update" || $request->path() == "api/v1/property/delete" || $request->path() == "api/v1/investment/read_all" || $request->path() == "api/v1/payment/read_all" || $request->path() == "api/v1/notification/read_all") {
+                            if (sizeof(Login::where("user_id", $user_id)->where("access_type", $request->header("access-type"))->where("device_os", $request->header("device-os", ""))->where("device_token", $request->header("device-token", ""))->get()) == 0) {
+                                return response()->json([
+                                    "status" => false,
+                                    "message" => "User not logged in. User needs to be logged in to access this endpoint."
+                                ], 401);
+                            }
+
+                            if ($request->path() == "api/v1/user/read_all" || $request->path() == "api/v1/login/read" || $request->path() == "api/v1/login/read_all" || $request->path() == "api/v1/property/create" || $request->path() == "api/v1/property/read_all" || $request->path() == "api/v1/property/update" || $request->path() == "api/v1/property/delete" || $request->path() == "api/v1/investment/read_all" || $request->path() == "api/v1/payment/read_all" || $request->path() == "api/v1/notification/create" || $request->path() == "api/v1/notification/create_all" || $request->path() == "api/v1/notification/read_all" || $request->path() == "api/v1/payment_method/read_all") {
                                 if (User::find($user_id)->value("type") != "admin") {
                                     return response()->json([
                                         "status" => false,
@@ -57,7 +64,7 @@ class TokenValidation
                                     ], 401);
                                 }
                             }
-                            
+
                             switch ($request->path()) {
                                 case "api/v1/property/create":
                                     $request->request->add(["property_id" => uniqid(rand(), true)]);
@@ -67,6 +74,9 @@ class TokenValidation
                                     break;
                                 case "api/v1/notification/create":
                                     $request->request->add(["notification_id" => uniqid(rand(), true)]);
+                                    break;
+                                case "api/v1/payment_method/create":
+                                    $request->request->add(["payment_method_id" => uniqid(rand(), true)]);
                                     break;
                             }
 

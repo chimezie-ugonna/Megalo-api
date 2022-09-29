@@ -4,7 +4,7 @@ namespace App\Custom;
 
 use Twilio\Rest\Client;
 
-class OtpHandler
+class OtpManager
 {
 
   private $client;

@@ -15,8 +15,10 @@ return new class extends Migration
     {
         Schema::create('notifications', function (Blueprint $table) {
             $table->text("notification_id")->primary();
-            $table->text("user_id");
-            $table->text("message");
+            $table->text("sender_user_id")->default("");
+            $table->text("receiver_user_id");
+            $table->text("title");
+            $table->text("body");
             $table->text("seen")->default("no");
             $table->timestampTz("created_at");
             $table->timestampTz("updated_at");

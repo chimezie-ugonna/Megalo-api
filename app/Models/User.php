@@ -37,8 +37,23 @@ class User extends Model
         return $this->hasMany(Investment::class, "user_id");
     }
 
-    public function notification()
+    public function payment()
     {
-        return $this->hasMany(Notification::class, "user_id");
+        return $this->hasMany(Payment::class, "user_id");
+    }
+
+    public function notificationSender()
+    {
+        return $this->hasMany(Notification::class, "sender_user_id");
+    }
+
+    public function notificationReceiver()
+    {
+        return $this->hasMany(Notification::class, "receiver_user_id");
+    }
+
+    public function paymentMethod()
+    {
+        return $this->hasMany(PaymentMethod::class, "user_id");
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Custom\MediaManager;
+use App\Custom\NotificationManager;
 use App\Models\Property;
 use Illuminate\Http\Request;
 
@@ -32,6 +33,8 @@ class PropertyController extends Controller
         }
         if ($status == "good") {
             Property::firstOrCreate(["property_id" => $request->request->get("property_id")], $request->all());
+            $notification_manager = new NotificationManager();
+            $notification_manager->sendNotification(array("title" => "New Property available!!!", "body" => "We just listed a new property, be the first to invest in it and reap the benefits."), array(), "normal", "general");
             return response()->json([
                 "status" => true,
                 "message" => "Property added successfully."
@@ -96,7 +99,7 @@ class PropertyController extends Controller
     {
         $status = "good";
         if (Property::find($request->request->get("property_id"))) {
-            $image_urls = explode(", ", Property::where("property_id", $request->request->get("property_id"))->get("image_urls"));
+            $image_urls = explode(", ", Property::where("property_id", $request->request->get("property_id"))->value("image_urls"));
             $media_manager = new MediaManager();
             for ($i = 0; $i < count($image_urls); $i++) {
                 $data = explode("+ ", $image_urls[$i]);
