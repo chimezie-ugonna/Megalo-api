@@ -131,6 +131,7 @@ class InvestmentController extends Controller
             if ($current_investment_value >= $liquidation_amount) {
                 $new_amount_paid = $current_amount_paid - $liquidation_amount;
                 $request->request->add(["amount_paid_usd" => $new_amount_paid]);
+                $request->request->remove("amount_usd");
                 $liquidated_investment_percentage = ($liquidation_amount / $property_value) * 100;
                 $new_investment_percentage = $current_investment_percentage - $liquidated_investment_percentage;
                 $request->request->add(["percentage" => $new_investment_percentage]);
