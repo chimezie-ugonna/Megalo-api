@@ -42,7 +42,7 @@ class PropertyController extends Controller
                 "tappable" => true,
                 "redirection_page" => "property",
                 "redirection_page_id" => $property->property_id
-            ), array(), "normal", "general");
+            ), array(), "general");
             return response()->json([
                 "status" => true,
                 "message" => "Property added successfully."

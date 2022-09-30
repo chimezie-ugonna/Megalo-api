@@ -20,7 +20,7 @@ class NotificationController extends Controller
         if ($status == "good") {
             if (User::find($request->request->get("receiver_user_id"))) {
                 $notification_manager = new NotificationManager();
-                $notification_manager->sendNotification($request->all(), array(), "normal", "user_specific");
+                $notification_manager->sendNotification($request->all(), array(), "user_specific");
                 return response()->json([
                     "status" => true,
                     "message" => "Notification sent successfully."
@@ -42,7 +42,7 @@ class NotificationController extends Controller
     public function createAll(Request $request)
     {
         $notification_manager = new NotificationManager();
-        $notification_manager->sendNotification($request->all(), array(), "normal", "general");
+        $notification_manager->sendNotification($request->all(), array(), "general");
         return response()->json([
             "status" => true,
             "message" => "Notification sent successfully."

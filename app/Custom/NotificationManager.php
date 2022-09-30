@@ -22,11 +22,10 @@ class NotificationManager
     $this->client->injectGuzzleHttpClient(new GuzzleHttpClient());
   }
 
-  function sendNotification($array, $data, $priority, $type)
+  function sendNotification($array, $data, $type)
   {
     $message = new Message();
     $message->setNotification(new Notification($array["title"], $array["body"]));
-    $message->setPriority($priority);
     $message->setData($data);
 
     $device_tokens = array();
