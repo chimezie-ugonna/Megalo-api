@@ -24,29 +24,91 @@ class NotificationManager
 
   function sendNotification($array, $data, $type)
   {
-    $message = new Message();
-    $message->setNotification(new Notification($array["title"], $array["body"]));
-    $message->setData($data);
-    $message->setPriority("high");
-
-    $device_tokens = array();
-    if ($type == "general") {
-      $device_tokens = Login::all()->pluck("device_token");
-    } else {
-      $device_tokens = Login::where("user_id", $array["receiver_user_id"])->get()->pluck("device_token");
-    }
-
     $response = true;
-    $count = 0;
-    foreach ($device_tokens as $device_token) {
-      if ($device_token != "") {
-        $message->addRecipient(new Device($device_token));
-        $count++;
-      }
-    }
+    if ($type == "general") {
+      $message = new Message();
+      $message->setNotification(new Notification($array["title"], $array["body"]));
+      $message->setData($data);
+      $message->setPriority("10");
+      $ios_device_tokens = Login::where("device_os", "ios")->get()->pluck("device_token");
+      $count = 0;
 
-    if ($count != 0) {
-      $response = $this->client->send($message);
+      if (count($ios_device_tokens) > 0) {
+        foreach ($ios_device_tokens as $device_token) {
+          if ($device_token != "") {
+            $message->addRecipient(new Device($device_token));
+            $count++;
+          }
+        }
+      }
+
+      if ($count != 0) {
+        $response = $this->client->send($message);
+      }
+
+      if (isset($response)) {
+        $message = new Message();
+        $message->setNotification(new Notification($array["title"], $array["body"]));
+        $message->setData($data);
+        $message->setPriority("high");
+        $android_device_tokens = Login::where("device_os", "android")->get()->pluck("device_token");
+        $count = 0;
+
+        if (count($android_device_tokens) > 0) {
+          foreach ($android_device_tokens as $device_token) {
+            if ($device_token != "") {
+              $message->addRecipient(new Device($device_token));
+              $count++;
+            }
+          }
+        }
+
+        if ($count != 0) {
+          $response = $this->client->send($message);
+        }
+      }
+    } else {
+      $message = new Message();
+      $message->setNotification(new Notification($array["title"], $array["body"]));
+      $message->setData($data);
+      $message->setPriority("10");
+      $ios_device_tokens = Login::where("user_id", $array["receiver_user_id"])->where("device_os", "ios")->get()->pluck("device_token");
+      $count = 0;
+
+      if (count($ios_device_tokens) > 0) {
+        foreach ($ios_device_tokens as $device_token) {
+          if ($device_token != "") {
+            $message->addRecipient(new Device($device_token));
+            $count++;
+          }
+        }
+      }
+
+      if ($count != 0) {
+        $response = $this->client->send($message);
+      }
+
+      if (isset($response)) {
+        $message = new Message();
+        $message->setNotification(new Notification($array["title"], $array["body"]));
+        $message->setData($data);
+        $message->setPriority("high");
+        $android_device_tokens = Login::where("user_id", $array["receiver_user_id"])->where("device_os", "android")->get()->pluck("device_token");
+        $count = 0;
+
+        if (count($android_device_tokens) > 0) {
+          foreach ($android_device_tokens as $device_token) {
+            if ($device_token != "") {
+              $message->addRecipient(new Device($device_token));
+              $count++;
+            }
+          }
+        }
+
+        if ($count != 0) {
+          $response = $this->client->send($message);
+        }
+      }
     }
 
     /*$responseData = $response->json();
