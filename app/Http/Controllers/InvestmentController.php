@@ -146,7 +146,7 @@ class InvestmentController extends Controller
                 $new_user_balance = $user_balance + $liquidation_amount;
                 User::find($request->request->get("user_id"))->update(["balance_usd" => $new_user_balance]);
 
-                if ($new_investment_percentage <= 0) {
+                if ($new_investment_percentage <= 0.00) {
                     Investment::where("property_id", $request->get("property_id"))->where("user_id", $request->request->get("user_id"))->delete();
                 }
 
