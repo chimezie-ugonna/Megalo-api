@@ -303,7 +303,7 @@ class IncomingDataValidation
                     "body" => ["bail", "prohibited"]
                 ]);
 
-                if (sizeof($request->all()) == 0) {
+                if (sizeof($request->all()) <= 1) {
                     return response()->json([
                         "status" => false,
                         "message" => "There is nothing to update."
