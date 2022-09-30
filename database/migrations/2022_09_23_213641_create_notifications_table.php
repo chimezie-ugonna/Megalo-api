@@ -15,12 +15,12 @@ return new class extends Migration
     {
         Schema::create('notifications', function (Blueprint $table) {
             $table->text("notification_id")->primary();
-            $table->text("sender_user_id");
-            $table->text("receiver_user_id");
+            $table->text("sender_user_id")->default("");
+            $table->text("receiver_user_id")->default("");
             $table->text("title");
             $table->text("body");
-            $table->text("redirection_page");
-            $table->text("redirection_page_id");
+            $table->text("redirection_page")->default("");
+            $table->text("redirection_page_id")->default("");
             $table->boolean("seen")->default(false);
             $table->boolean("tappable")->default(false);
             $table->boolean("tapped")->default(false);

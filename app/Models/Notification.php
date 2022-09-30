@@ -26,9 +26,7 @@ class Notification extends Model
     ];
     protected $casts = [
         "title" => "encrypted",
-        "body" => "encrypted",
-        "redirection_page" => "encrypted",
-        "redirection_page_id" => "encrypted"
+        "body" => "encrypted"
     ];
 
     public function userSender()
