@@ -86,7 +86,7 @@ class IncomingDataValidation
                 if ($request->request->has("sender_user_id") && !$request->filled("sender_user_id")) {
                     $request->request->remove("sender_user_id");
                 }
-                if ($request->request->has("tappable") && $request->filled("tappable") && $request->request->get("tappable") == true) {
+                if ($request->request->has("tappable") && $request->filled("tappable") && $request->request->get("tappable") == "true") {
                     if (!$request->request->has("redirection_page") || !$request->filled("redirection_page")) {
                         return response()->json([
                             "status" => false,
@@ -123,7 +123,7 @@ class IncomingDataValidation
                     "body" => ["bail", "required", "not_in:null"]
                 ]);
 
-                if ($request->request->has("tappable") && $request->filled("tappable") && $request->request->get("tappable") == true) {
+                if ($request->request->has("tappable") && $request->filled("tappable") && $request->request->get("tappable") == "true") {
                     if (!$request->request->has("redirection_page") || !$request->filled("redirection_page")) {
                         return response()->json([
                             "status" => false,
