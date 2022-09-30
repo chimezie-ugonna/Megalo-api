@@ -24,6 +24,9 @@ class InvestmentController extends Controller
                     Property::find($request->request->get("property_id"))->update(["percentage_available" => $new_property_percentage_available]);
                     if (sizeof(Investment::where("user_id", $request->request->get("user_id"))->where("property_id", $request->request->get("property_id"))->get()) > 0) {
                         $current_amount_paid = Investment::where("user_id", $request->request->get("user_id"))->where("property_id", $request->request->get("property_id"))->value("amount_paid_usd");
+                        if ($current_amount_paid < 0.00) {
+                            $current_amount_paid = 0.00;
+                        }
                         $request->request->set("amount_paid_usd", $payment_amount + $current_amount_paid);
                         $current_investment_percentage = Investment::where("user_id", $request->request->get("user_id"))->where("property_id", $request->request->get("property_id"))->value("percentage");
                         $investment_percentage = $current_investment_percentage + $investment_percentage;
