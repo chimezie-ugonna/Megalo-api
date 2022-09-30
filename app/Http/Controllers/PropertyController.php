@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Custom\MediaManager;
 use App\Custom\NotificationManager;
+use App\Models\Investment;
 use App\Models\Property;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class PropertyController extends Controller
@@ -130,7 +132,29 @@ class PropertyController extends Controller
                 }
             }
             if ($status == "good") {
+                $current_property_value = Property::find($request->request->get("property_id"))->value("value_usd");
                 Property::find($request->request->get("property_id"))->update($request->all());
+                if ($request->request->has("value_usd") && $request->filled("value_usd")) {
+                    $new_property_value = $request->request->get("value_usd");
+                    if ($new_property_value > $current_property_value) {
+                        $investor_user_ids = Investment::where("property_id", $request->request->get("property_id"))->get()->pluck("user_id");
+                        if (count($investor_user_ids) > 0) {
+                            foreach ($investor_user_ids as $user_id) {
+                                if (User::find($user_id)) {
+                                    $notification_manager = new NotificationManager();
+                                    $notification_manager->sendNotification(array(
+                                        "receiver_user_id" => $user_id,
+                                        "title" => "Property value increase!!!",
+                                        "body" => "A property that you invested in has increased in value.",
+                                        "tappable" => true,
+                                        "redirection_page" => "property",
+                                        "redirection_page_id" => $request->request->get("property_id")
+                                    ), array(), "user_specific");
+                                }
+                            }
+                        }
+                    }
+                }
                 return response()->json([
                     "status" => true,
                     "message" => "Property data updated successfully.",

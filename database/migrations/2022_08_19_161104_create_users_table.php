@@ -22,6 +22,8 @@ return new class extends Migration
             $table->text("email");
             $table->decimal("balance_usd", 11, 2)->default(0);
             $table->boolean("is_admin")->default(false);
+            $table->boolean("email_verified")->default(false);
+            $table->boolean("identity_verified")->default(false);
             $table->timestampTz("created_at");
             $table->timestampTz("updated_at");
         });

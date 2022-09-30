@@ -32,7 +32,9 @@ class IncomingDataValidation
                     "full_name" => ["bail", "required", "not_in:null"],
                     "dob" => ["bail", "required", "date_format:d/m/Y", "not_in:null"],
                     "email" => ["bail", "required", "email", "not_in:null"],
-                    "balance_usd" => ["bail", "prohibited"]
+                    "balance_usd" => ["bail", "prohibited"],
+                    "email_verified" => ["bail", "prohibited"],
+                    "identity_verified" => ["bail", "prohibited"]
                 ]);
                 if ($request->request->has("full_name") && $request->filled("full_name")) {
                     $full_name_split = explode(" ", $request->request->get("full_name"), 2);
@@ -153,7 +155,12 @@ class IncomingDataValidation
             if ($request->path() == "api/v1/property/update") {
                 $request->validate([
                     "property_id" => ["bail", "required", "not_in:null"],
-                    "percentage_available" => ["bail", "prohibited"]
+                    "percentage_available" => ["bail", "prohibited"],
+                    "value_usd" => ["bail", "numeric", "not_in:null"],
+                    "address" => ["bail", "not_in:null"],
+                    "image_urls" => ["bail", "not_in:null"],
+                    "size_sf" => ["bail", "numeric", "not_in:null"],
+                    "dividend_usd" => ["bail", "numeric", "not_in:null"]
                 ]);
                 if (sizeof($request->all()) <= 1) {
                     return response()->json([
@@ -171,86 +178,53 @@ class IncomingDataValidation
                         "message" => "There is no data to update."
                     ], 400)->throwResponse();
                 } else {
-                    if ($request->request->has("address")) {
-                        if ($request->filled("address")) {
-                            $request->validate([
-                                "address" => ["bail", "not_in:null"]
-                            ]);
-                        } else {
-                            $request->request->remove("address");
-                        }
+                    if ($request->request->has("address") && !$request->filled("address")) {
+                        $request->request->remove("address");
                     }
-                    if ($request->request->has("value_usd")) {
-                        if ($request->filled("value_usd")) {
-                            $request->validate([
-                                "value_usd" => ["bail", "numeric", "not_in:null"]
-                            ]);
-                        } else {
-                            $request->request->remove("value_usd");
-                        }
+                    if ($request->request->has("value_usd") && !$request->filled("value_usd")) {
+                        $request->request->remove("value_usd");
                     }
-                    if ($request->request->has("image_urls")) {
-                        if ($request->filled("image_urls")) {
-                            $request->validate([
-                                "image_urls" => ["bail", "not_in:null"]
-                            ]);
-                        } else {
-                            $request->request->remove("image_urls");
-                        }
+                    if ($request->request->has("image_urls") && !$request->filled("image_urls")) {
+                        $request->request->remove("image_urls");
                     }
-                    if ($request->request->has("size_sf")) {
-                        if ($request->filled("size_sf")) {
-                            $request->validate([
-                                "size_sf" => ["bail", "numeric", "not_in:null"]
-                            ]);
-                        } else {
-                            $request->request->remove("size_sf");
-                        }
+                    if ($request->request->has("size_sf") && !$request->filled("size_sf")) {
+                        $request->request->remove("size_sf");
                     }
-                    if ($request->request->has("dividend_usd")) {
-                        if ($request->filled("dividend_usd")) {
-                            $request->validate([
-                                "dividend_usd" => ["bail", "numeric", "not_in:null"]
-                            ]);
-                        } else {
-                            $request->request->remove("dividend_usd");
-                        }
+                    if ($request->request->has("dividend_usd") && !$request->filled("dividend_usd")) {
+                        $request->request->remove("dividend_usd");
                     }
                 }
             } else if ($request->path() == "api/v1/user/update") {
                 $request->validate([
-                    "balance_usd" => ["bail", "prohibited"]
+                    "balance_usd" => ["bail", "prohibited"],
+                    "email_verified" => ["bail", "in:true,false"],
+                    "identity_verified" => ["bail", "in:true,false"],
+                    "phone_number" => ["bail", "not_in:null"],
+                    "full_name" => ["bail", "not_in:null"],
+                    "dob" => ["bail", "date_format:d/m/Y", "not_in:null"],
+                    "email" => ["bail", "email", "not_in:null"]
                 ]);
                 if (sizeof($request->all()) == 0) {
                     return response()->json([
                         "status" => false,
                         "message" => "There is nothing to update."
                     ], 400)->throwResponse();
-                } else if (!$request->request->has("phone_number") && !$request->request->has("full_name") && !$request->request->has("dob") && !$request->request->has("email")) {
+                } else if (!$request->request->has("phone_number") && !$request->request->has("full_name") && !$request->request->has("dob") && !$request->request->has("email") && !$request->request->has("email_verified") && !$request->request->has("identity_verified")) {
                     return response()->json([
                         "status" => false,
                         "message" => "You provided an invalid key."
                     ], 400)->throwResponse();
-                } else if (!$request->filled("phone_number") && !$request->filled("full_name") && !$request->filled("dob") && !$request->filled("email")) {
+                } else if (!$request->filled("phone_number") && !$request->filled("full_name") && !$request->filled("dob") && !$request->filled("email") && !$request->filled("email_verified") && !$request->filled("identity_verified")) {
                     return response()->json([
                         "status" => false,
                         "message" => "There is no data to update."
                     ], 400)->throwResponse();
                 } else {
-                    if ($request->request->has("phone_number")) {
-                        if ($request->filled("phone_number")) {
-                            $request->validate([
-                                "phone_number" => ["bail", "not_in:null"]
-                            ]);
-                        } else {
-                            $request->request->remove("phone_number");
-                        }
+                    if ($request->request->has("phone_number") && !$request->filled("phone_number")) {
+                        $request->request->remove("phone_number");
                     }
                     if ($request->request->has("full_name")) {
                         if ($request->filled("full_name")) {
-                            $request->validate([
-                                "full_name" => ["bail", "not_in:null"]
-                            ]);
                             $full_name_split = explode(" ", $request->request->get("full_name"), 2);
                             $first_name = $full_name_split[0];
                             $last_name = "";
@@ -264,23 +238,17 @@ class IncomingDataValidation
                         }
                         $request->request->remove("full_name");
                     }
-                    if ($request->request->has("dob")) {
-                        if ($request->filled("dob")) {
-                            $request->validate([
-                                "dob" => ["bail", "date_format:d/m/Y", "not_in:null"]
-                            ]);
-                        } else {
-                            $request->request->remove("dob");
-                        }
+                    if ($request->request->has("dob") && !$request->filled("dob")) {
+                        $request->request->remove("dob");
                     }
-                    if ($request->request->has("email")) {
-                        if ($request->filled("email")) {
-                            $request->validate([
-                                "email" => ["bail", "email", "not_in:null"]
-                            ]);
-                        } else {
-                            $request->request->remove("email");
-                        }
+                    if ($request->request->has("email") && !$request->filled("email")) {
+                        $request->request->remove("email");
+                    }
+                    if ($request->request->has("email_verified") && !$request->filled("email_verified")) {
+                        $request->request->remove("email_verified");
+                    }
+                    if ($request->request->has("identity_verified") && !$request->filled("identity_verified")) {
+                        $request->request->remove("identity_verified");
                     }
                 }
             } else if ($request->path() == "api/v1/investment/liquidate") {
@@ -319,15 +287,11 @@ class IncomingDataValidation
                         "message" => "There is no data to update."
                     ], 400)->throwResponse();
                 } else {
-                    if ($request->request->has("seen")) {
-                        if (!$request->filled("seen")) {
-                            $request->request->remove("seen");
-                        }
+                    if ($request->request->has("seen") && !$request->filled("seen")) {
+                        $request->request->remove("seen");
                     }
-                    if ($request->request->has("tapped")) {
-                        if (!$request->filled("tapped")) {
-                            $request->request->remove("tapped");
-                        }
+                    if ($request->request->has("tapped") && !$request->filled("tapped")) {
+                        $request->request->remove("tapped");
                     }
                 }
             }
