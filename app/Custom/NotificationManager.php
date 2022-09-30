@@ -27,6 +27,7 @@ class NotificationManager
     $message = new Message();
     $message->setNotification(new Notification($array["title"], $array["body"]));
     $message->setData($data);
+    $message->setPriority("high");
 
     $device_tokens = array();
     if ($type == "general") {
