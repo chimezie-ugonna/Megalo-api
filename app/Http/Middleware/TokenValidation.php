@@ -78,7 +78,7 @@ class TokenValidation
                             }
 
                             if ($request->path() == "api/v1/user/read_all" || $request->path() == "api/v1/login/read" || $request->path() == "api/v1/login/read_all" || $request->path() == "api/v1/property/create" || $request->path() == "api/v1/property/read_all" || $request->path() == "api/v1/property/update" || $request->path() == "api/v1/property/delete" || $request->path() == "api/v1/investment/read_all" || $request->path() == "api/v1/payment/read_all" || $request->path() == "api/v1/notification/create" || $request->path() == "api/v1/notification/create_all" || $request->path() == "api/v1/notification/read_all" || $request->path() == "api/v1/payment_method/read_all") {
-                                if (User::find($user_id)->value("type") != "admin") {
+                                if (!User::find($user_id)->value("is_admin")) {
                                     return response()->json([
                                         "status" => false,
                                         "message" => "Unauthorized access, only admins can access this endpoint."

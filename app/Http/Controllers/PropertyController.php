@@ -34,9 +34,15 @@ class PropertyController extends Controller
             }
         }
         if ($status == "good") {
-            Property::firstOrCreate(["property_id" => $request->request->get("property_id")], $request->all());
+            $property = Property::firstOrCreate(["property_id" => $request->request->get("property_id")], $request->all());
             $notification_manager = new NotificationManager();
-            $notification_manager->sendNotification(array("title" => "New property available!!!", "body" => "We just listed a new property, be the first to invest in it and reap the benefits."), array(), "normal", "general");
+            $notification_manager->sendNotification(array(
+                "title" => "New property available!!!",
+                "body" => "We just listed a new property, be the first to invest in it and reap the benefits.",
+                "tappable" => true,
+                "redirection_page" => "property",
+                "redirection_page_id" => $property->property_id
+            ), array(), "normal", "general");
             return response()->json([
                 "status" => true,
                 "message" => "Property added successfully."

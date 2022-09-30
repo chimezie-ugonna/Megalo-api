@@ -75,6 +75,9 @@ class IncomingDataValidation
             } else if ($request->path() == "api/v1/notification/create") {
                 $request->validate([
                     "seen" => ["bail", "prohibited"],
+                    "tappable" => ["bail", "boolean", "in:true,false"],
+                    "tapped" => ["bail", "prohibited"],
+                    "redirection_page" => ["bail", "in:property"],
                     "receiver_user_id" => ["bail", "required", "not_in:null"],
                     "title" => ["bail", "required", "not_in:null"],
                     "body" => ["bail", "required", "not_in:null"]
@@ -83,14 +86,68 @@ class IncomingDataValidation
                 if ($request->request->has("sender_user_id") && !$request->filled("sender_user_id")) {
                     $request->request->remove("sender_user_id");
                 }
+                if ($request->request->has("tappable") && $request->filled("tappable") && $request->request->get("tappable") == true) {
+                    if (!$request->request->has("redirection_page") || !$request->filled("redirection_page")) {
+                        return response()->json([
+                            "status" => false,
+                            "message" => "A 'redirection_page' value is required if 'tappable' value is 'true'."
+                        ], 400)->throwResponse();
+                    } else if (!$request->request->has("redirection_page_id") || !$request->filled("redirection_page_id")) {
+                        return response()->json([
+                            "status" => false,
+                            "message" => "A 'redirection_page_id' value is required if 'tappable' value is 'true'."
+                        ], 400)->throwResponse();
+                    }
+                } else {
+                    if ($request->request->has("redirection_page")) {
+                        return response()->json([
+                            "status" => false,
+                            "message" => "The 'redirection_page' field is not required if 'tappable' value is not 'true'."
+                        ], 400)->throwResponse();
+                    } else if ($request->request->has("redirection_page_id")) {
+                        return response()->json([
+                            "status" => false,
+                            "message" => "The 'redirection_page_id' field is not required if 'tappable' value is not 'true'."
+                        ], 400)->throwResponse();
+                    }
+                }
             } else if ($request->path() == "api/v1/notification/create_all") {
                 $request->validate([
                     "seen" => ["bail", "prohibited"],
+                    "tappable" => ["bail", "boolean", "in:true,false"],
+                    "tapped" => ["bail", "prohibited"],
+                    "redirection_page" => ["bail", "in:property"],
                     "sender_user_id" => ["bail", "prohibited"],
                     "receiver_user_id" => ["bail", "prohibited"],
                     "title" => ["bail", "required", "not_in:null"],
                     "body" => ["bail", "required", "not_in:null"]
                 ]);
+
+                if ($request->request->has("tappable") && $request->filled("tappable") && $request->request->get("tappable") == true) {
+                    if (!$request->request->has("redirection_page") || !$request->filled("redirection_page")) {
+                        return response()->json([
+                            "status" => false,
+                            "message" => "A 'redirection_page' value is required if 'tappable' value is 'true'."
+                        ], 400)->throwResponse();
+                    } else if (!$request->request->has("redirection_page_id") || !$request->filled("redirection_page_id")) {
+                        return response()->json([
+                            "status" => false,
+                            "message" => "A 'redirection_page_id' value is required if 'tappable' value is 'true'."
+                        ], 400)->throwResponse();
+                    }
+                } else {
+                    if ($request->request->has("redirection_page")) {
+                        return response()->json([
+                            "status" => false,
+                            "message" => "The 'redirection_page' field is not required if 'tappable' value is not 'true'."
+                        ], 400)->throwResponse();
+                    } else if ($request->request->has("redirection_page_id")) {
+                        return response()->json([
+                            "status" => false,
+                            "message" => "The 'redirection_page_id' field is not required if 'tappable' value is not 'true'."
+                        ], 400)->throwResponse();
+                    }
+                }
             }
         } else if ($request->isMethod("put") || $request->isMethod("patch")) {
             if ($request->path() == "api/v1/property/update") {
@@ -232,6 +289,46 @@ class IncomingDataValidation
                     "amount_usd" => ["bail", "required", "numeric", "not_in:null"],
                     "percentage" => ["bail", "prohibited"]
                 ]);
+            } else if ($request->path() == "api/v1/notification/update") {
+                $request->validate([
+                    "seen" => ["bail", "boolean", "in:true,false"],
+                    "tappable" => ["bail", "prohibited"],
+                    "tapped" => ["bail", "boolean", "in:true,false"],
+                    "redirection_page" => ["bail", "prohibited"],
+                    "redirection_page_id" => ["bail", "prohibited"],
+                    "sender_user_id" => ["bail", "prohibited"],
+                    "receiver_user_id" => ["bail", "prohibited"],
+                    "title" => ["bail", "prohibited"],
+                    "body" => ["bail", "prohibited"]
+                ]);
+
+                if (sizeof($request->all()) == 0) {
+                    return response()->json([
+                        "status" => false,
+                        "message" => "There is nothing to update."
+                    ], 400)->throwResponse();
+                } else if (!$request->request->has("seen") && !$request->request->has("tapped")) {
+                    return response()->json([
+                        "status" => false,
+                        "message" => "You provided an invalid key."
+                    ], 400)->throwResponse();
+                } else if (!$request->filled("seen") && !$request->filled("tapped")) {
+                    return response()->json([
+                        "status" => false,
+                        "message" => "There is no data to update."
+                    ], 400)->throwResponse();
+                } else {
+                    if ($request->request->has("seen")) {
+                        if (!$request->filled("seen")) {
+                            $request->request->remove("seen");
+                        }
+                    }
+                    if ($request->request->has("tapped")) {
+                        if (!$request->filled("tapped")) {
+                            $request->request->remove("tapped");
+                        }
+                    }
+                }
             }
         } else if ($request->isMethod("get")) {
             if ($request->path() == "api/v1/investment/read_user_and_property_specific" || $request->path() == "api/v1/investment/read_property_specific") {

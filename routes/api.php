@@ -78,6 +78,7 @@ Route::middleware([CheckHeader::class, IncomingDataValidation::class, TokenValid
         Route::get("/notification/read", "read");
         Route::get("/notification/read_all", "readAll");
         Route::get("/notification/read_user_specific", "readUserSpecific");
+        Route::put("/notification/update", "update");
         Route::delete("/notification/delete", "delete");
     });
 

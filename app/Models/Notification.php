@@ -18,11 +18,17 @@ class Notification extends Model
         "receiver_user_id",
         "title",
         "body",
-        "seen"
+        "redirection_page",
+        "redirection_page_id",
+        "seen",
+        "tappable",
+        "tapped"
     ];
     protected $casts = [
         "title" => "encrypted",
-        "body" => "encrypted"
+        "body" => "encrypted",
+        "redirection_page" => "encrypted",
+        "redirection_page_id" => "encrypted"
     ];
 
     public function userSender()
