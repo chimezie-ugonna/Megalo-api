@@ -97,6 +97,22 @@ class NotificationController extends Controller
         }
     }
 
+    public function update(Request $request)
+    {
+        if (Notification::find($request->request->get("notification_id"))) {
+            Notification::find($request->request->get("notification_id"))->update($request->all());
+            return response()->json([
+                "status" => true,
+                "message" => "Notification data updated successfully.",
+            ], 200);
+        } else {
+            return response()->json([
+                "status" => false,
+                "message" => "Notification data not found."
+            ], 404);
+        }
+    }
+
     public function delete(Request $request)
     {
         if (Notification::find($request->request->get("notification_id"))) {

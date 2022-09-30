@@ -291,6 +291,7 @@ class IncomingDataValidation
                 ]);
             } else if ($request->path() == "api/v1/notification/update") {
                 $request->validate([
+                    "notification_id" => ["bail", "required", "not_in:null"],
                     "seen" => ["bail", "in:true,false"],
                     "tappable" => ["bail", "prohibited"],
                     "tapped" => ["bail", "in:true,false"],
