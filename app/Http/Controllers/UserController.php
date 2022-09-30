@@ -86,18 +86,11 @@ class UserController extends Controller
 
     public function read(Request $request)
     {
-        if (User::find($request->request->get("user_id"))) {
-            return response()->json([
-                "status" => true,
-                "message" => "User data retrieved successfully.",
-                "data" => User::where("user_id", $request->request->get("user_id"))->get()
-            ], 200);
-        } else {
-            return response()->json([
-                "status" => false,
-                "message" => "User data not found."
-            ], 404);
-        }
+        return response()->json([
+            "status" => true,
+            "message" => "User data retrieved successfully.",
+            "data" => User::where("user_id", $request->request->get("user_id"))->get()
+        ], 200);
     }
 
     public function readAll()
@@ -118,39 +111,25 @@ class UserController extends Controller
 
     public function update(Request $request)
     {
-        if (User::find($request->request->get("user_id"))) {
-            User::find($request->request->get("user_id"))->update($request->all());
-            return response()->json([
-                "status" => true,
-                "message" => "User data updated successfully.",
-            ], 200);
-        } else {
-            return response()->json([
-                "status" => false,
-                "message" => "User data not found."
-            ], 404);
-        }
+        User::find($request->request->get("user_id"))->update($request->all());
+        return response()->json([
+            "status" => true,
+            "message" => "User data updated successfully.",
+        ], 200);
     }
 
     public function delete(Request $request)
     {
-        if (User::find($request->request->get("user_id"))) {
-            User::find($request->request->get("user_id"))->login()->delete();
-            User::find($request->request->get("user_id"))->investment()->delete();
-            User::find($request->request->get("user_id"))->notificationSender()->delete();
-            User::find($request->request->get("user_id"))->notificationReceiver()->delete();
-            User::find($request->request->get("user_id"))->payment()->delete();
-            User::find($request->request->get("user_id"))->paymentMethod()->delete();
-            User::destroy($request->request->get("user_id"));
-            return response()->json([
-                "status" => true,
-                "message" => "User deleted successfully."
-            ], 200);
-        } else {
-            return response()->json([
-                "status" => false,
-                "message" => "User data not found."
-            ], 404);
-        }
+        User::find($request->request->get("user_id"))->login()->delete();
+        User::find($request->request->get("user_id"))->investment()->delete();
+        User::find($request->request->get("user_id"))->notificationSender()->delete();
+        User::find($request->request->get("user_id"))->notificationReceiver()->delete();
+        User::find($request->request->get("user_id"))->payment()->delete();
+        User::find($request->request->get("user_id"))->paymentMethod()->delete();
+        User::destroy($request->request->get("user_id"));
+        return response()->json([
+            "status" => true,
+            "message" => "User deleted successfully."
+        ], 200);
     }
 }

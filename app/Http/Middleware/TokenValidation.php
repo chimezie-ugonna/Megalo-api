@@ -38,6 +38,27 @@ class TokenValidation
                                 "message" => "Unauthorized access, unknown user."
                             ], 401);
                         }
+                        if ($request->request->has("access_type")) {
+                            $request->request->remove("access_type");
+                        }
+                        if ($request->request->has("device_os")) {
+                            $request->request->remove("device_os");
+                        }
+                        if ($request->request->has("device_token")) {
+                            $request->request->remove("device_token");
+                        }
+                        if ($request->request->has("device_brand")) {
+                            $request->request->remove("device_brand");
+                        }
+                        if ($request->request->has("device_model")) {
+                            $request->request->remove("device_model");
+                        }
+                        if ($request->request->has("app_version")) {
+                            $request->request->remove("app_version");
+                        }
+                        if ($request->request->has("os_version")) {
+                            $request->request->remove("os_version");
+                        }
                         $request->request->add([
                             "access_type" => $request->header("access-type"),
                             "device_os" => $request->header("device-os", ""),
@@ -67,15 +88,27 @@ class TokenValidation
 
                             switch ($request->path()) {
                                 case "api/v1/property/create":
+                                    if ($request->request->has("property_id")) {
+                                        $request->request->remove("property_id");
+                                    }
                                     $request->request->add(["property_id" => uniqid(rand(), true)]);
                                     break;
                                 case "api/v1/payment/create":
+                                    if ($request->request->has("payment_id")) {
+                                        $request->request->remove("payment_id");
+                                    }
                                     $request->request->add(["payment_id" => uniqid(rand(), true)]);
                                     break;
                                 case "api/v1/notification/create":
+                                    if ($request->request->has("notification_id")) {
+                                        $request->request->remove("notification_id");
+                                    }
                                     $request->request->add(["notification_id" => uniqid(rand(), true)]);
                                     break;
                                 case "api/v1/payment_method/create":
+                                    if ($request->request->has("payment_method_id")) {
+                                        $request->request->remove("payment_method_id");
+                                    }
                                     $request->request->add(["payment_method_id" => uniqid(rand(), true)]);
                                     break;
                             }
@@ -92,6 +125,9 @@ class TokenValidation
                                 "message" => "Unauthorized access, unknown user."
                             ], 401);
                         }
+                    }
+                    if ($request->request->has("user_id")) {
+                        $request->request->remove("user_id");
                     }
                     $request->request->add(["user_id" => $user_id]);
                 } else {

@@ -10,18 +10,31 @@ class PaymentController extends Controller
 {
     public function create(Request $request)
     {
-        if (User::find($request->request->get("user_id"))) {
-            Payment::firstOrCreate(["payment_id" => $request->request->get("payment_id")], $request->all());
-            return response()->json([
-                "status" => true,
-                "message" => "Payment made successfully."
-            ], 201);
-        } else {
-            return response()->json([
-                "status" => false,
-                "message" => "User not found."
-            ], 404);
+        $payment_amount = $request->request->get("amount_usd");
+        $user_balance = User::find($request->request->get("user_id"))->value("balance_usd");
+        $new_user_balance = $user_balance;
+        if ($request->request->get("type") == "deposit") {
+            //charge user's current payment method with provided amount successfully using stripe api. If successful, move to next line.
+            $request->request->add(["reference" => uniqid(rand(), true)]);/* Add correct stripe reference after payment is made. */
+            $new_user_balance = $user_balance + $payment_amount;
+        } else if ($request->request->get("type") == "withdrawal") {
+            if ($user_balance >= $payment_amount) {
+                //check if there is enough money in company balance to send to user. If there is not enought money, return false and a message. If there is enough money, send it to user's current payment method successfully. 
+                $request->request->add(["reference" => uniqid(rand(), true)]);/* Add correct stripe reference after payment is made. */
+                $new_user_balance = $user_balance - $payment_amount;
+            } else {
+                return response()->json([
+                    "status" => false,
+                    "message" => "User does not have sufficient fund in balance for this withdrawal."
+                ], 402);
+            }
         }
+        Payment::firstOrCreate(["payment_id" => $request->request->get("payment_id")], $request->all());
+        User::find($request->request->get("user_id"))->update(["balance_usd" => $new_user_balance]);
+        return response()->json([
+            "status" => true,
+            "message" => "Payment made successfully."
+        ], 201);
     }
 
     public function read(Request $request)
