@@ -129,7 +129,7 @@ class NotificationManager
         $array["notification_id"] = uniqid(rand(), true);
       }
       if ($type == "general") {
-        $user_ids = Login::all()->pluck("user_id");
+        $user_ids = Login::all()->pluck("user_id")->unique();
         foreach ($user_ids as $user_id) {
           if (!array_key_exists("notification_id", $array)) {
             $array["notification_id"] = uniqid(rand(), true);
