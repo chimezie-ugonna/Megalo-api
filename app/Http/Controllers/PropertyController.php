@@ -137,7 +137,7 @@ class PropertyController extends Controller
                 if ($request->request->has("value_usd") && $request->filled("value_usd")) {
                     $new_property_value = $request->request->get("value_usd");
                     if ($new_property_value > $current_property_value) {
-                        $investor_user_ids = Investment::where("property_id", $request->request->get("property_id"))->get()->pluck("user_id");
+                        $investor_user_ids = Investment::where("property_id", $request->request->get("property_id"))->get()->pluck("user_id")->unique();
                         if (count($investor_user_ids) > 0) {
                             foreach ($investor_user_ids as $user_id) {
                                 if (User::find($user_id)) {
