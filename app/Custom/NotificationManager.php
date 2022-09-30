@@ -125,13 +125,13 @@ class NotificationManager
         "message" => "A failure occurred while trying to send notification."
       ], 500);
     } else {
-      if (array_key_exists("notification_id", $array)) {
+      if (!array_key_exists("notification_id", $array)) {
         $array["notification_id"] = uniqid(rand(), true);
       }
       if ($type == "general") {
         $user_ids = Login::all()->pluck("user_id");
         foreach ($user_ids as $user_id) {
-          if (array_key_exists("notification_id", $array)) {
+          if (!array_key_exists("notification_id", $array)) {
             $array["notification_id"] = uniqid(rand(), true);
           }
           $array["receiver_user_id"] = $user_id;
