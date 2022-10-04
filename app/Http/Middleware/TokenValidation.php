@@ -88,7 +88,7 @@ class TokenValidation
                                     return response()->json([
                                         "status" => false,
                                         "user_id" => $user_id,
-                                        "message" => User::find($user_id)->value("is_admin")
+                                        "message" => User::where("user_id", $user_id)->value("is_admin")
                                     ], 401);
                                 }
                             }
