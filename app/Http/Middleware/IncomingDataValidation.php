@@ -33,6 +33,7 @@ class IncomingDataValidation
                     "dob" => ["bail", "required", "date_format:d/m/Y", "not_in:null"],
                     "email" => ["bail", "required", "email", "not_in:null"],
                     "balance_usd" => ["bail", "prohibited"],
+                    "is_admin" => ["bail", "prohibited"],
                     "email_verified" => ["bail", "prohibited"],
                     "identity_verified" => ["bail", "prohibited"],
                     "referral_code" => ["bail", "not_in:null"]
@@ -206,6 +207,7 @@ class IncomingDataValidation
             } else if ($request->path() == "api/v1/user/update") {
                 $request->validate([
                     "balance_usd" => ["bail", "prohibited"],
+                    "is_admin" => ["bail", "prohibited"],
                     "email_verified" => ["bail", "in:true,false"],
                     "identity_verified" => ["bail", "in:true,false"],
                     "phone_number" => ["bail", "not_in:null"],

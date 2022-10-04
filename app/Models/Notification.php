@@ -26,7 +26,10 @@ class Notification extends Model
     ];
     protected $casts = [
         "title" => "encrypted",
-        "body" => "encrypted"
+        "body" => "encrypted",
+        "seen" => "boolean",
+        "tappable" => "boolean",
+        "tapped" => "boolean"
     ];
 
     public function userSender()

@@ -21,6 +21,7 @@ class User extends Model
         "email",
         "referral_code",
         "balance_usd",
+        "is_admin",
         "email_verified",
         "identity_verified",
     ];
@@ -28,7 +29,10 @@ class User extends Model
         "first_name" => "encrypted",
         "last_name" => "encrypted",
         "dob" => "encrypted",
-        "email" => "encrypted"
+        "email" => "encrypted",
+        "is_admin" => "boolean",
+        "email_verified" => "boolean",
+        "identity_verified" => "boolean"
     ];
 
     public function login()

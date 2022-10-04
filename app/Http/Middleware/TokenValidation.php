@@ -87,8 +87,7 @@ class TokenValidation
                                 if (User::find($user_id)->value("is_admin") === false) {
                                     return response()->json([
                                         "status" => false,
-                                        "user_id" => $user_id,
-                                        "message" => User::where("user_id", $user_id)->value("is_admin")
+                                        "message" => "Unauthorized access, only admins can access this endpoint."
                                     ], 401);
                                 }
                             }
