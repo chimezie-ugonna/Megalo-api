@@ -37,7 +37,14 @@ class PropertyController extends Controller
                 $request->request->set("image_urls", $cloudinary_image_urls);
             }
         }
+
         if ($status == "good") {
+            if ($request->request->has("monthly_earning_usd") && $request->filled("monthly_earning_usd")) {
+                $property_value = $request->request->get("value_usd");
+                $property_earning = $request->request->get("monthly_earning_usd");
+                $property_dividend = $property_earning / $property_value;
+                $request->request->add(["monthly_dividend_usd" => $property_dividend]);
+            }
             $property = Property::Create($request->all());
             $notification_manager = new NotificationManager();
             $notification_manager->sendNotification(array(
@@ -222,6 +229,16 @@ class PropertyController extends Controller
                 }
             }
             if ($status == "good") {
+                if ($request->request->has("monthly_earning_usd") && $request->filled("monthly_earning_usd")) {
+                    if ($request->request->has("value_usd") && $request->filled("value_usd")) {
+                        $property_value = $request->request->get("value_usd");
+                    } else {
+                        $property_value = Property::find($request->request->get("property_id"))->value("value_usd");
+                    }
+                    $property_earning = $request->request->get("monthly_earning_usd");
+                    $property_dividend = $property_earning / $property_value;
+                    $request->request->add(["monthly_dividend_usd" => $property_dividend]);
+                }
                 Property::find($request->request->get("property_id"))->update($request->all());
                 $investor_user_ids = Investment::where("property_id", $request->request->get("property_id"))->get()->pluck("user_id")->unique();
                 $notification_manager = new NotificationManager();
@@ -256,26 +273,6 @@ class PropertyController extends Controller
                                         "receiver_user_id" => $user_id,
                                         "title" => "Property earnings increase!!!",
                                         "body" => "A property that you invested in has increased its earnings.",
-                                        "tappable" => true,
-                                        "redirection_page" => "property",
-                                        "redirection_page_id" => $request->request->get("property_id")
-                                    ), array(), "user_specific");
-                                }
-                            }
-                        }
-                    }
-                }
-                if ($request->request->has("monthly_dividend_usd") && $request->filled("monthly_dividend_usd")) {
-                    $current_property_monthly_dividend = Property::find($request->request->get("property_id"))->value("monthly_dividend_usd");
-                    $new_property_monthly_dividend = $request->request->get("monthly_dividend_usd");
-                    if ($new_property_monthly_dividend > $current_property_monthly_dividend) {
-                        if (count($investor_user_ids) > 0) {
-                            foreach ($investor_user_ids as $user_id) {
-                                if (User::find($user_id)) {
-                                    $notification_manager->sendNotification(array(
-                                        "receiver_user_id" => $user_id,
-                                        "title" => "Property dividend increase!!!",
-                                        "body" => "A property that you invested in has increased its dividend.",
                                         "tappable" => true,
                                         "redirection_page" => "property",
                                         "redirection_page_id" => $request->request->get("property_id")

@@ -68,7 +68,7 @@ class IncomingDataValidation
                     "percentage_available" => ["bail", "required", "numeric", "not_in:null"],
                     "size_sf" => ["bail", "required", "numeric", "not_in:null"],
                     "monthly_earning_usd" => ["bail", "required", "numeric", "not_in:null"],
-                    "monthly_dividend_usd" => ["bail", "required", "numeric", "not_in:null"]
+                    "monthly_dividend_usd" => ["bail", "prohibited"]
                 ]);
             } else if ($request->path() == "api/v1/property/pay_dividend") {
                 $request->validate([
@@ -169,19 +169,19 @@ class IncomingDataValidation
                     "image_urls" => ["bail", "not_in:null"],
                     "size_sf" => ["bail", "numeric", "not_in:null"],
                     "monthly_earning_usd" => ["bail", "numeric", "not_in:null"],
-                    "monthly_dividend_usd" => ["bail", "numeric", "not_in:null"]
+                    "monthly_dividend_usd" => ["bail", "prohibited"]
                 ]);
                 if (sizeof($request->all()) <= 1) {
                     return response()->json([
                         "status" => false,
                         "message" => "There is nothing to update."
                     ], 400)->throwResponse();
-                } else if (!$request->request->has("address") && !$request->request->has("value_usd") && !$request->request->has("image_urls") && !$request->request->has("size_sf") && !$request->request->has("monthly_earning_usd") && !$request->request->has("monthly_dividend_usd")) {
+                } else if (!$request->request->has("address") && !$request->request->has("value_usd") && !$request->request->has("image_urls") && !$request->request->has("size_sf") && !$request->request->has("monthly_earning_usd")) {
                     return response()->json([
                         "status" => false,
                         "message" => "You provided an invalid key."
                     ], 400)->throwResponse();
-                } else if (!$request->filled("address") && !$request->filled("value_usd") && !$request->filled("image_urls") && !$request->filled("size_sf") && !$request->filled("monthly_earning_usd") && !$request->filled("monthly_dividend_usd")) {
+                } else if (!$request->filled("address") && !$request->filled("value_usd") && !$request->filled("image_urls") && !$request->filled("size_sf") && !$request->filled("monthly_earning_usd")) {
                     return response()->json([
                         "status" => false,
                         "message" => "There is no data to update."
@@ -201,9 +201,6 @@ class IncomingDataValidation
                     }
                     if ($request->request->has("monthly_earning_usd") && !$request->filled("monthly_earning_usd")) {
                         $request->request->remove("monthly_earning_usd");
-                    }
-                    if ($request->request->has("monthly_dividend_usd") && !$request->filled("monthly_dividend_usd")) {
-                        $request->request->remove("monthly_dividend_usd");
                     }
                 }
             } else if ($request->path() == "api/v1/user/update") {
