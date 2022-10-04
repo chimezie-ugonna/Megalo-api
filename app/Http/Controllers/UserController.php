@@ -135,6 +135,8 @@ class UserController extends Controller
                     "redirection_page_id" => ""
                 ), array(), "user_specific");
             }
+
+            Referral::create(["referrer_phone_number" => $referrer_phone_number, "referree_phone_number" => $referree_phone_number]);
         }
         $auth = new Authentication();
         return response()->json([
