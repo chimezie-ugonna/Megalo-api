@@ -20,6 +20,7 @@ return new class extends Migration
             $table->text("last_name");
             $table->text("dob");
             $table->text("email");
+            $table->text("referral_code");
             $table->decimal("balance_usd", 11, 2)->default(0);
             $table->boolean("is_admin")->default(false);
             $table->boolean("email_verified")->default(false);

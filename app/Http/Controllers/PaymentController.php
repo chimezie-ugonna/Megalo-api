@@ -19,7 +19,7 @@ class PaymentController extends Controller
             $new_user_balance = $user_balance + $payment_amount;
         } else if ($request->request->get("type") == "withdrawal") {
             if ($user_balance >= $payment_amount) {
-                //check if there is enough money in company balance to send to user. If there is not enought money, return false and a message. If there is enough money, send it to user's current payment method successfully. 
+                //check if there is enough money in company balance to send to user. If there is not enough money, return false and a message. If there is enough money, send it to user's current payment method successfully using stripe api. 
                 $request->request->add(["reference" => uniqid(rand(), true)]);/* Add correct stripe reference after payment is made. */
                 $new_user_balance = $user_balance - $payment_amount;
             } else {
@@ -29,7 +29,7 @@ class PaymentController extends Controller
                 ], 402);
             }
         }
-        Payment::firstOrCreate(["payment_id" => $request->request->get("payment_id")], $request->all());
+        Payment::Create($request->all());
         User::find($request->request->get("user_id"))->update(["balance_usd" => $new_user_balance]);
         return response()->json([
             "status" => true,

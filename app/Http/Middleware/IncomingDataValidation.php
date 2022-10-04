@@ -34,7 +34,8 @@ class IncomingDataValidation
                     "email" => ["bail", "required", "email", "not_in:null"],
                     "balance_usd" => ["bail", "prohibited"],
                     "email_verified" => ["bail", "prohibited"],
-                    "identity_verified" => ["bail", "prohibited"]
+                    "identity_verified" => ["bail", "prohibited"],
+                    "referral_code" => ["bail", "not_in:null"]
                 ]);
                 if ($request->request->has("full_name") && $request->filled("full_name")) {
                     $full_name_split = explode(" ", $request->request->get("full_name"), 2);
@@ -66,7 +67,14 @@ class IncomingDataValidation
                     "image_urls" => ["bail", "required", "not_in:null"],
                     "percentage_available" => ["bail", "required", "numeric", "not_in:null"],
                     "size_sf" => ["bail", "required", "numeric", "not_in:null"],
-                    "dividend_usd" => ["bail", "required", "numeric", "not_in:null"]
+                    "monthly_earning_usd" => ["bail", "required", "numeric", "not_in:null"],
+                    "monthly_dividend_usd" => ["bail", "required", "numeric", "not_in:null"]
+                ]);
+            } else if ($request->path() == "api/v1/property/pay_dividend") {
+                $request->validate([
+                    "property_id" => ["bail", "required", "not_in:null"],
+                    "amount_usd" => ["bail", "prohibited"],
+                    "investor_count" => ["bail", "prohibited"]
                 ]);
             } else if ($request->path() == "api/v1/payment/create") {
                 $request->validate([
@@ -160,19 +168,20 @@ class IncomingDataValidation
                     "address" => ["bail", "not_in:null"],
                     "image_urls" => ["bail", "not_in:null"],
                     "size_sf" => ["bail", "numeric", "not_in:null"],
-                    "dividend_usd" => ["bail", "numeric", "not_in:null"]
+                    "monthly_earning_usd" => ["bail", "numeric", "not_in:null"],
+                    "monthly_dividend_usd" => ["bail", "numeric", "not_in:null"]
                 ]);
                 if (sizeof($request->all()) <= 1) {
                     return response()->json([
                         "status" => false,
                         "message" => "There is nothing to update."
                     ], 400)->throwResponse();
-                } else if (!$request->request->has("address") && !$request->request->has("value_usd") && !$request->request->has("image_urls") && !$request->request->has("size_sf") && !$request->request->has("dividend_usd")) {
+                } else if (!$request->request->has("address") && !$request->request->has("value_usd") && !$request->request->has("image_urls") && !$request->request->has("size_sf") && !$request->request->has("monthly_earning_usd") && !$request->request->has("monthly_dividend_usd")) {
                     return response()->json([
                         "status" => false,
                         "message" => "You provided an invalid key."
                     ], 400)->throwResponse();
-                } else if (!$request->filled("address") && !$request->filled("value_usd") && !$request->filled("image_urls") && !$request->filled("size_sf") && !$request->filled("dividend_usd")) {
+                } else if (!$request->filled("address") && !$request->filled("value_usd") && !$request->filled("image_urls") && !$request->filled("size_sf") && !$request->filled("monthly_earning_usd") && !$request->filled("monthly_dividend_usd")) {
                     return response()->json([
                         "status" => false,
                         "message" => "There is no data to update."
@@ -190,8 +199,11 @@ class IncomingDataValidation
                     if ($request->request->has("size_sf") && !$request->filled("size_sf")) {
                         $request->request->remove("size_sf");
                     }
-                    if ($request->request->has("dividend_usd") && !$request->filled("dividend_usd")) {
-                        $request->request->remove("dividend_usd");
+                    if ($request->request->has("monthly_earning_usd") && !$request->filled("monthly_earning_usd")) {
+                        $request->request->remove("monthly_earning_usd");
+                    }
+                    if ($request->request->has("monthly_dividend_usd") && !$request->filled("monthly_dividend_usd")) {
+                        $request->request->remove("monthly_dividend_usd");
                     }
                 }
             } else if ($request->path() == "api/v1/user/update") {
@@ -202,7 +214,8 @@ class IncomingDataValidation
                     "phone_number" => ["bail", "not_in:null"],
                     "full_name" => ["bail", "not_in:null"],
                     "dob" => ["bail", "date_format:d/m/Y", "not_in:null"],
-                    "email" => ["bail", "email", "not_in:null"]
+                    "email" => ["bail", "email", "not_in:null"],
+                    "referral_code" => ["bail", "prohibited"]
                 ]);
                 if (sizeof($request->all()) == 0) {
                     return response()->json([
@@ -304,6 +317,10 @@ class IncomingDataValidation
                 $request->validate([
                     "property_id" => ["bail", "required", "not_in:null"]
                 ]);
+            } else if ($request->path() == "api/v1/property/read_paid_dividend") {
+                $request->validate([
+                    "property_id" => ["bail", "required", "not_in:null"]
+                ]);
             } else if ($request->path() == "api/v1/payment/read" || $request->path() == "api/v1/payment/read_user_and_payment_specific") {
                 $request->validate([
                     "payment_id" => ["bail", "required", "not_in:null"]
@@ -311,6 +328,10 @@ class IncomingDataValidation
             } else if ($request->path() == "api/v1/notification/read") {
                 $request->validate([
                     "notification_id" => ["bail", "required", "not_in:null"]
+                ]);
+            } else if ($request->path() == "api/v1/user/read_earning") {
+                $request->validate([
+                    "property_id" => ["bail", "required", "not_in:null"]
                 ]);
             }
         } else if ($request->isMethod("delete")) {

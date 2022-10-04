@@ -31,6 +31,8 @@ Route::middleware([CheckHeader::class, IncomingDataValidation::class, TokenValid
         Route::post("/user/create", "create");
         Route::get("/user/read", "read");
         Route::get("/user/read_all", "readAll");
+        Route::get("/user/read_earning", "readEarning");
+        Route::get("/user/read_all_earning", "readAllEarning");
         Route::put("/user/update", "update");
         Route::delete("/user/delete", "delete");
     });
@@ -46,8 +48,10 @@ Route::middleware([CheckHeader::class, IncomingDataValidation::class, TokenValid
     //All property endpoints.
     Route::controller(PropertyController::class)->group(function () {
         Route::post("/property/create", "create");
+        Route::post("/property/pay_dividend", "payDividend");
         Route::get("/property/read", "read");
         Route::get("/property/read_all", "readAll");
+        Route::get("/property/read_paid_dividend", "readPaidDividend");
         Route::put("/property/update", "update");
         Route::delete("/property/delete", "delete");
     });

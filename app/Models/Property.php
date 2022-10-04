@@ -18,7 +18,8 @@ class Property extends Model
         "image_urls",
         "value_usd",
         "percentage_available",
-        "dividend_usd",
+        "monthly_earning_usd",
+        "monthly_dividend_usd",
         "size_sf"
     ];
     protected $casts = [
@@ -28,5 +29,15 @@ class Property extends Model
     public function investment()
     {
         return $this->hasMany(Investment::class, "property_id");
+    }
+
+    public function paidDividend()
+    {
+        return $this->hasMany(PaidDividend::class, "property_id");
+    }
+
+    public function earning()
+    {
+        return $this->hasMany(Earning::class, "property_id");
     }
 }

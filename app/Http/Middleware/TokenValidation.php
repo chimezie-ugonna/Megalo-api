@@ -7,6 +7,10 @@ use Illuminate\Http\Request;
 use App\Custom\Authentication;
 use App\Models\User;
 use App\Models\Login;
+use App\Models\Notification;
+use App\Models\Payment;
+use App\Models\PaymentMethod;
+use App\Models\Property;
 
 class TokenValidation
 {
@@ -30,7 +34,9 @@ class TokenValidation
                             if (User::where("phone_number", $data["data"])->exists()) {
                                 $user_id = User::where("phone_number", $data["data"])->value("user_id");
                             } else {
-                                $user_id = uniqid(rand(), true);
+                                do {
+                                    $user_id = uniqid(rand(), true);
+                                } while (User::find($user_id));
                             }
                         } else {
                             return response()->json([
@@ -77,7 +83,7 @@ class TokenValidation
                                 ], 401);
                             }
 
-                            if ($request->path() == "api/v1/user/read_all" || $request->path() == "api/v1/login/read" || $request->path() == "api/v1/login/read_all" || $request->path() == "api/v1/property/create" || $request->path() == "api/v1/property/read_all" || $request->path() == "api/v1/property/update" || $request->path() == "api/v1/property/delete" || $request->path() == "api/v1/investment/read_all" || $request->path() == "api/v1/payment/read_all" || $request->path() == "api/v1/notification/create" || $request->path() == "api/v1/notification/create_all" || $request->path() == "api/v1/notification/read_all" || $request->path() == "api/v1/payment_method/read_all") {
+                            if ($request->path() == "api/v1/user/read_all" || $request->path() == "api/v1/user/read_all_earning" || $request->path() == "api/v1/login/read" || $request->path() == "api/v1/login/read_all" || $request->path() == "api/v1/property/create" || $request->path() == "api/v1/property/pay_dividend" || $request->path() == "api/v1/property/read_all" || $request->path() == "api/v1/property/read_paid_dividend" || $request->path() == "api/v1/property/update" || $request->path() == "api/v1/property/delete" || $request->path() == "api/v1/investment/read_all" || $request->path() == "api/v1/payment/read_all" || $request->path() == "api/v1/notification/create" || $request->path() == "api/v1/notification/create_all" || $request->path() == "api/v1/notification/read_all" || $request->path() == "api/v1/payment_method/read_all") {
                                 if (!User::find($user_id)->value("is_admin")) {
                                     return response()->json([
                                         "status" => false,
@@ -91,25 +97,45 @@ class TokenValidation
                                     if ($request->request->has("property_id")) {
                                         $request->request->remove("property_id");
                                     }
-                                    $request->request->add(["property_id" => uniqid(rand(), true)]);
+
+                                    do {
+                                        $property_id = uniqid(rand(), true);
+                                    } while (Property::find($property_id));
+                                    $request->request->add(["property_id" => $property_id]);
+
                                     break;
                                 case "api/v1/payment/create":
                                     if ($request->request->has("payment_id")) {
                                         $request->request->remove("payment_id");
                                     }
-                                    $request->request->add(["payment_id" => uniqid(rand(), true)]);
+
+                                    do {
+                                        $payment_id = uniqid(rand(), true);
+                                    } while (Payment::find($payment_id));
+                                    $request->request->add(["payment_id" => $payment_id]);
+
                                     break;
                                 case "api/v1/notification/create":
                                     if ($request->request->has("notification_id")) {
                                         $request->request->remove("notification_id");
                                     }
-                                    $request->request->add(["notification_id" => uniqid(rand(), true)]);
+
+                                    do {
+                                        $notification_id = uniqid(rand(), true);
+                                    } while (Notification::find($notification_id));
+                                    $request->request->add(["notification_id" => $notification_id]);
+
                                     break;
                                 case "api/v1/payment_method/create":
                                     if ($request->request->has("payment_method_id")) {
                                         $request->request->remove("payment_method_id");
                                     }
-                                    $request->request->add(["payment_method_id" => uniqid(rand(), true)]);
+
+                                    do {
+                                        $payment_method_id = uniqid(rand(), true);
+                                    } while (PaymentMethod::find($payment_method_id));
+                                    $request->request->add(["payment_method_id" => $payment_method_id]);
+
                                     break;
                             }
 

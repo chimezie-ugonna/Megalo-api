@@ -19,6 +19,7 @@ class User extends Model
         "last_name",
         "dob",
         "email",
+        "referral_code",
         "balance_usd",
         "email_verified",
         "identity_verified",
@@ -58,5 +59,10 @@ class User extends Model
     public function paymentMethod()
     {
         return $this->hasMany(PaymentMethod::class, "user_id");
+    }
+
+    public function earning()
+    {
+        return $this->hasMany(Earning::class, "user_id");
     }
 }
