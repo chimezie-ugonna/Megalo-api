@@ -93,7 +93,7 @@ class PropertyController extends Controller
                             $user_percentage_of_property_monthly_earning = $current_property_monthly_earning * ($user_percentage / 100);
                             $user_balance = User::find($user_id)->value("balance_usd");
                             $new_user_balance = $user_balance + $user_percentage_of_property_monthly_earning;
-                            User::find($user_id)->update(["balance_usd" => $new_user_balance]);
+                            User::where("user_id", $user_id)->update(["balance_usd" => $new_user_balance]);
                             Earning::create(["property_id" => $request->request->get("property_id"), "user_id" => $user_id, "amount_usd" => $user_percentage_of_property_monthly_earning]);
                             $notification_manager->sendNotification(array(
                                 "receiver_user_id" => $user_id,

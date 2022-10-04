@@ -30,7 +30,7 @@ class PaymentController extends Controller
             }
         }
         Payment::Create($request->all());
-        User::find($request->request->get("user_id"))->update(["balance_usd" => $new_user_balance]);
+        User::where("user_id", $request->request->get("user_id"))->update(["balance_usd" => $new_user_balance]);
         return response()->json([
             "status" => true,
             "message" => "Payment made successfully."

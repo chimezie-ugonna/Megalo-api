@@ -21,7 +21,7 @@ class InvestmentController extends Controller
                 $current_property_value_available = $property_value * ($current_property_percentage_available / 100);
                 if ($current_property_value_available >= $payment_amount) {
                     $new_property_percentage_available = $current_property_percentage_available - $investment_percentage;
-                    Property::find($request->request->get("property_id"))->update(["percentage_available" => $new_property_percentage_available]);
+                    Property::where("property_id", $request->request->get("property_id"))->update(["percentage_available" => $new_property_percentage_available]);
                     if (sizeof(Investment::where("user_id", $request->request->get("user_id"))->where("property_id", $request->request->get("property_id"))->get()) > 0) {
                         $current_amount_paid = Investment::where("user_id", $request->request->get("user_id"))->where("property_id", $request->request->get("property_id"))->value("amount_paid_usd");
                         if ($current_amount_paid < 0.00) {
@@ -34,7 +34,7 @@ class InvestmentController extends Controller
                     $request->request->add(["percentage" => $investment_percentage]);
                     Investment::updateOrCreate(["user_id" => $request->request->get("user_id"), "property_id" => $request->request->get("property_id")], $request->all());
                     $new_user_balance = $user_balance - $payment_amount;
-                    User::find($request->request->get("user_id"))->update(["balance_usd" => $new_user_balance]);
+                    User::where("user_id", $request->request->get("user_id"))->update(["balance_usd" => $new_user_balance]);
                     return response()->json([
                         "status" => true,
                         "message" => "Investment created successfully."
@@ -141,13 +141,13 @@ class InvestmentController extends Controller
 
                 $current_property_percentage_available = Property::find($request->request->get("property_id"))->value("percentage_available");
                 $new_property_percentage_available = $current_property_percentage_available + $liquidated_investment_percentage;
-                Property::find($request->request->get("property_id"))->update(["percentage_available" => $new_property_percentage_available]);
+                Property::where("property_id", $request->request->get("property_id"))->update(["percentage_available" => $new_property_percentage_available]);
 
                 Investment::where("property_id", $request->get("property_id"))->where("user_id", $request->request->get("user_id"))->update($request->all());
 
                 $user_balance = User::find($request->request->get("user_id"))->value("balance_usd");
                 $new_user_balance = $user_balance + $liquidation_amount;
-                User::find($request->request->get("user_id"))->update(["balance_usd" => $new_user_balance]);
+                User::where("user_id", $request->request->get("user_id"))->update(["balance_usd" => $new_user_balance]);
 
                 if ($new_investment_percentage <= 0.00) {
                     Investment::where("property_id", $request->get("property_id"))->where("user_id", $request->request->get("user_id"))->delete();
