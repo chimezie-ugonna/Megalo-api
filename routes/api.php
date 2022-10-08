@@ -91,7 +91,7 @@ Route::middleware([CheckHeader::class, IncomingDataValidation::class, TokenValid
         Route::post("/payment_method/create", "create");
         Route::get("/payment_method/read", "read");
         Route::get("/payment_method/read_all", "readAll");
-        Route::get("/payment_method/read_user_specific", "readUserSpecific");
+        Route::put("/payment_method/update", "update");
         Route::delete("/payment_method/delete", "delete");
     });
 });

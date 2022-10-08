@@ -36,7 +36,8 @@ class IncomingDataValidation
                     "is_admin" => ["bail", "prohibited"],
                     "email_verified" => ["bail", "prohibited"],
                     "identity_verified" => ["bail", "prohibited"],
-                    "referral_code" => ["bail", "not_in:null"]
+                    "referral_code" => ["bail", "not_in:null"],
+                    "payment_customer_id" => ["bail", "prohibited"]
                 ]);
                 if ($request->request->has("full_name") && $request->filled("full_name")) {
                     $full_name_split = explode(" ", $request->request->get("full_name"), 2);
@@ -58,7 +59,7 @@ class IncomingDataValidation
             } else if ($request->path() == "api/v1/investment/create") {
                 $request->validate([
                     "property_id" => ["bail", "required", "not_in:null"],
-                    "amount_paid_usd" => ["bail", "required", "numeric", "not_in:null"],
+                    "amount_invested_usd" => ["bail", "required", "numeric", "not_in:null"],
                     "percentage" => ["bail", "prohibited"]
                 ]);
             } else if ($request->path() == "api/v1/property/create") {
@@ -66,7 +67,7 @@ class IncomingDataValidation
                     "address" => ["bail", "required", "not_in:null"],
                     "value_usd" => ["bail", "required", "numeric", "not_in:null"],
                     "image_urls" => ["bail", "required", "not_in:null"],
-                    "percentage_available" => ["bail", "required", "numeric", "not_in:null"],
+                    "percentage_available" => ["bail", "prohibited"],
                     "size_sf" => ["bail", "required", "numeric", "not_in:null"],
                     "monthly_earning_usd" => ["bail", "required", "numeric", "not_in:null"],
                     "monthly_dividend_usd" => ["bail", "prohibited"]
@@ -214,7 +215,8 @@ class IncomingDataValidation
                     "full_name" => ["bail", "not_in:null"],
                     "dob" => ["bail", "date_format:d/m/Y", "not_in:null"],
                     "email" => ["bail", "email", "not_in:null"],
-                    "referral_code" => ["bail", "prohibited"]
+                    "referral_code" => ["bail", "prohibited"],
+                    "payment_customer_id" => ["bail", "prohibited"]
                 ]);
                 if (sizeof($request->all()) == 0) {
                     return response()->json([
@@ -332,6 +334,10 @@ class IncomingDataValidation
                 $request->validate([
                     "property_id" => ["bail", "required", "not_in:null"]
                 ]);
+            } else if ($request->path() == "api/v1/payment_method/read") {
+                $request->validate([
+                    "payment_method_id" => ["bail", "required", "not_in:null"]
+                ]);
             }
         } else if ($request->isMethod("delete")) {
             if ($request->path() == "api/v1/investment/delete") {
@@ -349,6 +355,10 @@ class IncomingDataValidation
             } else if ($request->path() == "api/v1/notification/delete") {
                 $request->validate([
                     "notification_id" => ["bail", "required", "not_in:null"]
+                ]);
+            } else if ($request->path() == "api/v1/payment_method/delete") {
+                $request->validate([
+                    "payment_method_id" => ["bail", "required", "not_in:null"]
                 ]);
             }
         }

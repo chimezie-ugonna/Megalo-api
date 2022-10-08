@@ -45,6 +45,7 @@ class PropertyController extends Controller
                 $property_dividend = $property_earning / $property_value;
                 $request->request->add(["monthly_dividend_usd" => $property_dividend]);
             }
+            $request->request->add(["percentage_available" => 80]);
             $property = Property::Create($request->all());
             $notification_manager = new NotificationManager();
             $notification_manager->sendNotification(array(

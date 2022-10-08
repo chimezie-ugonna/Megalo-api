@@ -15,6 +15,7 @@
         "laravel/framework": "^9.19",
         "laravel/tinker": "^2.7",
         "sngrl/php-firebase-cloud-messaging": "dev-master",
+        "stripe/stripe-php": "^9.6",
         "twilio/sdk": "^6.40"
     },
     "require-dev": {

@@ -20,6 +20,7 @@ class User extends Model
         "dob",
         "email",
         "referral_code",
+        "payment_customer_id",
         "balance_usd",
         "is_admin",
         "email_verified",

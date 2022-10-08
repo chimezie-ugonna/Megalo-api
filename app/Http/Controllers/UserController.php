@@ -6,6 +6,7 @@ use App\Custom\Authentication;
 use App\Custom\NotificationManager;
 use Illuminate\Http\Request;
 use App\Custom\OtpManager;
+use App\Custom\PaymentManager;
 use App\Models\Earning;
 use App\Models\Referral;
 use App\Models\User;
@@ -36,18 +37,21 @@ class UserController extends Controller
     public function verifyOtp(Request $request)
     {
         /*$send = new OtpManager();
-        $auth = new Authentication();
         $status = $send->verifyOtp($request->request->get("phone_number"), $request->request->get("otp"));
         if ($status != false && isset($status)) {
             if ($status->status == "approved") {
-                $user_exists = User::where("phone_number", $request->request->get("phone_number"))->exists();
+                $auth = new Authentication();
+                $data = array("token" => $auth->encode($request->request->get("phone_number")));
+                if (User::where("phone_number", $request->request->get("phone_number"))->exists()) {
+                    $data["user_exists"] = true;
+                    $data["is_admin"] = User::where("phone_number", $request->request->get("phone_number"))->value("is_admin");
+                } else {
+                    $data["user_exists"] = false;
+                }
                 return response()->json([
                     "status" => true,
                     "message" => "Otp was successfully verified.",
-                    "data" => [
-                        "token" => $auth->encode($request->request->get("phone_number")),
-                        "user_exists" => $user_exists
-                    ]
+                    "data" => $data
                 ], 200);
             } else {
                 return response()->json([
@@ -62,14 +66,17 @@ class UserController extends Controller
             ], 500);
         }*/
         $auth = new Authentication();
-        $user_exists = User::where("phone_number", $request->request->get("phone_number"))->exists();
+        $data = array("token" => $auth->encode($request->request->get("phone_number")));
+        if (User::where("phone_number", $request->request->get("phone_number"))->exists()) {
+            $data["user_exists"] = true;
+            $data["is_admin"] = User::where("phone_number", $request->request->get("phone_number"))->value("is_admin");
+        } else {
+            $data["user_exists"] = false;
+        }
         return response()->json([
             "status" => true,
             "message" => "The otp was not verified because our twilio credit is exhausted. But for testing purposes, this response is successful.",
-            "data" => [
-                "token" => $auth->encode($request->request->get("phone_number")),
-                "user_exists" => $user_exists
-            ]
+            "data" => $data
         ], 200);
     }
 
@@ -102,7 +109,8 @@ class UserController extends Controller
         User::firstOrCreate(["user_id" => $request->request->get("user_id")], $request->all());
         User::find($request->request->get("user_id"))->login()->updateOrCreate(["user_id" => $request->request->get("user_id"), "access_type" => $request->request->get("access_type"), "device_token" => $request->request->get("device_token")], $request->all());
         if ($has_referral) {
-            $referral_payment_usd = 5;
+            $payment_manager = new PaymentManager();
+            $referral_payment_usd = $payment_manager->getReferralBonus();
 
             $referrer_balance = User::where("phone_number", $referrer_phone_number)->value("balance_usd");
             $new_referrer_balance = $referrer_balance + $referral_payment_usd;

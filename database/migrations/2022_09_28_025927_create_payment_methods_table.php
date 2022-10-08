@@ -17,6 +17,7 @@ return new class extends Migration
             $table->text("payment_method_id")->primary();
             $table->text("user_id");
             $table->text("type");
+            $table->text("type");
             $table->timestampTz("created_at");
             $table->timestampTz("updated_at");
         });
