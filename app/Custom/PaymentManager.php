@@ -106,7 +106,7 @@ class PaymentManager
   function createAccount()
   {
     return $this->stripe->accounts->create([
-      "type" => "custom",
+      "type" => "express",
       "business_type" => "individual",
       "capabilities" => [
         "card_payments" => ["requested" => true],
