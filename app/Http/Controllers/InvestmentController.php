@@ -15,7 +15,7 @@ class InvestmentController extends Controller
         if (Property::find($request->request->get("property_id"))) {
             $payment_amount = $request->request->get("amount_invested_usd");
             $payment_manager = new PaymentManager();
-            $fee = $payment_manager->getPaymentProcessingFee($payment_amount) + $payment_manager->getMegaloFee($payment_amount);
+            $fee = $payment_manager->getPaymentProcessingFee($payment_amount) + $payment_manager->getInvestmentFee($payment_amount);
             $user_balance = User::find($request->request->get("user_id"))->value("balance_usd");
             if ($user_balance >= $payment_amount) {
                 $property_value = Property::find($request->request->get("property_id"))->value("value_usd");
@@ -146,10 +146,10 @@ class InvestmentController extends Controller
             $liquidation_amount = $request->request->get("amount_usd");
             $payment_manager = new PaymentManager();
             if ($current_year == $initial_investment_year) {
-                $fee = $payment_manager->getMegaloFee($liquidation_amount);
+                $fee = $payment_manager->getEarlyLiquidationFee($liquidation_amount);
             } else if (($current_year - $initial_investment_year) <= 1) {
                 if ($current_month < $initial_investment_month) {
-                    $fee = $payment_manager->getMegaloFee($liquidation_amount);
+                    $fee = $payment_manager->getEarlyLiquidationFee($liquidation_amount);
                 }
             }
             $current_investment_percentage = Investment::where("user_id", $request->request->get("user_id"))->where("property_id", $request->request->get("property_id"))->value("percentage");

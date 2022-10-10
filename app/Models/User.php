@@ -20,6 +20,7 @@ class User extends Model
         "dob",
         "email",
         "referral_code",
+        "payment_account_id",
         "payment_customer_id",
         "balance_usd",
         "is_admin",
@@ -59,11 +60,6 @@ class User extends Model
     public function notificationReceiver()
     {
         return $this->hasMany(Notification::class, "receiver_user_id");
-    }
-
-    public function paymentMethod()
-    {
-        return $this->hasMany(PaymentMethod::class, "user_id");
     }
 
     public function earning()

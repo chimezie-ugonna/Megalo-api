@@ -82,78 +82,102 @@ class UserController extends Controller
 
     public function create(Request $request)
     {
-        $has_referral = false;
-        if ($request->request->has("referral_code") && $request->filled("referral_code")) {
-            if (User::where("referral_code", $request->request->get("referral_code"))->exists()) {
-                $referrer_phone_number = User::where("referral_code", $request->request->get("referral_code"))->value("phone_number");
-                $referree_phone_number = $request->request->get("phone_number");
-                if (!Referral::where("referrer_phone_number", $referrer_phone_number)->where("referree_phone_number", $referree_phone_number)->exists() && !Referral::where("referrer_phone_number", $referree_phone_number)->where("referree_phone_number", $referrer_phone_number)->exists()) {
-                    $has_referral = true;
+        $status = true;
+        $payment_manager = new PaymentManager();
+        $customer_response = $payment_manager->manage(array("type" => "create_customer"));
+        if ($customer_response == false || !isset($customer_response["id"])) {
+            $status = false;
+        } else {
+            $account_response = $payment_manager->manage(array("type" => "create_account"));
+            if ($account_response == false || !isset($account_response["id"])) {
+                $status = false;
+            }
+        }
+
+        if ($status) {
+            $request->request->add(["payment_customer_id" => $customer_response["id"]]);
+            $request->request->add(["payment_account_id" => $account_response["id"]]);
+            $has_referral = false;
+            if ($request->request->has("referral_code") && $request->filled("referral_code")) {
+                if (User::where("referral_code", $request->request->get("referral_code"))->exists()) {
+                    $referrer_phone_number = User::where("referral_code", $request->request->get("referral_code"))->value("phone_number");
+                    $referree_phone_number = $request->request->get("phone_number");
+                    if (!Referral::where("referrer_phone_number", $referrer_phone_number)->where("referree_phone_number", $referree_phone_number)->exists() && !Referral::where("referrer_phone_number", $referree_phone_number)->where("referree_phone_number", $referrer_phone_number)->exists()) {
+                        $has_referral = true;
+                    }
+                } else {
+                    return response()->json([
+                        "status" => false,
+                        "message" => "Invalid referral code."
+                    ], 404);
                 }
-            } else {
-                return response()->json([
-                    "status" => false,
-                    "message" => "Invalid referral code."
-                ], 404);
+                $request->request->remove("referral_code");
             }
-            $request->request->remove("referral_code");
+            do {
+                $alphabets = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
+                $referral_code = "";
+                for ($i = 0; $i < 3; $i++) {
+                    $referral_code .= $alphabets[rand(0, 25)] . rand(0, 9);
+                }
+            } while (sizeof(User::where("referral_code", $referral_code)->get()) != 0);
+            $request->request->add(["referral_code" => $referral_code]);
+            User::firstOrCreate(["user_id" => $request->request->get("user_id")], $request->all());
+            User::find($request->request->get("user_id"))->login()->updateOrCreate(["user_id" => $request->request->get("user_id"), "access_type" => $request->request->get("access_type"), "device_token" => $request->request->get("device_token")], $request->all());
+            if ($has_referral) {
+                $referral_payment_usd = $payment_manager->getReferralBonus();
+
+                $referrer_balance = User::where("phone_number", $referrer_phone_number)->value("balance_usd");
+                $new_referrer_balance = $referrer_balance + $referral_payment_usd;
+                User::where("phone_number", $referrer_phone_number)->update(["balance_usd" => $new_referrer_balance]);
+                if (User::where("phone_number", $referrer_phone_number)->exists()) {
+                    $referrer_user_id = User::where("phone_number", $referrer_phone_number)->value("user_id");
+                    $notification_manager = new NotificationManager();
+                    $notification_manager->sendNotification(array(
+                        "receiver_user_id" => $referrer_user_id,
+                        "title" => "Referral bonus received!!!",
+                        "body" => "You have just received $" . $referral_payment_usd . " in your balance because someone joined Megalo with your referral code. Keep referring people to earn more!",
+                        "tappable" => true,
+                        "redirection_page" => "balance",
+                        "redirection_page_id" => ""
+                    ), array(), "user_specific");
+                }
+
+                $referree_balance = User::where("phone_number", $referree_phone_number)->value("balance_usd");
+                $new_referree_balance = $referree_balance + $referral_payment_usd;
+                User::where("phone_number", $referree_phone_number)->update(["balance_usd" => $new_referree_balance]);
+                if (User::where("phone_number", $referrer_phone_number)->exists()) {
+                    $referree_user_id = User::where("phone_number", $referree_phone_number)->value("user_id");
+                    $notification_manager = new NotificationManager();
+                    $notification_manager->sendNotification(array(
+                        "receiver_user_id" => $referree_user_id,
+                        "title" => "Referral bonus received!!!",
+                        "body" => "You have just received $" . $referral_payment_usd . " in your balance because you joined Megalo with someone's referral code. You can earn more if you refer someone too.",
+                        "tappable" => true,
+                        "redirection_page" => "balance",
+                        "redirection_page_id" => ""
+                    ), array(), "user_specific");
+                }
+
+                Referral::create(["referrer_phone_number" => $referrer_phone_number, "referree_phone_number" => $referree_phone_number]);
+            }
+            $auth = new Authentication();
+            return response()->json([
+                "status" => true,
+                "message" => "User registered successfully.",
+                "data" => [
+                    "token" => $auth->encode($request->request->get("user_id"))
+                ]
+            ], 201);
+        } else {
+            return response()->json([
+                "status" => false,
+                "message" => "An error occurred while creating user, user could not be created."
+            ], 500);
         }
-        do {
-            $alphabets = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
-            $referral_code = "";
-            for ($i = 0; $i < 3; $i++) {
-                $referral_code .= $alphabets[rand(0, 25)] . rand(0, 9);
-            }
-        } while (sizeof(User::where("referral_code", $referral_code)->get()) != 0);
-        $request->request->add(["referral_code" => $referral_code]);
-        User::firstOrCreate(["user_id" => $request->request->get("user_id")], $request->all());
-        User::find($request->request->get("user_id"))->login()->updateOrCreate(["user_id" => $request->request->get("user_id"), "access_type" => $request->request->get("access_type"), "device_token" => $request->request->get("device_token")], $request->all());
-        if ($has_referral) {
-            $payment_manager = new PaymentManager();
-            $referral_payment_usd = $payment_manager->getReferralBonus();
+    }
 
-            $referrer_balance = User::where("phone_number", $referrer_phone_number)->value("balance_usd");
-            $new_referrer_balance = $referrer_balance + $referral_payment_usd;
-            User::where("phone_number", $referrer_phone_number)->update(["balance_usd" => $new_referrer_balance]);
-            if (User::where("phone_number", $referrer_phone_number)->exists()) {
-                $referrer_user_id = User::where("phone_number", $referrer_phone_number)->value("user_id");
-                $notification_manager = new NotificationManager();
-                $notification_manager->sendNotification(array(
-                    "receiver_user_id" => $referrer_user_id,
-                    "title" => "Referral bonus received!!!",
-                    "body" => "You have just received $" . $referral_payment_usd . " in your balance because someone joined Megalo with your referral code. Keep referring people to earn more!",
-                    "tappable" => true,
-                    "redirection_page" => "balance",
-                    "redirection_page_id" => ""
-                ), array(), "user_specific");
-            }
-
-            $referree_balance = User::where("phone_number", $referree_phone_number)->value("balance_usd");
-            $new_referree_balance = $referree_balance + $referral_payment_usd;
-            User::where("phone_number", $referree_phone_number)->update(["balance_usd" => $new_referree_balance]);
-            if (User::where("phone_number", $referrer_phone_number)->exists()) {
-                $referree_user_id = User::where("phone_number", $referree_phone_number)->value("user_id");
-                $notification_manager = new NotificationManager();
-                $notification_manager->sendNotification(array(
-                    "receiver_user_id" => $referree_user_id,
-                    "title" => "Referral bonus received!!!",
-                    "body" => "You have just received $" . $referral_payment_usd . " in your balance because you joined Megalo with someone's referral code. You can earn more if you refer someone too.",
-                    "tappable" => true,
-                    "redirection_page" => "balance",
-                    "redirection_page_id" => ""
-                ), array(), "user_specific");
-            }
-
-            Referral::create(["referrer_phone_number" => $referrer_phone_number, "referree_phone_number" => $referree_phone_number]);
-        }
-        $auth = new Authentication();
-        return response()->json([
-            "status" => true,
-            "message" => "User registered successfully.",
-            "data" => [
-                "token" => $auth->encode($request->request->get("user_id"))
-            ]
-        ], 201);
+    public function createPaymentMethod(Request $request)
+    {
     }
 
     public function read(Request $request)
@@ -213,6 +237,14 @@ class UserController extends Controller
         }
     }
 
+    public function readPaymentMethod(Request $request)
+    {
+    }
+
+    public function readAllPaymentMethod()
+    {
+    }
+
     public function update(Request $request)
     {
         User::find($request->request->get("user_id"))->update($request->all());
@@ -222,19 +254,45 @@ class UserController extends Controller
         ], 200);
     }
 
+    public function updatePaymentMethod(Request $request)
+    {
+    }
+
     public function delete(Request $request)
     {
-        User::find($request->request->get("user_id"))->login()->delete();
-        User::find($request->request->get("user_id"))->investment()->delete();
-        User::find($request->request->get("user_id"))->notificationSender()->delete();
-        User::find($request->request->get("user_id"))->notificationReceiver()->delete();
-        User::find($request->request->get("user_id"))->payment()->delete();
-        User::find($request->request->get("user_id"))->paymentMethod()->delete();
-        User::find($request->request->get("user_id"))->earning()->delete();
-        User::destroy($request->request->get("user_id"));
-        return response()->json([
-            "status" => true,
-            "message" => "User deleted successfully."
-        ], 200);
+        $status = true;
+        $payment_manager = new PaymentManager();
+        $customer_response = $payment_manager->manage(array("type" => "delete_customer", "customer_id" => User::find($request->request->get("user_id"))->value("payment_customer_id")));
+        if ($customer_response == false || !isset($customer_response["deleted"]) || !$customer_response["deleted"]) {
+            $status = false;
+        } else {
+            $account_response = $payment_manager->manage(array("type" => "delete_account", "account_id" => User::find($request->request->get("user_id"))->value("payment_account_id")));
+            if ($account_response == false || !isset($account_response["deleted"]) || !$account_response["deleted"]) {
+                $status = false;
+            }
+        }
+
+        if ($status) {
+            User::find($request->request->get("user_id"))->login()->delete();
+            User::find($request->request->get("user_id"))->investment()->delete();
+            User::find($request->request->get("user_id"))->notificationSender()->delete();
+            User::find($request->request->get("user_id"))->notificationReceiver()->delete();
+            User::find($request->request->get("user_id"))->payment()->delete();
+            User::find($request->request->get("user_id"))->earning()->delete();
+            User::destroy($request->request->get("user_id"));
+            return response()->json([
+                "status" => true,
+                "message" => "User deleted successfully."
+            ], 200);
+        } else {
+            return response()->json([
+                "status" => false,
+                "message" => "An error occurred while deleting user, user could not be deleted."
+            ], 500);
+        }
+    }
+
+    public function deletePaymentMethod(Request $request)
+    {
     }
 }

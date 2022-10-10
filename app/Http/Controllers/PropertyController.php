@@ -15,7 +15,7 @@ class PropertyController extends Controller
 {
     public function create(Request $request)
     {
-        $status = "good";
+        $status = true;
         if ($request->request->has("image_urls") && $request->filled("image_urls")) {
             $image_urls = explode(", ", $request->request->get("image_urls"));
             if (count($image_urls) > 0) {
@@ -30,7 +30,7 @@ class PropertyController extends Controller
                             $cloudinary_image_urls .= $data["url"] . "+ " . $data["public_id"] . ", ";
                         }
                     } else {
-                        $status = "bad";
+                        $status = false;
                         break;
                     }
                 }
@@ -38,7 +38,7 @@ class PropertyController extends Controller
             }
         }
 
-        if ($status == "good") {
+        if ($status) {
             if ($request->request->has("monthly_earning_usd") && $request->filled("monthly_earning_usd")) {
                 $property_value = $request->request->get("value_usd");
                 $property_earning = $request->request->get("monthly_earning_usd");
@@ -70,7 +70,7 @@ class PropertyController extends Controller
     public function payDividend(Request $request)
     {
         if (Property::find($request->request->get("property_id"))) {
-            $status = "good";
+            $status = true;
             $last_dividend_payment_period = strtotime(PaidDividend::where("property_id", $request->request->get("property_id"))->latest()->first()->value("created_at"));
             $last_dividend_payment_year = date("Y", $last_dividend_payment_period);
             $last_dividend_payment_month = date("m", $last_dividend_payment_period);
@@ -78,9 +78,9 @@ class PropertyController extends Controller
             $current_year = date("Y");
             $current_month = date("m");
             if ($last_dividend_payment_year == $current_year && $last_dividend_payment_month == $current_month) {
-                $status = "bad";
+                $status = false;
             }
-            if ($status == "good") {
+            if ($status) {
                 $notification_manager = new NotificationManager();
                 $current_property_monthly_earning = Property::find($request->request->get("property_id"))->value("monthly_earning_usd");
                 $request->request->add(["amount_usd" => $current_property_monthly_earning]);
@@ -190,7 +190,7 @@ class PropertyController extends Controller
     public function update(Request $request)
     {
         if (Property::find($request->request->get("property_id"))) {
-            $status = "good";
+            $status = true;
             if ($request->request->has("image_urls") && $request->filled("image_urls")) {
                 $image_urls = explode(", ", Property::where("property_id", $request->request->get("property_id"))->value("image_urls"));
                 if (count($image_urls) > 0) {
@@ -200,14 +200,14 @@ class PropertyController extends Controller
                         if (count($data) > 1) {
                             $data = $media_manager->deleteMedia("image", $data[1]);
                             if ($data == false || !isset($data["result"]) || $data["result"] != "ok") {
-                                $status = "bad";
+                                $status = false;
                                 break;
                             }
                         }
                     }
                 }
 
-                if ($status == "good") {
+                if ($status) {
                     $image_urls = explode(", ", $request->request->get("image_urls"));
                     if (count($image_urls) > 0) {
                         $cloudinary_image_urls = "";
@@ -221,7 +221,7 @@ class PropertyController extends Controller
                                     $cloudinary_image_urls .= $data["url"] . "+ " . $data["public_id"] . ", ";
                                 }
                             } else {
-                                $status = "bad";
+                                $status = false;
                                 break;
                             }
                         }
@@ -229,7 +229,7 @@ class PropertyController extends Controller
                     }
                 }
             }
-            if ($status == "good") {
+            if ($status) {
                 if ($request->request->has("monthly_earning_usd") && $request->filled("monthly_earning_usd")) {
                     if ($request->request->has("value_usd") && $request->filled("value_usd")) {
                         $property_value = $request->request->get("value_usd");
@@ -305,7 +305,7 @@ class PropertyController extends Controller
     public function delete(Request $request)
     {
         if (Property::find($request->request->get("property_id"))) {
-            $status = "good";
+            $status = true;
             $image_urls = explode(", ", Property::where("property_id", $request->request->get("property_id"))->value("image_urls"));
             if (count($image_urls) > 0) {
                 $media_manager = new MediaManager();
@@ -314,14 +314,14 @@ class PropertyController extends Controller
                     if (count($data) > 1) {
                         $data = $media_manager->deleteMedia("image", $data[1]);
                         if ($data == false || !isset($data["result"]) || $data["result"] != "ok") {
-                            $status = "bad";
+                            $status = false;
                             break;
                         }
                     }
                 }
             }
 
-            if ($status == "good") {
+            if ($status) {
                 Property::find($request->request->get("property_id"))->investment()->delete();
                 Property::find($request->request->get("property_id"))->paidDividend()->delete();
                 Property::find($request->request->get("property_id"))->earning()->delete();

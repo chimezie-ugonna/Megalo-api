@@ -26,8 +26,12 @@ class PaymentManager
   {
     try {
       switch ($data["type"]) {
+        case "create_account": {
+            $this->createAccount();
+            break;
+          }
         case "create_customer": {
-            $this->createCustomer($data["name"], $data["phone"]);
+            $this->createCustomer();
             break;
           }
         case "deposit": {
@@ -38,17 +42,21 @@ class PaymentManager
             $this->withdraw();
             break;
           }
+        case "delete_account": {
+            $this->deleteAccount($data["account_id"]);
+            break;
+          }
         case "delete_customer": {
-            $this->withdraw();
+            $this->deleteCustomer($data["customer_id"]);
             break;
           }
       }
     } catch (CardException $e) {
-      if ($e->getError()->payment_intent->charges->data[0]->outcome->type == 'blocked') {
+      if ($e->getError()->payment_intent->charges->data[0]->outcome->type == "blocked") {
         $message = "Card was blocked for suspected fraud.";
-      } elseif ($e->getError()->code == 'expired_card') {
+      } elseif ($e->getError()->code == "expired_card") {
         $message = "Card has expired.";
-      } elseif ($e->getError()->code == 'card_declined') {
+      } elseif ($e->getError()->code == "card_declined") {
         $message = "Card was declined by the issuer.";
       } else {
         $message = "We encountered an error with your card.";
@@ -95,11 +103,21 @@ class PaymentManager
     }
   }
 
-  function createCustomer($name, $phone)
+  function createAccount()
   {
-    $this->stripe->customers->create([
-      
+    return $this->stripe->accounts->create([
+      "type" => "express",
+      "business_type" => "individual",
+      "capabilities" => [
+        "card_payments" => ["requested" => true],
+        "transfers" => ["requested" => true],
+      ],
     ]);
+  }
+
+  function createCustomer()
+  {
+    return $this->stripe->customers->create();
   }
 
   function deposit()
@@ -110,8 +128,20 @@ class PaymentManager
   {
   }
 
-  function deleteCustomer()
+  function deleteAccount($account_id)
   {
+    return $this->stripe->accounts->delete(
+      $account_id,
+      []
+    );
+  }
+
+  function deleteCustomer($customer_id)
+  {
+    return $this->stripe->customers->delete(
+      $customer_id,
+      []
+    );
   }
 
   function getPaymentProcessingFee($amount_usd)
@@ -119,9 +149,14 @@ class PaymentManager
     return ($amount_usd * 0.029) + 0.30;
   }
 
-  function getMegaloFee($amount_usd)
+  function getEarlyLiquidationFee($amount_usd)
   {
     return $amount_usd * 0.03;
+  }
+
+  function getInvestmentFee($amount_usd)
+  {
+    return $amount_usd * 0.01;
   }
 
   function getReferralBonus()

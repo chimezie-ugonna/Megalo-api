@@ -37,7 +37,8 @@ class IncomingDataValidation
                     "email_verified" => ["bail", "prohibited"],
                     "identity_verified" => ["bail", "prohibited"],
                     "referral_code" => ["bail", "not_in:null"],
-                    "payment_customer_id" => ["bail", "prohibited"]
+                    "payment_customer_id" => ["bail", "prohibited"],
+                    "payment_account_id" => ["bail", "prohibited"]
                 ]);
                 if ($request->request->has("full_name") && $request->filled("full_name")) {
                     $full_name_split = explode(" ", $request->request->get("full_name"), 2);
@@ -67,6 +68,7 @@ class IncomingDataValidation
                     "address" => ["bail", "required", "not_in:null"],
                     "value_usd" => ["bail", "required", "numeric", "not_in:null"],
                     "image_urls" => ["bail", "required", "not_in:null"],
+                    "description" => ["bail", "required", "not_in:null"],
                     "percentage_available" => ["bail", "prohibited"],
                     "size_sf" => ["bail", "required", "numeric", "not_in:null"],
                     "monthly_earning_usd" => ["bail", "required", "numeric", "not_in:null"],
@@ -169,6 +171,7 @@ class IncomingDataValidation
                     "value_usd" => ["bail", "numeric", "not_in:null"],
                     "address" => ["bail", "not_in:null"],
                     "image_urls" => ["bail", "not_in:null"],
+                    "description" => ["bail", "not_in:null"],
                     "size_sf" => ["bail", "numeric", "not_in:null"],
                     "monthly_earning_usd" => ["bail", "numeric", "not_in:null"],
                     "monthly_dividend_usd" => ["bail", "prohibited"]
@@ -178,12 +181,12 @@ class IncomingDataValidation
                         "status" => false,
                         "message" => "There is nothing to update."
                     ], 400)->throwResponse();
-                } else if (!$request->request->has("address") && !$request->request->has("value_usd") && !$request->request->has("image_urls") && !$request->request->has("size_sf") && !$request->request->has("monthly_earning_usd")) {
+                } else if (!$request->request->has("address") && !$request->request->has("value_usd") && !$request->request->has("image_urls") && !$request->request->has("description") && !$request->request->has("size_sf") && !$request->request->has("monthly_earning_usd")) {
                     return response()->json([
                         "status" => false,
                         "message" => "You provided an invalid key."
                     ], 400)->throwResponse();
-                } else if (!$request->filled("address") && !$request->filled("value_usd") && !$request->filled("image_urls") && !$request->filled("size_sf") && !$request->filled("monthly_earning_usd")) {
+                } else if (!$request->filled("address") && !$request->filled("value_usd") && !$request->filled("image_urls") && !$request->filled("description") && !$request->filled("size_sf") && !$request->filled("monthly_earning_usd")) {
                     return response()->json([
                         "status" => false,
                         "message" => "There is no data to update."
@@ -197,6 +200,9 @@ class IncomingDataValidation
                     }
                     if ($request->request->has("image_urls") && !$request->filled("image_urls")) {
                         $request->request->remove("image_urls");
+                    }
+                    if ($request->request->has("description") && !$request->filled("description")) {
+                        $request->request->remove("description");
                     }
                     if ($request->request->has("size_sf") && !$request->filled("size_sf")) {
                         $request->request->remove("size_sf");
@@ -216,7 +222,8 @@ class IncomingDataValidation
                     "dob" => ["bail", "date_format:d/m/Y", "not_in:null"],
                     "email" => ["bail", "email", "not_in:null"],
                     "referral_code" => ["bail", "prohibited"],
-                    "payment_customer_id" => ["bail", "prohibited"]
+                    "payment_customer_id" => ["bail", "prohibited"],
+                    "payment_account_id" => ["bail", "prohibited"]
                 ]);
                 if (sizeof($request->all()) == 0) {
                     return response()->json([
@@ -334,7 +341,7 @@ class IncomingDataValidation
                 $request->validate([
                     "property_id" => ["bail", "required", "not_in:null"]
                 ]);
-            } else if ($request->path() == "api/v1/payment_method/read") {
+            } else if ($request->path() == "api/v1/user/read_payment_method") {
                 $request->validate([
                     "payment_method_id" => ["bail", "required", "not_in:null"]
                 ]);
@@ -356,7 +363,7 @@ class IncomingDataValidation
                 $request->validate([
                     "notification_id" => ["bail", "required", "not_in:null"]
                 ]);
-            } else if ($request->path() == "api/v1/payment_method/delete") {
+            } else if ($request->path() == "api/v1/user/delete_payment_method") {
                 $request->validate([
                     "payment_method_id" => ["bail", "required", "not_in:null"]
                 ]);

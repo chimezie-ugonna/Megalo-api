@@ -21,7 +21,8 @@ return new class extends Migration
             $table->text("dob");
             $table->text("email");
             $table->text("referral_code");
-            $table->text("payment_customer_id")->default("");
+            $table->text("payment_account_id");
+            $table->text("payment_customer_id");
             $table->decimal("balance_usd", 11, 2)->default(0);
             $table->boolean("is_admin")->default(false);
             $table->boolean("email_verified")->default(false);

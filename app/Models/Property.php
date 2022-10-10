@@ -16,6 +16,7 @@ class Property extends Model
         "property_id",
         "address",
         "image_urls",
+        "description",
         "value_usd",
         "percentage_available",
         "monthly_earning_usd",

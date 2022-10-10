@@ -11,13 +11,13 @@ class NotificationController extends Controller
 {
     public function create(Request $request)
     {
-        $status = "good";
+        $status = true;
         if ($request->request->has("sender_user_id") && $request->filled("sender_user_id")) {
             if (!User::find($request->request->get("sender_user_id"))) {
-                $status = "bad";
+                $status = false;
             }
         }
-        if ($status == "good") {
+        if ($status) {
             if (User::find($request->request->get("receiver_user_id"))) {
                 $notification_manager = new NotificationManager();
                 $notification_manager->sendNotification($request->all(), array(), "user_specific");

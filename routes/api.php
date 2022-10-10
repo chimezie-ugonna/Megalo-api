@@ -4,7 +4,6 @@ use App\Http\Controllers\InvestmentController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PaymentController;
-use App\Http\Controllers\PaymentMethodController;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\CheckHeader;
@@ -29,12 +28,17 @@ Route::middleware([CheckHeader::class, IncomingDataValidation::class, TokenValid
         Route::post("/user/send_otp", "sendOtp");
         Route::post("/user/verify_otp", "verifyOtp");
         Route::post("/user/create", "create");
+        Route::post("/user/create_payment_method", "createPaymentMethod");
         Route::get("/user/read", "read");
         Route::get("/user/read_all", "readAll");
         Route::get("/user/read_earning", "readEarning");
         Route::get("/user/read_all_earning", "readAllEarning");
+        Route::get("/user/read_payment_method", "readPaymentMethod");
+        Route::get("/user/read_all_payment_method", "readAllPaymentMethod");
         Route::put("/user/update", "update");
+        Route::put("/user/update_payment_method", "updatePaymentMethod");
         Route::delete("/user/delete", "delete");
+        Route::delete("/user/delete_payment_method", "deletePaymentMethod");
     });
 
     //All login endpoints.
@@ -84,14 +88,5 @@ Route::middleware([CheckHeader::class, IncomingDataValidation::class, TokenValid
         Route::get("/notification/read_user_specific", "readUserSpecific");
         Route::put("/notification/update", "update");
         Route::delete("/notification/delete", "delete");
-    });
-
-    //All payment method endpoints.
-    Route::controller(PaymentMethodController::class)->group(function () {
-        Route::post("/payment_method/create", "create");
-        Route::get("/payment_method/read", "read");
-        Route::get("/payment_method/read_all", "readAll");
-        Route::put("/payment_method/update", "update");
-        Route::delete("/payment_method/delete", "delete");
     });
 });

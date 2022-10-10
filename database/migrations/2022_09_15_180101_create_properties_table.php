@@ -17,6 +17,7 @@ return new class extends Migration
             $table->text("property_id")->primary();
             $table->text("address");
             $table->text("image_urls");
+            $table->text("description");
             $table->decimal("value_usd", 11, 2);
             $table->decimal("percentage_available", 5, 2);
             $table->decimal("monthly_earning_usd", 11, 2);
