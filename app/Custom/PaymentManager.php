@@ -117,7 +117,7 @@ class PaymentManager
 
   function createCustomer()
   {
-    return $this->stripe->customers->create();
+    return $this->stripe->customers->create([]);
   }
 
   function deposit()
