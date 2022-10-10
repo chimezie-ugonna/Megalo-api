@@ -88,13 +88,13 @@ class UserController extends Controller
         if (!isset($account_response) || !isset($account_response["id"])) {
             $status = false;
             echo "Account creation error " . $status . "\n";
-            echo json_encode($account_response);
+            echo json_decode($account_response);
         } else {
             $customer_response = $payment_manager->manage(array("type" => "create_customer"));
             if (!isset($customer_response) || !isset($customer_response["id"])) {
                 $status = false;
                 echo "Customer creation error " . $status . "\n";
-                echo json_encode($customer_response);
+                echo json_decode($customer_response);
             }
         }
 
