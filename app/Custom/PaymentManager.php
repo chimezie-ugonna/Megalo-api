@@ -27,27 +27,27 @@ class PaymentManager
     try {
       switch ($data["type"]) {
         case "create_account": {
-            $this->createAccount();
+            return $this->createAccount();
             break;
           }
         case "create_customer": {
-            $this->createCustomer();
+            return $this->createCustomer();
             break;
           }
         case "deposit": {
-            $this->deposit();
+            return $this->deposit();
             break;
           }
         case "withdraw": {
-            $this->withdraw();
+            return $this->withdraw();
             break;
           }
         case "delete_account": {
-            $this->deleteAccount($data["account_id"]);
+            return $this->deleteAccount($data["account_id"]);
             break;
           }
         case "delete_customer": {
-            $this->deleteCustomer($data["customer_id"]);
+            return $this->deleteCustomer($data["customer_id"]);
             break;
           }
       }
