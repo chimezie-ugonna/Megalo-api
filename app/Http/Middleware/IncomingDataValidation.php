@@ -265,7 +265,11 @@ class IncomingDataValidation
                     if ($request->request->has("email") && !$request->filled("email")) {
                         $request->request->remove("email");
                     } else if ($request->request->has("email") && $request->filled("email")) {
-                        $request->request->add(["email_verified" => false]);
+                        if ($request->request->has("email_verified")) {
+                            $request->request->set("email_verified", false);
+                        } else {
+                            $request->request->add(["email_verified" => false]);
+                        }
                     }
                     if ($request->request->has("email_verified") && !$request->filled("email_verified")) {
                         $request->request->remove("email_verified");
