@@ -87,22 +87,18 @@ class UserController extends Controller
         $account_response = $payment_manager->manage(array("type" => "create_account"));
         if (!isset($account_response) || !isset($account_response["id"])) {
             $status = false;
-            return response()->json([
-                "status" => false,
-                "message" => "Account creation error. " . $account_response
-            ], 500);
+            echo "Account creation error " . $status . "\n";
+            echo json_encode($account_response);
         } else {
             $customer_response = $payment_manager->manage(array("type" => "create_customer"));
             if (!isset($customer_response) || !isset($customer_response["id"])) {
                 $status = false;
-                return response()->json([
-                    "status" => false,
-                    "message" => "Account creation error. " . $customer_response
-                ], 500);
+                echo "Customer creation error " . $status . "\n";
+                echo json_encode($customer_response);
             }
         }
 
-        if ($status) {
+        /*if ($status) {
             $request->request->add(["payment_customer_id" => $customer_response["id"]]);
             $request->request->add(["payment_account_id" => $account_response["id"]]);
             $has_referral = false;
@@ -181,7 +177,7 @@ class UserController extends Controller
                 "status" => false,
                 "message" => "An error occurred while creating user, user could not be created."
             ], 500);
-        }
+        }*/
     }
 
     public function createPaymentMethod(Request $request)
