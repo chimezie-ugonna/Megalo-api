@@ -87,10 +87,18 @@ class UserController extends Controller
         $account_response = $payment_manager->manage(array("type" => "create_account"));
         if (!isset($account_response) || !isset($account_response["id"])) {
             $status = false;
+            return response()->json([
+                "status" => false,
+                "message" => "Account creation error. " . $account_response
+            ], 500);
         } else {
             $customer_response = $payment_manager->manage(array("type" => "create_customer"));
             if (!isset($customer_response) || !isset($customer_response["id"])) {
                 $status = false;
+                return response()->json([
+                    "status" => false,
+                    "message" => "Account creation error. " . $customer_response
+                ], 500);
             }
         }
 
