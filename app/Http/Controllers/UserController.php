@@ -84,12 +84,12 @@ class UserController extends Controller
     {
         $status = true;
         $payment_manager = new PaymentManager();
-        $customer_response = $payment_manager->manage(array("type" => "create_customer"));
-        if ($customer_response == false || !isset($customer_response["id"])) {
+        $account_response = $payment_manager->manage(array("type" => "create_account"));
+        if ($account_response == false || !isset($account_response["id"])) {
             $status = false;
         } else {
-            $account_response = $payment_manager->manage(array("type" => "create_account"));
-            if ($account_response == false || !isset($account_response["id"])) {
+            $customer_response = $payment_manager->manage(array("type" => "create_customer"));
+            if ($customer_response == false || !isset($customer_response["id"])) {
                 $status = false;
             }
         }
@@ -262,12 +262,12 @@ class UserController extends Controller
     {
         $status = true;
         $payment_manager = new PaymentManager();
-        $customer_response = $payment_manager->manage(array("type" => "delete_customer", "customer_id" => User::find($request->request->get("user_id"))->value("payment_customer_id")));
-        if ($customer_response == false || !isset($customer_response["deleted"]) || !$customer_response["deleted"]) {
+        $account_response = $payment_manager->manage(array("type" => "delete_account", "account_id" => User::find($request->request->get("user_id"))->value("payment_account_id")));
+        if ($account_response == false || !isset($account_response["deleted"]) || !$account_response["deleted"]) {
             $status = false;
         } else {
-            $account_response = $payment_manager->manage(array("type" => "delete_account", "account_id" => User::find($request->request->get("user_id"))->value("payment_account_id")));
-            if ($account_response == false || !isset($account_response["deleted"]) || !$account_response["deleted"]) {
+            $customer_response = $payment_manager->manage(array("type" => "delete_customer", "customer_id" => User::find($request->request->get("user_id"))->value("payment_customer_id")));
+            if ($customer_response == false || !isset($customer_response["deleted"]) || !$customer_response["deleted"]) {
                 $status = false;
             }
         }
