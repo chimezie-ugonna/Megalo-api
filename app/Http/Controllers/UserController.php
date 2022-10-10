@@ -85,11 +85,11 @@ class UserController extends Controller
         $status = true;
         $payment_manager = new PaymentManager();
         $account_response = $payment_manager->manage(array("type" => "create_account"));
-        if ($account_response == false || !isset($account_response["id"])) {
+        if (!isset($account_response["id"])) {
             $status = false;
         } else {
             $customer_response = $payment_manager->manage(array("type" => "create_customer"));
-            if ($customer_response == false || !isset($customer_response["id"])) {
+            if (!isset($customer_response["id"])) {
                 $status = false;
             }
         }
