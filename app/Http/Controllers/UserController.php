@@ -94,7 +94,7 @@ class UserController extends Controller
             }
         }
 
-        if ($status == true) {
+        if ($status) {
             $request->request->add(["payment_customer_id" => $customer_response["id"]]);
             $request->request->add(["payment_account_id" => $account_response["id"]]);
             $has_referral = false;
