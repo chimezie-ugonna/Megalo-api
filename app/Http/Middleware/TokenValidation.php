@@ -26,7 +26,7 @@ class TokenValidation
             if ($request->bearerToken() != "") {
                 $auth = new Authentication();
                 $data = $auth->decode($request->bearerToken());
-                if ($data != false && isset($data["data"])) {
+                if (isset($data) && isset($data["data"])) {
                     $user_id = $data["data"];
                     if ($request->path() == "api/v1/user/create" || $request->path() == "api/v1/login/create") {
                         if ($request->request->get("phone_number") == $data["data"]) {

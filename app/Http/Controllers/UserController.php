@@ -17,7 +17,7 @@ class UserController extends Controller
     {
         /*$send = new OtpManager();
         $status = $send->sendOtp($request->request->get("phone_number"));
-        if ($status != false && isset($status)) {
+        if (isset($status)) {
             return response()->json([
                 "status" => true,
                 "message" => "Otp was successfully sent."
@@ -38,7 +38,7 @@ class UserController extends Controller
     {
         /*$send = new OtpManager();
         $status = $send->verifyOtp($request->request->get("phone_number"), $request->request->get("otp"));
-        if ($status != false && isset($status)) {
+        if (isset($status)) {
             if ($status->status == "approved") {
                 $auth = new Authentication();
                 $data = array("token" => $auth->encode($request->request->get("phone_number")));
@@ -85,16 +85,16 @@ class UserController extends Controller
         $status = true;
         $payment_manager = new PaymentManager();
         $account_response = $payment_manager->manage(array("type" => "create_account"));
-        if (!isset($account_response["id"])) {
+        if (!isset($account_response) || !isset($account_response["id"])) {
             $status = false;
         } else {
             $customer_response = $payment_manager->manage(array("type" => "create_customer"));
-            if (!isset($customer_response["id"])) {
+            if (!isset($customer_response) || !isset($customer_response["id"])) {
                 $status = false;
             }
         }
 
-        if ($status) {
+        if ($status == true) {
             $request->request->add(["payment_customer_id" => $customer_response["id"]]);
             $request->request->add(["payment_account_id" => $account_response["id"]]);
             $has_referral = false;
@@ -263,11 +263,11 @@ class UserController extends Controller
         $status = true;
         $payment_manager = new PaymentManager();
         $account_response = $payment_manager->manage(array("type" => "delete_account", "account_id" => User::find($request->request->get("user_id"))->value("payment_account_id")));
-        if ($account_response == false || !isset($account_response["deleted"]) || !$account_response["deleted"]) {
+        if (!isset($account_response) || !isset($account_response["deleted"]) || !$account_response["deleted"]) {
             $status = false;
         } else {
             $customer_response = $payment_manager->manage(array("type" => "delete_customer", "customer_id" => User::find($request->request->get("user_id"))->value("payment_customer_id")));
-            if ($customer_response == false || !isset($customer_response["deleted"]) || !$customer_response["deleted"]) {
+            if (!isset($customer_response) || !isset($customer_response["deleted"]) || !$customer_response["deleted"]) {
                 $status = false;
             }
         }

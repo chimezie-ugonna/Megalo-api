@@ -23,7 +23,7 @@ class PropertyController extends Controller
                 $media_manager = new MediaManager();
                 for ($i = 0; $i < count($image_urls); $i++) {
                     $data = $media_manager->uploadMedia("image", $image_urls[$i]);
-                    if ($data != false && isset($data["url"]) && isset($data["public_id"])) {
+                    if (isset($data) && isset($data["url"]) && isset($data["public_id"])) {
                         if ($i == count($image_urls) - 1) {
                             $cloudinary_image_urls .= $data["url"] . "+ " . $data["public_id"];
                         } else {
@@ -199,7 +199,7 @@ class PropertyController extends Controller
                         $data = explode("+ ", $image_urls[$i]);
                         if (count($data) > 1) {
                             $data = $media_manager->deleteMedia("image", $data[1]);
-                            if ($data == false || !isset($data["result"]) || $data["result"] != "ok") {
+                            if (!isset($data) || !isset($data["result"]) || $data["result"] != "ok") {
                                 $status = false;
                                 break;
                             }
@@ -214,7 +214,7 @@ class PropertyController extends Controller
                         $media_manager = new MediaManager();
                         for ($i = 0; $i < count($image_urls); $i++) {
                             $data = $media_manager->uploadMedia("image", $image_urls[$i]);
-                            if ($data != false && isset($data["url"]) && isset($data["public_id"])) {
+                            if (isset($data) && isset($data["url"]) && isset($data["public_id"])) {
                                 if ($i == count($image_urls) - 1) {
                                     $cloudinary_image_urls .= $data["url"] . "+ " . $data["public_id"];
                                 } else {
@@ -313,7 +313,7 @@ class PropertyController extends Controller
                     $data = explode("+ ", $image_urls[$i]);
                     if (count($data) > 1) {
                         $data = $media_manager->deleteMedia("image", $data[1]);
-                        if ($data == false || !isset($data["result"]) || $data["result"] != "ok") {
+                        if (!isset($data) || !isset($data["result"]) || $data["result"] != "ok") {
                             $status = false;
                             break;
                         }
