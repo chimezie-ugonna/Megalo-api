@@ -247,6 +247,23 @@ class UserController extends Controller
 
     public function update(Request $request)
     {
+        if ($request->request->has("first_name") && $request->filled("first_name") || $request->request->has("last_name") && $request->filled("last_name") || $request->request->has("dob") && $request->filled("dob")) {
+            $identity_verified = User::find($request->request->get("user_id"))->value("identity_verified");
+            if ($identity_verified) {
+                return response()->json([
+                    "status" => false,
+                    "message" => "This user's identity has been verified so they can not update their name or dob.",
+                ], 400);
+            }
+        }
+        if ($request->request->has("phone_number") && $request->filled("phone_number")) {
+            if (User::where("user_id", "!=", $request->request->get("user_id"))->where("phone_number", $request->request->get("phone_number"))->exists()) {
+                return response()->json([
+                    "status" => false,
+                    "message" => "The phone number provided has been taken.",
+                ], 400);
+            }
+        }
         User::find($request->request->get("user_id"))->update($request->all());
         return response()->json([
             "status" => true,
