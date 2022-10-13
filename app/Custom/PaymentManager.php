@@ -34,8 +34,12 @@ class PaymentManager
             return $this->createCustomer();
             break;
           }
+        case "add_payment_method": {
+            return $this->addPaymentMethod($data["customer_id"], $data["data"]);
+            break;
+          }
         case "deposit": {
-            return $this->deposit();
+            return $this->deposit($data["amount"], $data["customer_id"]);
             break;
           }
         case "withdraw": {
@@ -120,8 +124,28 @@ class PaymentManager
     return $this->stripe->customers->create([]);
   }
 
-  function deposit()
+  function addPaymentMethod($customer_id, $data)
   {
+    if ($data["type"] == "card") {
+      return $this->stripe->customers->createSource(
+        $customer_id,
+        ['source' => 'tok_amex']
+      );
+    } else if ($data["type"] == "bank_account") {
+      return $this->stripe->customers->createSource(
+        $customer_id,
+        ['source' => 'tok_amex']
+      );
+    }
+  }
+
+  function deposit($amount, $customer_id)
+  {
+    return $this->stripe->charges->create([
+      'amount' => ($amount / 100),
+      'currency' => 'usd',
+      'customer' => $customer_id
+    ]);
   }
 
   function withdraw()

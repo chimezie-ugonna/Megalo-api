@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Custom\PaymentManager;
 use App\Models\Payment;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -13,15 +14,37 @@ class PaymentController extends Controller
         $payment_amount = $request->request->get("amount_usd");
         $user_balance = User::find($request->request->get("user_id"))->value("balance_usd");
         $new_user_balance = $user_balance;
+        $payment_manager = new PaymentManager();
+        $status = true;
         if ($request->request->get("type") == "deposit") {
-            //charge user's current payment method with provided amount successfully using stripe api. If successful, move to next line.
-            $request->request->add(["reference" => uniqid(rand(), true)]);/* Add correct stripe reference after payment is made. */
-            $new_user_balance = $user_balance + $payment_amount;
+            $deposit_response = $payment_manager->manage(array("type" => "deposit", "account_id" => User::find($request->request->get("user_id"))->value("payment_account_id"), "customer_id" => User::find($request->request->get("user_id"))->value("payment_customer_id"), "amount" => $request->request->get("amount_usd")));
+            if (!isset($deposit_response) || !isset($deposit_response["id"])) {
+                $status = false;
+            }
+            if ($status) {
+                $request->request->add(["reference" => $deposit_response["id"]]);
+                $new_user_balance = $user_balance + $payment_amount;
+            } else {
+                return response()->json([
+                    "status" => false,
+                    "message" => "An error occurred while making payment, payment could not be made."
+                ], 500);
+            }
         } else if ($request->request->get("type") == "withdrawal") {
             if ($user_balance >= $payment_amount) {
-                //check if there is enough money in company balance to send to user. If there is not enough money, return false and a message. If there is enough money, send it to user's current payment method successfully using stripe api. 
-                $request->request->add(["reference" => uniqid(rand(), true)]);/* Add correct stripe reference after payment is made. */
-                $new_user_balance = $user_balance - $payment_amount;
+                $withdraw_response = $payment_manager->manage(array("type" => "withdraw", "account_id" => User::find($request->request->get("user_id"))->value("payment_account_id"), "customer_id" => User::find($request->request->get("user_id"))->value("payment_customer_id"), "amount" => $request->request->get("amount_usd")));
+                if (!isset($withdraw_response) || !isset($withdraw_response["id"])) {
+                    $status = false;
+                }
+                if ($status) {
+                    $request->request->add(["reference" => $withdraw_response["id"]]);
+                    $new_user_balance = $user_balance - $payment_amount;
+                } else {
+                    return response()->json([
+                        "status" => false,
+                        "message" => "An error occurred while making payment, payment could not be made."
+                    ], 500);
+                }
             } else {
                 return response()->json([
                     "status" => false,
