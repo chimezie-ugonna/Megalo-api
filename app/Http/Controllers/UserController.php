@@ -178,6 +178,56 @@ class UserController extends Controller
 
     public function createPaymentMethod(Request $request)
     {
+        $payment_manager = new PaymentManager();
+        $create_token_response = $payment_manager->manage(array("type" => "create_token", "account_id" => User::find($request->request->get("user_id"))->value("payment_account_id"), "customer_id" => User::find($request->request->get("user_id"))->value("payment_customer_id"), "data" => $request->all()));
+        if (isset($create_token_response) && isset($create_token_response["id"])) {
+            $token = $create_token_response["id"];
+            $add_payment_method_response = null;
+            if ($request->request->get("action") == "deposit") {
+                $add_payment_method_response = $payment_manager->manage(array("type" => "add_customer_payment_method", "account_id" => User::find($request->request->get("user_id"))->value("payment_account_id"), "customer_id" => User::find($request->request->get("user_id"))->value("payment_customer_id"), "data" => ["token" => $token]));
+            } else if ($request->request->get("action") == "withdrawal") {
+                $add_payment_method_response = $payment_manager->manage(array("type" => "add_account_payment_method", "account_id" => User::find($request->request->get("user_id"))->value("payment_account_id"), "customer_id" => User::find($request->request->get("user_id"))->value("payment_customer_id"), "data" => ["token" => $token]));
+            }
+            if (isset($add_payment_method_response) && isset($add_payment_method_response["id"])) {
+                if ($request->request->get("action") == "deposit" && $request->request->get("type") == "bank_account") {
+                    $verify_customer_bank_account_response = $payment_manager->manage(array("type" => "verify_customer_bank_account", "account_id" => User::find($request->request->get("user_id"))->value("payment_account_id"), "customer_id" => User::find($request->request->get("user_id"))->value("payment_customer_id"), "data" => ["id" => $add_payment_method_response["id"]]));
+                    if (isset($verify_customer_bank_account_response) && isset($verify_customer_bank_account_response["status"]) && $verify_customer_bank_account_response["status"] == "verified") {
+                        return response()->json([
+                            "status" => true,
+                            "message" => "Payment method added successfully."
+                        ], 201);
+                    } else {
+                        $delete_customer_payment_method_response = $payment_manager->manage(array("type" => "delete_customer_payment_method", "account_id" => User::find($request->request->get("user_id"))->value("payment_account_id"), "customer_id" => User::find($request->request->get("user_id"))->value("payment_customer_id"), "data" => ["id" => $add_payment_method_response["id"]]));
+                        if (isset($delete_customer_payment_method_response) && isset($delete_customer_payment_method_response["deleted"]) && $delete_customer_payment_method_response["deleted"]) {
+                            return response()->json([
+                                "status" => false,
+                                "message" => "An error occurred while verifying payment method, payment method could not be added."
+                            ], 500);
+                        } else {
+                            return response()->json([
+                                "status" => false,
+                                "message" => "An error occurred while verifying payment method and while attempting to delete payment method."
+                            ], 500);
+                        }
+                    }
+                } else {
+                    return response()->json([
+                        "status" => true,
+                        "message" => "Payment method added successfully."
+                    ], 201);
+                }
+            } else {
+                return response()->json([
+                    "status" => false,
+                    "message" => "An error occurred while adding payment method, payment method could not be added."
+                ], 500);
+            }
+        } else {
+            return response()->json([
+                "status" => false,
+                "message" => "An error occurred while adding payment method, payment method could not be added."
+            ], 500);
+        }
     }
 
     public function read(Request $request)
@@ -239,10 +289,55 @@ class UserController extends Controller
 
     public function readPaymentMethod(Request $request)
     {
+        $payment_manager = new PaymentManager();
+        $retrieve_payment_method_response = null;
+        if ($request->request->get("action") == "deposit") {
+            $retrieve_payment_method_response = $payment_manager->manage(array("type" => "retrieve_customer_payment_method", "account_id" => User::find($request->request->get("user_id"))->value("payment_account_id"), "customer_id" => User::find($request->request->get("user_id"))->value("payment_customer_id"), "data" => ["id" => $request->get("id")]));
+        } else if ($request->request->get("action") == "withdrawal") {
+            $retrieve_payment_method_response = $payment_manager->manage(array("type" => "retrieve_account_payment_method", "account_id" => User::find($request->request->get("user_id"))->value("payment_account_id"), "customer_id" => User::find($request->request->get("user_id"))->value("payment_customer_id"), "data" => ["id" => $request->get("id")]));
+        }
+        if (isset($retrieve_payment_method_response) && isset($retrieve_payment_method_response["id"])) {
+            return response()->json([
+                "status" => true,
+                "message" => "Payment method data retrieved successfully.",
+                "data" => $retrieve_payment_method_response
+            ], 200);
+        } else {
+            return response()->json([
+                "status" => false,
+                "message" => "An error occurred while retrieving payment method, payment method could not be retrieved."
+            ], 500);
+        }
     }
 
-    public function readAllPaymentMethod()
+    public function readAllPaymentMethod(Request $request)
     {
+        $payment_manager = new PaymentManager();
+        $list_all_payment_method_response = null;
+        if ($request->request->get("action") == "deposit") {
+            $list_all_payment_method_response = $payment_manager->manage(array("type" => "list_all_customer_payment_method", "account_id" => User::find($request->request->get("user_id"))->value("payment_account_id"), "customer_id" => User::find($request->request->get("user_id"))->value("payment_customer_id"), "data" => $request->all()));
+        } else if ($request->request->get("action") == "withdrawal") {
+            $list_all_payment_method_response = $payment_manager->manage(array("type" => "list_all_account_payment_method", "account_id" => User::find($request->request->get("user_id"))->value("payment_account_id"), "customer_id" => User::find($request->request->get("user_id"))->value("payment_customer_id"), "data" => $request->all()));
+        }
+        if (isset($list_all_payment_method_response) && isset($list_all_payment_method_response["data"])) {
+            if (sizeof($list_all_payment_method_response["data"]) > 0) {
+                return response()->json([
+                    "status" => true,
+                    "message" => "All payment method data retrieved successfully.",
+                    "data" => $list_all_payment_method_response["data"]
+                ], 200);
+            } else {
+                return response()->json([
+                    "status" => false,
+                    "message" => "No payment method data found."
+                ], 404);
+            }
+        } else {
+            return response()->json([
+                "status" => false,
+                "message" => "An error occurred while retrieving all payment methods, all payment methods could not be retrieved."
+            ], 500);
+        }
     }
 
     public function update(Request $request)
@@ -269,10 +364,6 @@ class UserController extends Controller
             "status" => true,
             "message" => "User data updated successfully.",
         ], 200);
-    }
-
-    public function updatePaymentMethod(Request $request)
-    {
     }
 
     public function delete(Request $request)
@@ -311,5 +402,23 @@ class UserController extends Controller
 
     public function deletePaymentMethod(Request $request)
     {
+        $payment_manager = new PaymentManager();
+        $delete_payment_method_response = null;
+        if ($request->request->get("action") == "deposit") {
+            $delete_payment_method_response = $payment_manager->manage(array("type" => "delete_customer_payment_method", "account_id" => User::find($request->request->get("user_id"))->value("payment_account_id"), "customer_id" => User::find($request->request->get("user_id"))->value("payment_customer_id"), "data" => ["id" => $request->request->get("id")]));
+        } else if ($request->request->get("action") == "withdrawal") {
+            $delete_payment_method_response = $payment_manager->manage(array("type" => "delete_account_payment_method", "account_id" => User::find($request->request->get("user_id"))->value("payment_account_id"), "customer_id" => User::find($request->request->get("user_id"))->value("payment_customer_id"), "data" => ["id" => $request->request->get("id")]));
+        }
+        if (isset($delete_payment_method_response) && isset($delete_payment_method_response["deleted"]) && $delete_payment_method_response["deleted"]) {
+            return response()->json([
+                "status" => true,
+                "message" => "Payment method data deleted successfully."
+            ], 200);
+        } else {
+            return response()->json([
+                "status" => false,
+                "message" => "An error occurred while deleting payment method, payment method could not be deleted."
+            ], 500);
+        }
     }
 }

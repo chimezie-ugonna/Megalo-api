@@ -36,7 +36,6 @@ Route::middleware([CheckHeader::class, IncomingDataValidation::class, TokenValid
         Route::get("/user/read_payment_method", "readPaymentMethod");
         Route::get("/user/read_all_payment_method", "readAllPaymentMethod");
         Route::put("/user/update", "update");
-        Route::put("/user/update_payment_method", "updatePaymentMethod");
         Route::delete("/user/delete", "delete");
         Route::delete("/user/delete_payment_method", "deletePaymentMethod");
     });

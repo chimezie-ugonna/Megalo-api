@@ -53,6 +53,32 @@ class IncomingDataValidation
                     ]);
                     $request->request->remove("full_name");
                 }
+            } else if ($request->path() == "api/v1/user/create_payment_method") {
+                $request->validate([
+                    "action" => ["bail", "required", "in:deposit,withdrawal"],
+                    "type" => ["bail", "required", "in:card,bank_account"]
+                ]);
+                if ($request->request->has("type") && $request->filled("type") && $request->request->get("type") == "card") {
+                    $request->validate([
+                        "number" => ["bail", "required", "numeric", "not_in:null"],
+                        "exp_month" => ["bail", "required", "numeric", "not_in:null", "min_digits:2"],
+                        "exp_year" => ["bail", "required", "numeric", "not_in:null", "min_digits:2", "max_digits:4"],
+                        "cvc" => ["bail", "required", "numeric", "not_in:null"],
+                        "country" => ["bail", "prohibited"],
+                        "currency" => ["bail", "prohibited"],
+                        "account_number" => ["bail", "prohibited"]
+                    ]);
+                } else if ($request->request->has("type") && $request->filled("type") && $request->request->get("type") == "bank_account") {
+                    $request->validate([
+                        "country" => ["bail", "required", "alpha", "not_in:null", "min_digits:2", "max_digits:2"],
+                        "currency" => ["bail", "required", "alpha", "not_in:null", "min_digits:3", "max_digits:3"],
+                        "account_number" => ["bail", "required", "numeric", "not_in:null"],
+                        "number" => ["bail", "prohibited"],
+                        "exp_month" => ["bail", "prohibited"],
+                        "exp_year" => ["bail", "prohibited"],
+                        "cvc" => ["bail", "prohibited"]
+                    ]);
+                }
             } else if ($request->path() == "api/v1/login/create") {
                 $request->validate([
                     "phone_number" => ["bail", "required", "not_in:null"]
@@ -91,7 +117,7 @@ class IncomingDataValidation
                     "seen" => ["bail", "prohibited"],
                     "tappable" => ["bail", "in:true,false"],
                     "tapped" => ["bail", "prohibited"],
-                    "redirection_page" => ["bail", "in:property"],
+                    "redirection_page" => ["bail", "in:balance,earning,property"],
                     "receiver_user_id" => ["bail", "required", "not_in:null"],
                     "title" => ["bail", "required", "not_in:null"],
                     "body" => ["bail", "required", "not_in:null"]
@@ -130,7 +156,7 @@ class IncomingDataValidation
                     "seen" => ["bail", "prohibited"],
                     "tappable" => ["bail", "in:true,false"],
                     "tapped" => ["bail", "prohibited"],
-                    "redirection_page" => ["bail", "in:property"],
+                    "redirection_page" => ["bail", "in:balance,earning,property"],
                     "sender_user_id" => ["bail", "prohibited"],
                     "receiver_user_id" => ["bail", "prohibited"],
                     "title" => ["bail", "required", "not_in:null"],
@@ -349,7 +375,13 @@ class IncomingDataValidation
                 ]);
             } else if ($request->path() == "api/v1/user/read_payment_method") {
                 $request->validate([
-                    "payment_method_id" => ["bail", "required", "not_in:null"]
+                    "action" => ["bail", "required", "in:deposit,withdrawal"],
+                    "id" => ["bail", "required", "not_in:null"]
+                ]);
+            } else if ($request->path() == "api/v1/user/read_all_payment_method") {
+                $request->validate([
+                    "action" => ["bail", "required", "in:deposit,withdrawal"],
+                    "type" => ["bail", "required", "in:card,bank_account"]
                 ]);
             }
         } else if ($request->isMethod("delete")) {
@@ -371,7 +403,8 @@ class IncomingDataValidation
                 ]);
             } else if ($request->path() == "api/v1/user/delete_payment_method") {
                 $request->validate([
-                    "payment_method_id" => ["bail", "required", "not_in:null"]
+                    "action" => ["bail", "required", "in:deposit,withdrawal"],
+                    "id" => ["bail", "required", "not_in:null"]
                 ]);
             }
         }
