@@ -179,7 +179,7 @@ class PaymentManager
         "transfers" => ["requested" => true]
       ],
       "tos_acceptance" => [
-        "date" => ["requested" => strtotime(date('Y-m-d H:i:s'))]
+        "date" => strtotime(date('Y-m-d H:i:s'))
       ]
     ]);
   }
