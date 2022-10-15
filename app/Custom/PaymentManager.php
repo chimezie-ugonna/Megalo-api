@@ -66,6 +66,14 @@ class PaymentManager
             return $this->listAllCustomerPaymentMethod($data["customer_id"], $data["data"]);
             break;
           }
+        case "update_default_account_payment_method": {
+            return $this->updateDefaultAccountPaymentMethod($data["account_id"], $data["data"]);
+            break;
+          }
+        case "update_default_customer_payment_method": {
+            return $this->updateDefaultCustomerPaymentMethod($data["customer_id"], $data["data"]);
+            break;
+          }
         case "delete_account_payment_method": {
             return $this->deleteAccountPaymentMethod($data["account_id"], $data["data"]);
             break;
@@ -162,13 +170,17 @@ class PaymentManager
 
   function createAccount()
   {
+    date_default_timezone_set("UTC");
     return $this->stripe->accounts->create([
       "type" => "custom",
       "business_type" => "individual",
       "capabilities" => [
-        "card_payments" => ["requested" => true],
-        "transfers" => ["requested" => true],
+        "bank_transfer_payments" => ["requested" => true],
+        "transfers" => ["requested" => true]
       ],
+      "tos_acceptance" => [
+        "date" => ["requested" => strtotime(date('Y-m-d H:i:s'))]
+      ]
     ]);
   }
 
@@ -216,6 +228,15 @@ class PaymentManager
       'currency' => $data["currency"],
       'destination' => $account_id
     ]);
+  }
+
+  function updateDefaultAccountPaymentMethod($account_id, $data)
+  {
+    return $this->stripe->accounts->updateExternalAccount(
+      $account_id,
+      $data["id"],
+      ['default_for_currency' => true]
+    );
   }
 
   function deleteAccountPaymentMethod($account_id, $data)
@@ -288,6 +309,14 @@ class PaymentManager
       'currency' => $data["currency"],
       'customer' => $customer_id
     ]);
+  }
+
+  function updateDefaultCustomerPaymentMethod($customer_id, $data)
+  {
+    return $this->stripe->customers->update(
+      $customer_id,
+      ['default_source' => $data["id"]]
+    );
   }
 
   function deleteCustomerPaymentMethod($customer_id, $data)

@@ -304,6 +304,11 @@ class IncomingDataValidation
                         $request->request->remove("identity_verified");
                     }
                 }
+            } else if ($request->path() == "api/v1/user/update_default_payment_method") {
+                $request->validate([
+                    "action" => ["bail", "required", "in:deposit,withdrawal"],
+                    "id" => ["bail", "required", "not_in:null"]
+                ]);
             } else if ($request->path() == "api/v1/investment/liquidate") {
                 $request->validate([
                     "property_id" => ["bail", "required", "not_in:null"],
