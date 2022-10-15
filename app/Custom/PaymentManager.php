@@ -151,18 +151,18 @@ class PaymentManager
     if ($data["type"] == "card") {
       return $this->stripe->tokens->create([
         $data["type"] => [
-          'number' => $data["number"],
-          'exp_month' => $data["exp_month"],
-          'exp_year' => $data["exp_year"],
-          'cvc' => $data["cvc"],
+          "number" => $data["number"],
+          "exp_month" => $data["exp_month"],
+          "exp_year" => $data["exp_year"],
+          "cvc" => $data["cvc"],
         ],
       ]);
     } else if ($data["type"] == "bank_account") {
       return $this->stripe->tokens->create([
         $data["type"] => [
-          'country' => $data["country"],
-          'currency' => $data["currency"],
-          'account_number' => $data["account_number"],
+          "country" => $data["country"],
+          "currency" => $data["currency"],
+          "account_number" => $data["account_number"],
         ],
       ]);
     }
@@ -179,7 +179,7 @@ class PaymentManager
         "transfers" => ["requested" => true]
       ],
       "tos_acceptance" => [
-        "date" => strtotime(date('Y-m-d H:i:s')),
+        "date" => strtotime(date("Y-m-d H:i:s")),
         "ip" => $get_ip_address->get()
       ]
     ]);
@@ -189,7 +189,7 @@ class PaymentManager
   {
     return $this->stripe->accounts->createExternalAccount(
       $account_id,
-      ['external_account' => $data["token"]]
+      ["external_account" => $data["token"]]
     );
   }
 
@@ -207,12 +207,12 @@ class PaymentManager
     if (!array_key_exists("limit", $data)) {
       return $this->stripe->accounts->allExternalAccounts(
         $account_id,
-        ['object' => $data["type"]]
+        ["object" => $data["type"]]
       );
     } else {
       return $this->stripe->accounts->allExternalAccounts(
         $account_id,
-        ['object' => $data["type"], 'limit' => $data["limit"]]
+        ["object" => $data["type"], "limit" => $data["limit"]]
       );
     }
   }
@@ -225,9 +225,9 @@ class PaymentManager
   function withdraw($account_id, $data)
   {
     return $this->stripe->transfers->create([
-      'amount' => ($data["amount"] / 100),
-      'currency' => $data["currency"],
-      'destination' => $account_id
+      "amount" => ($data["amount"] / 100),
+      "currency" => $data["currency"],
+      "destination" => $account_id
     ]);
   }
 
@@ -236,7 +236,7 @@ class PaymentManager
     return $this->stripe->accounts->updateExternalAccount(
       $account_id,
       $data["id"],
-      ['default_for_currency' => true]
+      ["default_for_currency" => true]
     );
   }
 
@@ -266,7 +266,7 @@ class PaymentManager
   {
     return $this->stripe->customers->createSource(
       $customer_id,
-      ['source' => $data["token"]]
+      ["source" => $data["token"]]
     );
   }
 
@@ -275,7 +275,7 @@ class PaymentManager
     return $this->stripe->customers->verifySource(
       $customer_id,
       $data["id"],
-      ['amounts' => [32, 45]]
+      ["amounts" => [32, 45]]
     );
   }
 
@@ -293,12 +293,12 @@ class PaymentManager
     if (!array_key_exists("limit", $data)) {
       return $this->stripe->customers->allSources(
         $customer_id,
-        ['object' => $data["type"]]
+        ["object" => $data["type"]]
       );
     } else {
       return $this->stripe->customers->allSources(
         $customer_id,
-        ['object' => $data["type"], 'limit' => $data["limit"]]
+        ["object" => $data["type"], "limit" => $data["limit"]]
       );
     }
   }
@@ -306,9 +306,9 @@ class PaymentManager
   function deposit($customer_id, $data)
   {
     return $this->stripe->charges->create([
-      'amount' => ($data["amount"] / 100),
-      'currency' => $data["currency"],
-      'customer' => $customer_id
+      "amount" => ($data["amount"] / 100),
+      "currency" => $data["currency"],
+      "customer" => $customer_id
     ]);
   }
 
@@ -316,7 +316,7 @@ class PaymentManager
   {
     return $this->stripe->customers->update(
       $customer_id,
-      ['default_source' => $data["id"]]
+      ["default_source" => $data["id"]]
     );
   }
 
