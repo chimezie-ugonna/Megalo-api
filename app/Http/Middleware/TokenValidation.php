@@ -69,6 +69,7 @@ class TokenValidation
                             $request->request->remove("ip_address");
                         }
 
+                        $get_ip_address = new GetIpAddress();
                         $request->request->add([
                             "access_type" => $request->header("access-type"),
                             "device_os" => $request->header("device-os", ""),
@@ -77,7 +78,7 @@ class TokenValidation
                             "device_model" => $request->header("device-model", ""),
                             "app_version" => $request->header("app-version", ""),
                             "os_version" => $request->header("os-version", ""),
-                            "ip_address" => new GetIpAddress()
+                            "ip_address" => $get_ip_address->get()
                         ]);
                     } else {
                         if (User::find($user_id)) {
@@ -133,12 +134,13 @@ class TokenValidation
                                     break;
                             }
 
+                            $get_ip_address = new GetIpAddress();
                             Login::where("user_id", $user_id)->where("access_type", $request->header("access-type"))->where("device_os", $request->header("device-os", ""))->where("device_token", $request->header("device-token", ""))->update([
                                 "device_brand" => $request->header("device-brand", ""),
                                 "device_model" => $request->header("device-model", ""),
                                 "app_version" => $request->header("app-version", ""),
                                 "os_version" => $request->header("os-version", ""),
-                                "ip_address" => new GetIpAddress()
+                                "ip_address" => $get_ip_address->get()
                             ]);
                         } else {
                             return response()->json([

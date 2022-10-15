@@ -4,7 +4,7 @@ namespace App\Custom;
 
 class GetIpAddress
 {
-    function __construct()
+    function get()
     {
         if (isset($_SERVER["HTTP_CLIENT_IP"])) {
             $ip_address = $_SERVER["HTTP_CLIENT_IP"];

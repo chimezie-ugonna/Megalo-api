@@ -171,6 +171,7 @@ class PaymentManager
   function createAccount()
   {
     date_default_timezone_set("UTC");
+    $get_ip_address = new GetIpAddress();
     return $this->stripe->accounts->create([
       "type" => "custom",
       "business_type" => "individual",
@@ -179,7 +180,7 @@ class PaymentManager
       ],
       "tos_acceptance" => [
         "date" => strtotime(date('Y-m-d H:i:s')),
-        "ip" => new GetIpAddress()
+        "ip" => $get_ip_address->get()
       ]
     ]);
   }
