@@ -172,7 +172,7 @@ class PaymentManager
   {
     date_default_timezone_set("UTC");
     return $this->stripe->accounts->create([
-      "type" => "custom",
+      "type" => "express",
       "business_type" => "individual",
       "capabilities" => [
         "transfers" => ["requested" => true]
