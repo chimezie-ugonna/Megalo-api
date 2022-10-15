@@ -96,18 +96,9 @@ class PaymentManager
           }
       }
     } catch (CardException $e) {
-      if ($e->getError()->payment_intent->charges->data[0]->outcome->type == "blocked") {
-        $message = "Card was blocked for suspected fraud.";
-      } elseif ($e->getError()->code == "expired_card") {
-        $message = "Card has expired.";
-      } elseif ($e->getError()->code == "card_declined") {
-        $message = "Card was declined by the issuer.";
-      } else {
-        $message = "We encountered an error with your card.";
-      }
       return response()->json([
         "status" => false,
-        "message" => $message
+        "message" => $e->getError()->message
       ], 400)->throwResponse();
     } catch (RateLimitException $e) {
       return response()->json([
