@@ -175,7 +175,6 @@ class PaymentManager
       "type" => "custom",
       "business_type" => "individual",
       "capabilities" => [
-        "bank_transfer_payments" => ["requested" => true],
         "transfers" => ["requested" => true]
       ],
       "tos_acceptance" => [
