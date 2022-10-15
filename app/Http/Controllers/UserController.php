@@ -392,7 +392,6 @@ class UserController extends Controller
     {
         $status = true;
         $payment_manager = new PaymentManager();
-        $payment_manager->manage(array("type" => "delete_account", "account_id" => "acct_1LsKZcRKuvdijzwX"));
         $account_response = $payment_manager->manage(array("type" => "delete_account", "account_id" => User::find($request->request->get("user_id"))->value("payment_account_id")));
         if (!isset($account_response) || !isset($account_response["deleted"]) || !$account_response["deleted"]) {
             $status = false;

@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use App\Custom\Authentication;
+use App\Custom\GetIpAddress;
 use App\Models\User;
 use App\Models\Login;
 use App\Models\Notification;
@@ -64,6 +65,10 @@ class TokenValidation
                         if ($request->request->has("os_version")) {
                             $request->request->remove("os_version");
                         }
+                        if ($request->request->has("ip_address")) {
+                            $request->request->remove("ip_address");
+                        }
+
                         $request->request->add([
                             "access_type" => $request->header("access-type"),
                             "device_os" => $request->header("device-os", ""),
@@ -71,7 +76,8 @@ class TokenValidation
                             "device_brand" => $request->header("device-brand", ""),
                             "device_model" => $request->header("device-model", ""),
                             "app_version" => $request->header("app-version", ""),
-                            "os_version" => $request->header("os-version", "")
+                            "os_version" => $request->header("os-version", ""),
+                            "ip_address" => new GetIpAddress()
                         ]);
                     } else {
                         if (User::find($user_id)) {
@@ -131,7 +137,8 @@ class TokenValidation
                                 "device_brand" => $request->header("device-brand", ""),
                                 "device_model" => $request->header("device-model", ""),
                                 "app_version" => $request->header("app-version", ""),
-                                "os_version" => $request->header("os-version", "")
+                                "os_version" => $request->header("os-version", ""),
+                                "ip_address" => new GetIpAddress()
                             ]);
                         } else {
                             return response()->json([

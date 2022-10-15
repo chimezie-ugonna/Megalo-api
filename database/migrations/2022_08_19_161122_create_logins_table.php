@@ -23,6 +23,7 @@ return new class extends Migration
             $table->text("device_model");
             $table->text("app_version");
             $table->text("os_version");
+            $table->text("ip_address");
             $table->timestampTz("created_at");
             $table->timestampTz("updated_at");
         });

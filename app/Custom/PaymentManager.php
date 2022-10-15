@@ -179,7 +179,7 @@ class PaymentManager
       ],
       "tos_acceptance" => [
         "date" => strtotime(date('Y-m-d H:i:s')),
-        "ip" => "8.8.8.8"
+        "ip" => new GetIpAddress()
       ]
     ]);
   }
