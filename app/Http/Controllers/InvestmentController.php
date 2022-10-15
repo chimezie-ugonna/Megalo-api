@@ -12,60 +12,68 @@ class InvestmentController extends Controller
 {
     public function create(Request $request)
     {
-        if (Property::find($request->request->get("property_id"))) {
-            $payment_amount = $request->request->get("amount_invested_usd");
-            $payment_manager = new PaymentManager();
-            $fee = $payment_manager->getPaymentProcessingFee($payment_amount) + $payment_manager->getInvestmentFee($payment_amount);
-            $user_balance = User::find($request->request->get("user_id"))->value("balance_usd");
-            if ($user_balance >= $payment_amount) {
-                $property_value = Property::find($request->request->get("property_id"))->value("value_usd");
-                $investment_percentage = (($payment_amount - $fee) / $property_value) * 100;
-                $current_property_percentage_available = Property::find($request->request->get("property_id"))->value("percentage_available");
-                $current_property_value_available = $property_value * ($current_property_percentage_available / 100);
-                if ($current_property_value_available >= ($payment_amount - $fee)) {
-                    $new_property_percentage_available = $current_property_percentage_available - $investment_percentage;
-                    if (sizeof(Investment::where("user_id", $request->request->get("user_id"))->where("property_id", $request->request->get("property_id"))->get()) > 0) {
-                        $current_amount_invested = Investment::where("user_id", $request->request->get("user_id"))->where("property_id", $request->request->get("property_id"))->value("amount_invested_usd");
-                        if ($current_amount_invested < 0.00) {
-                            $current_amount_invested = 0.00;
+        $user_identity_verified = User::find($request->request->get("user_id"))->value("identity_verified");
+        if ($user_identity_verified) {
+            if (Property::find($request->request->get("property_id"))) {
+                $payment_amount = $request->request->get("amount_invested_usd");
+                $payment_manager = new PaymentManager();
+                $fee = $payment_manager->getPaymentProcessingFee($payment_amount) + $payment_manager->getInvestmentFee($payment_amount);
+                $user_balance = User::find($request->request->get("user_id"))->value("balance_usd");
+                if ($user_balance >= $payment_amount) {
+                    $property_value = Property::find($request->request->get("property_id"))->value("value_usd");
+                    $investment_percentage = (($payment_amount - $fee) / $property_value) * 100;
+                    $current_property_percentage_available = Property::find($request->request->get("property_id"))->value("percentage_available");
+                    $current_property_value_available = $property_value * ($current_property_percentage_available / 100);
+                    if ($current_property_value_available >= ($payment_amount - $fee)) {
+                        $new_property_percentage_available = $current_property_percentage_available - $investment_percentage;
+                        if (sizeof(Investment::where("user_id", $request->request->get("user_id"))->where("property_id", $request->request->get("property_id"))->get()) > 0) {
+                            $current_amount_invested = Investment::where("user_id", $request->request->get("user_id"))->where("property_id", $request->request->get("property_id"))->value("amount_invested_usd");
+                            if ($current_amount_invested < 0.00) {
+                                $current_amount_invested = 0.00;
+                            }
+                            $request->request->set("amount_invested_usd", ($payment_amount - $fee) + $current_amount_invested);
+                            $current_investment_percentage = Investment::where("user_id", $request->request->get("user_id"))->where("property_id", $request->request->get("property_id"))->value("percentage");
+                            $investment_percentage = $current_investment_percentage + $investment_percentage;
                         }
-                        $request->request->set("amount_invested_usd", ($payment_amount - $fee) + $current_amount_invested);
-                        $current_investment_percentage = Investment::where("user_id", $request->request->get("user_id"))->where("property_id", $request->request->get("property_id"))->value("percentage");
-                        $investment_percentage = $current_investment_percentage + $investment_percentage;
-                    }
-                    if ($investment_percentage <= 10.00) {
-                        $request->request->add(["percentage" => $investment_percentage]);
-                        Investment::updateOrCreate(["user_id" => $request->request->get("user_id"), "property_id" => $request->request->get("property_id")], $request->all());
-                        Property::where("property_id", $request->request->get("property_id"))->update(["percentage_available" => $new_property_percentage_available]);
-                        $new_user_balance = $user_balance - $payment_amount;
-                        User::where("user_id", $request->request->get("user_id"))->update(["balance_usd" => $new_user_balance]);
-                        return response()->json([
-                            "status" => true,
-                            "message" => "Investment created successfully."
-                        ], 201);
+                        if ($investment_percentage <= 10.00) {
+                            $request->request->add(["percentage" => $investment_percentage]);
+                            Investment::updateOrCreate(["user_id" => $request->request->get("user_id"), "property_id" => $request->request->get("property_id")], $request->all());
+                            Property::where("property_id", $request->request->get("property_id"))->update(["percentage_available" => $new_property_percentage_available]);
+                            $new_user_balance = $user_balance - $payment_amount;
+                            User::where("user_id", $request->request->get("user_id"))->update(["balance_usd" => $new_user_balance]);
+                            return response()->json([
+                                "status" => true,
+                                "message" => "Investment created successfully."
+                            ], 201);
+                        } else {
+                            return response()->json([
+                                "status" => false,
+                                "message" => "Each user can purchase no more than 10% of a property."
+                            ], 402);
+                        }
                     } else {
                         return response()->json([
                             "status" => false,
-                            "message" => "Each user can purchase no more than 10% of a property."
+                            "message" => "Investment amount exceeds the available amount on property."
                         ], 402);
                     }
                 } else {
                     return response()->json([
                         "status" => false,
-                        "message" => "Investment amount exceeds the available amount on property."
+                        "message" => "User does not have sufficient fund in balance for this investment."
                     ], 402);
                 }
             } else {
                 return response()->json([
                     "status" => false,
-                    "message" => "User does not have sufficient fund in balance for this investment."
-                ], 402);
+                    "message" => "Property not found."
+                ], 404);
             }
         } else {
             return response()->json([
                 "status" => false,
-                "message" => "Property not found."
-            ], 404);
+                "message" => "User identity has to be verified before any investment can be made."
+            ], 401);
         }
     }
 
