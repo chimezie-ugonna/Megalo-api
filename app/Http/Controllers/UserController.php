@@ -291,9 +291,9 @@ class UserController extends Controller
     {
         $payment_manager = new PaymentManager();
         $retrieve_payment_method_response = null;
-        if ($request->request->get("action") == "deposit") {
+        if ($request->get("action") == "deposit") {
             $retrieve_payment_method_response = $payment_manager->manage(array("type" => "retrieve_customer_payment_method", "customer_id" => User::find($request->request->get("user_id"))->value("payment_customer_id"), "data" => ["id" => $request->get("id")]));
-        } else if ($request->request->get("action") == "withdrawal") {
+        } else if ($request->get("action") == "withdrawal") {
             $retrieve_payment_method_response = $payment_manager->manage(array("type" => "retrieve_account_payment_method", "account_id" => User::find($request->request->get("user_id"))->value("payment_account_id"), "data" => ["id" => $request->get("id")]));
         }
         if (isset($retrieve_payment_method_response) && isset($retrieve_payment_method_response["id"])) {
@@ -314,9 +314,9 @@ class UserController extends Controller
     {
         $payment_manager = new PaymentManager();
         $list_all_payment_method_response = null;
-        if ($request->request->get("action") == "deposit") {
+        if ($request->get("action") == "deposit") {
             $list_all_payment_method_response = $payment_manager->manage(array("type" => "list_all_customer_payment_method", "customer_id" => User::find($request->request->get("user_id"))->value("payment_customer_id"), "data" => $request->all()));
-        } else if ($request->request->get("action") == "withdrawal") {
+        } else if ($request->get("action") == "withdrawal") {
             $list_all_payment_method_response = $payment_manager->manage(array("type" => "list_all_account_payment_method", "account_id" => User::find($request->request->get("user_id"))->value("payment_account_id"), "data" => $request->all()));
         }
         if (isset($list_all_payment_method_response) && isset($list_all_payment_method_response["data"])) {
