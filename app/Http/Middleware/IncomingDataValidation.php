@@ -36,7 +36,7 @@ class IncomingDataValidation
                     "is_admin" => ["bail", "prohibited"],
                     "email_verified" => ["bail", "prohibited"],
                     "identity_verified" => ["bail", "prohibited"],
-                    "referral_code" => ["bail", "not_in:null"],
+                    "referral_code" => ["bail", "not_in:null", "filled"],
                     "payment_customer_id" => ["bail", "prohibited"],
                     "payment_account_id" => ["bail", "prohibited"]
                 ]);
@@ -115,17 +115,16 @@ class IncomingDataValidation
             } else if ($request->path() == "api/v1/notification/create") {
                 $request->validate([
                     "seen" => ["bail", "prohibited"],
-                    "tappable" => ["bail", "in:true,false"],
+                    "tappable" => ["bail", "in:true,false", "filled"],
                     "tapped" => ["bail", "prohibited"],
-                    "redirection_page" => ["bail", "in:balance,earning,property"],
+                    "redirection_page" => ["bail", "in:balance,earning,property", "filled"],
+                    "redirection_page_id" => ["bail", "not_in:null", "filled"],
+                    "sender_user_id" => ["bail", "not_in:null", "filled"],
                     "receiver_user_id" => ["bail", "required", "not_in:null"],
                     "title" => ["bail", "required", "not_in:null"],
                     "body" => ["bail", "required", "not_in:null"]
                 ]);
 
-                if ($request->request->has("sender_user_id") && !$request->filled("sender_user_id")) {
-                    $request->request->remove("sender_user_id");
-                }
                 if ($request->request->has("tappable") && $request->filled("tappable") && $request->request->get("tappable") == "true") {
                     if (!$request->request->has("redirection_page") || !$request->filled("redirection_page")) {
                         return response()->json([
@@ -154,9 +153,10 @@ class IncomingDataValidation
             } else if ($request->path() == "api/v1/notification/create_all") {
                 $request->validate([
                     "seen" => ["bail", "prohibited"],
-                    "tappable" => ["bail", "in:true,false"],
+                    "tappable" => ["bail", "in:true,false", "filled"],
                     "tapped" => ["bail", "prohibited"],
-                    "redirection_page" => ["bail", "in:balance,earning,property"],
+                    "redirection_page" => ["bail", "in:balance,earning,property", "filled"],
+                    "redirection_page_id" => ["bail", "not_in:null", "filled"],
                     "sender_user_id" => ["bail", "prohibited"],
                     "receiver_user_id" => ["bail", "prohibited"],
                     "title" => ["bail", "required", "not_in:null"],
@@ -194,12 +194,12 @@ class IncomingDataValidation
                 $request->validate([
                     "property_id" => ["bail", "required", "not_in:null"],
                     "percentage_available" => ["bail", "prohibited"],
-                    "value_usd" => ["bail", "numeric", "not_in:null"],
-                    "address" => ["bail", "not_in:null"],
-                    "image_urls" => ["bail", "not_in:null"],
-                    "description" => ["bail", "not_in:null"],
-                    "size_sf" => ["bail", "numeric", "not_in:null"],
-                    "monthly_earning_usd" => ["bail", "numeric", "not_in:null"],
+                    "value_usd" => ["bail", "numeric", "not_in:null", "filled"],
+                    "address" => ["bail", "not_in:null", "filled"],
+                    "image_urls" => ["bail", "not_in:null", "filled"],
+                    "description" => ["bail", "not_in:null", "filled"],
+                    "size_sf" => ["bail", "numeric", "not_in:null", "filled"],
+                    "monthly_earning_usd" => ["bail", "numeric", "not_in:null", "filled"],
                     "monthly_dividend_usd" => ["bail", "prohibited"]
                 ]);
                 if (sizeof($request->all()) <= 1) {
@@ -217,36 +217,17 @@ class IncomingDataValidation
                         "status" => false,
                         "message" => "There is no data to update."
                     ], 400)->throwResponse();
-                } else {
-                    if ($request->request->has("address") && !$request->filled("address")) {
-                        $request->request->remove("address");
-                    }
-                    if ($request->request->has("value_usd") && !$request->filled("value_usd")) {
-                        $request->request->remove("value_usd");
-                    }
-                    if ($request->request->has("image_urls") && !$request->filled("image_urls")) {
-                        $request->request->remove("image_urls");
-                    }
-                    if ($request->request->has("description") && !$request->filled("description")) {
-                        $request->request->remove("description");
-                    }
-                    if ($request->request->has("size_sf") && !$request->filled("size_sf")) {
-                        $request->request->remove("size_sf");
-                    }
-                    if ($request->request->has("monthly_earning_usd") && !$request->filled("monthly_earning_usd")) {
-                        $request->request->remove("monthly_earning_usd");
-                    }
                 }
             } else if ($request->path() == "api/v1/user/update") {
                 $request->validate([
                     "balance_usd" => ["bail", "prohibited"],
                     "is_admin" => ["bail", "prohibited"],
-                    "email_verified" => ["bail", "in:true,false"],
-                    "identity_verified" => ["bail", "in:true,false"],
-                    "phone_number" => ["bail", "not_in:null"],
-                    "full_name" => ["bail", "not_in:null"],
-                    "dob" => ["bail", "date_format:d/m/Y", "not_in:null"],
-                    "email" => ["bail", "email", "not_in:null"],
+                    "email_verified" => ["bail", "in:true,false", "filled"],
+                    "identity_verified" => ["bail", "in:true,false", "filled"],
+                    "phone_number" => ["bail", "not_in:null", "filled"],
+                    "full_name" => ["bail", "not_in:null", "filled"],
+                    "dob" => ["bail", "date_format:d/m/Y", "not_in:null", "filled"],
+                    "email" => ["bail", "email", "not_in:null", "filled"],
                     "referral_code" => ["bail", "prohibited"],
                     "payment_customer_id" => ["bail", "prohibited"],
                     "payment_account_id" => ["bail", "prohibited"]
@@ -267,9 +248,6 @@ class IncomingDataValidation
                         "message" => "There is no data to update."
                     ], 400)->throwResponse();
                 } else {
-                    if ($request->request->has("phone_number") && !$request->filled("phone_number")) {
-                        $request->request->remove("phone_number");
-                    }
                     if ($request->request->has("full_name")) {
                         if ($request->filled("full_name")) {
                             $full_name_split = explode(" ", $request->request->get("full_name"), 2);
@@ -285,23 +263,12 @@ class IncomingDataValidation
                         }
                         $request->request->remove("full_name");
                     }
-                    if ($request->request->has("dob") && !$request->filled("dob")) {
-                        $request->request->remove("dob");
-                    }
-                    if ($request->request->has("email") && !$request->filled("email")) {
-                        $request->request->remove("email");
-                    } else if ($request->request->has("email") && $request->filled("email")) {
+                    if ($request->request->has("email") && $request->filled("email")) {
                         if ($request->request->has("email_verified")) {
                             $request->request->set("email_verified", false);
                         } else {
                             $request->request->add(["email_verified" => false]);
                         }
-                    }
-                    if ($request->request->has("email_verified") && !$request->filled("email_verified")) {
-                        $request->request->remove("email_verified");
-                    }
-                    if ($request->request->has("identity_verified") && !$request->filled("identity_verified")) {
-                        $request->request->remove("identity_verified");
                     }
                 }
             } else if ($request->path() == "api/v1/user/update_default_payment_method") {
@@ -318,9 +285,9 @@ class IncomingDataValidation
             } else if ($request->path() == "api/v1/notification/update") {
                 $request->validate([
                     "notification_id" => ["bail", "required", "not_in:null"],
-                    "seen" => ["bail", "in:true,false"],
+                    "seen" => ["bail", "in:true,false", "filled"],
                     "tappable" => ["bail", "prohibited"],
-                    "tapped" => ["bail", "in:true,false"],
+                    "tapped" => ["bail", "in:true,false", "filled"],
                     "redirection_page" => ["bail", "prohibited"],
                     "redirection_page_id" => ["bail", "prohibited"],
                     "sender_user_id" => ["bail", "prohibited"],
@@ -344,13 +311,6 @@ class IncomingDataValidation
                         "status" => false,
                         "message" => "There is no data to update."
                     ], 400)->throwResponse();
-                } else {
-                    if ($request->request->has("seen") && !$request->filled("seen")) {
-                        $request->request->remove("seen");
-                    }
-                    if ($request->request->has("tapped") && !$request->filled("tapped")) {
-                        $request->request->remove("tapped");
-                    }
                 }
             }
         } else if ($request->isMethod("get")) {
