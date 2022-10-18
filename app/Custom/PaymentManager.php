@@ -19,16 +19,16 @@ class PaymentManager
 
   function __construct()
   {
-    session_start();
-    if (!isset($_SESSION["idempotency_key"])) {
-      $_SESSION["idempotency_key"] = uniqid(rand(), true);
-    }
     $this->stripe = new StripeClient(getenv("STRIPE_API_KEY"));
   }
 
   function manage($data)
   {
     try {
+      session_start();
+      if (!isset($_SESSION["idempotency_key"])) {
+        $_SESSION["idempotency_key"] = uniqid(rand(), true);
+      }
       switch ($data["type"]) {
         case "create_account": {
             $response = $this->createAccount();
