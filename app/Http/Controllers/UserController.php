@@ -82,6 +82,7 @@ class UserController extends Controller
 
     public function create(Request $request)
     {
+        $auth = new Authentication();
         if (!User::where("user_id", $request->request->get("user_id"))->exists()) {
             $status = true;
             $payment_manager = new PaymentManager();
@@ -161,7 +162,6 @@ class UserController extends Controller
 
                     Referral::create(["referrer_phone_number" => $referrer_phone_number, "referree_phone_number" => $referree_phone_number]);
                 }
-                $auth = new Authentication();
                 return response()->json([
                     "status" => true,
                     "message" => "User registered successfully.",
@@ -177,9 +177,12 @@ class UserController extends Controller
             }
         } else {
             return response()->json([
-                "status" => false,
-                "message" => "User has already been registered."
-            ], 400);
+                "status" => true,
+                "message" => "User already registered successfully.",
+                "data" => [
+                    "token" => $auth->encode($request->request->get("user_id"))
+                ]
+            ], 200);
         }
     }
 
