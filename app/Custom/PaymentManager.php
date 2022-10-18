@@ -19,6 +19,10 @@ class PaymentManager
 
   function __construct()
   {
+    session_start();
+    if (!isset($_SESSION["idempotency_key"])) {
+      $_SESSION["idempotency_key"] = uniqid(rand(), true);
+    }
     $this->stripe = new StripeClient(getenv("STRIPE_API_KEY"));
   }
 
@@ -103,6 +107,8 @@ class PaymentManager
             break;
           }
       }
+      session_unset();
+      session_destroy();
     } catch (CardException $e) {
       return response()->json([
         "status" => false,
@@ -156,6 +162,8 @@ class PaymentManager
           "exp_year" => $data["exp_year"],
           "cvc" => $data["cvc"],
         ],
+      ], [
+        "idempotency_key" => $_SESSION["idempotency_key"]
       ]);
     } else if ($data["type"] == "bank_account") {
       return $this->stripe->tokens->create([
@@ -164,6 +172,8 @@ class PaymentManager
           "currency" => $data["currency"],
           "account_number" => $data["account_number"],
         ],
+      ], [
+        "idempotency_key" => $_SESSION["idempotency_key"]
       ]);
     }
   }
@@ -182,6 +192,8 @@ class PaymentManager
         "date" => strtotime(date("Y-m-d H:i:s")),
         "ip" => $get_ip_address->get()
       ]
+    ], [
+      "idempotency_key" => $_SESSION["idempotency_key"]
     ]);
   }
 
@@ -189,7 +201,10 @@ class PaymentManager
   {
     return $this->stripe->accounts->createExternalAccount(
       $account_id,
-      ["external_account" => $data["token"]]
+      ["external_account" => $data["token"]],
+      [
+        "idempotency_key" => $_SESSION["idempotency_key"]
+      ]
     );
   }
 
@@ -228,6 +243,8 @@ class PaymentManager
       "amount" => ($data["amount"] / 100),
       "currency" => $data["currency"],
       "destination" => $account_id
+    ], [
+      "idempotency_key" => $_SESSION["idempotency_key"]
     ]);
   }
 
@@ -236,7 +253,10 @@ class PaymentManager
     return $this->stripe->accounts->updateExternalAccount(
       $account_id,
       $data["id"],
-      ["default_for_currency" => true]
+      ["default_for_currency" => true],
+      [
+        "idempotency_key" => $_SESSION["idempotency_key"]
+      ]
     );
   }
 
@@ -259,14 +279,19 @@ class PaymentManager
 
   function createCustomer()
   {
-    return $this->stripe->customers->create([]);
+    return $this->stripe->customers->create([], [
+      "idempotency_key" => $_SESSION["idempotency_key"]
+    ]);
   }
 
   function addCustomerPaymentMethod($customer_id, $data)
   {
     return $this->stripe->customers->createSource(
       $customer_id,
-      ["source" => $data["token"]]
+      ["source" => $data["token"]],
+      [
+        "idempotency_key" => $_SESSION["idempotency_key"]
+      ]
     );
   }
 
@@ -275,7 +300,10 @@ class PaymentManager
     return $this->stripe->customers->verifySource(
       $customer_id,
       $data["id"],
-      ["amounts" => [32, 45]]
+      ["amounts" => [32, 45]],
+      [
+        "idempotency_key" => $_SESSION["idempotency_key"]
+      ]
     );
   }
 
@@ -309,6 +337,8 @@ class PaymentManager
       "amount" => ($data["amount"] / 100),
       "currency" => $data["currency"],
       "customer" => $customer_id
+    ], [
+      "idempotency_key" => $_SESSION["idempotency_key"]
     ]);
   }
 
@@ -316,7 +346,10 @@ class PaymentManager
   {
     return $this->stripe->customers->update(
       $customer_id,
-      ["default_source" => $data["id"]]
+      ["default_source" => $data["id"]],
+      [
+        "idempotency_key" => $_SESSION["idempotency_key"]
+      ]
     );
   }
 
