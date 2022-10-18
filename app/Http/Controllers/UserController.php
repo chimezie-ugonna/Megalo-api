@@ -65,6 +65,11 @@ class UserController extends Controller
                 "message" => "A failure occurred while trying to verify otp."
             ], 500);
         }*/
+        session_start();
+        $idempotency_key = "";
+        if(!isset($_SESSION["idempotency_key"])){
+            $idempotency_key = uniqid(rand(), true);
+        }
         $auth = new Authentication();
         $data = array("token" => $auth->encode($request->request->get("phone_number")));
         if (User::where("phone_number", $request->request->get("phone_number"))->exists()) {
@@ -73,6 +78,7 @@ class UserController extends Controller
         } else {
             $data["user_exists"] = false;
         }
+        $data["idempotency_key"] = $idempotency_key;
         return response()->json([
             "status" => true,
             "message" => "The otp was not verified because our twilio credit is exhausted. But for testing purposes, this response is successful.",
