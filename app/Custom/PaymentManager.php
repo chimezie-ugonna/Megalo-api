@@ -31,84 +31,85 @@ class PaymentManager
     try {
       switch ($data["type"]) {
         case "create_account": {
-            return $this->createAccount();
+            $response = $this->createAccount();
             break;
           }
         case "create_customer": {
-            return $this->createCustomer();
+            $response = $this->createCustomer();
             break;
           }
         case "create_token": {
-            return $this->createToken($data["data"]);
+            $response = $this->createToken($data["data"]);
             break;
           }
         case "add_account_payment_method": {
-            return $this->addAccountPaymentMethod($data["account_id"], $data["data"]);
+            $response = $this->addAccountPaymentMethod($data["account_id"], $data["data"]);
             break;
           }
         case "add_customer_payment_method": {
-            return $this->addCustomerPaymentMethod($data["customer_id"], $data["data"]);
+            $response = $this->addCustomerPaymentMethod($data["customer_id"], $data["data"]);
             break;
           }
         case "verify_customer_bank_account": {
-            return $this->verifyCustomerBankAccount($data["customer_id"], $data["data"]);
+            $response = $this->verifyCustomerBankAccount($data["customer_id"], $data["data"]);
             break;
           }
         case "retrieve_account_payment_method": {
-            return $this->retrieveAccountPaymentMethod($data["account_id"], $data["data"]);
+            $response = $this->retrieveAccountPaymentMethod($data["account_id"], $data["data"]);
             break;
           }
         case "retrieve_customer_payment_method": {
-            return $this->retrieveCustomerPaymentMethod($data["customer_id"], $data["data"]);
+            $response = $this->retrieveCustomerPaymentMethod($data["customer_id"], $data["data"]);
             break;
           }
         case "list_all_account_payment_method": {
-            return $this->listAllAccountPaymentMethod($data["account_id"], $data["data"]);
+            $response = $this->listAllAccountPaymentMethod($data["account_id"], $data["data"]);
             break;
           }
         case "list_all_customer_payment_method": {
-            return $this->listAllCustomerPaymentMethod($data["customer_id"], $data["data"]);
+            $response = $this->listAllCustomerPaymentMethod($data["customer_id"], $data["data"]);
             break;
           }
         case "update_default_account_payment_method": {
-            return $this->updateDefaultAccountPaymentMethod($data["account_id"], $data["data"]);
+            $response = $this->updateDefaultAccountPaymentMethod($data["account_id"], $data["data"]);
             break;
           }
         case "update_default_customer_payment_method": {
-            return $this->updateDefaultCustomerPaymentMethod($data["customer_id"], $data["data"]);
+            $response = $this->updateDefaultCustomerPaymentMethod($data["customer_id"], $data["data"]);
             break;
           }
         case "delete_account_payment_method": {
-            return $this->deleteAccountPaymentMethod($data["account_id"], $data["data"]);
+            $response = $this->deleteAccountPaymentMethod($data["account_id"], $data["data"]);
             break;
           }
         case "delete_customer_payment_method": {
-            return $this->deleteCustomerPaymentMethod($data["customer_id"], $data["data"]);
+            $response = $this->deleteCustomerPaymentMethod($data["customer_id"], $data["data"]);
             break;
           }
         case "deposit": {
-            return $this->deposit($data["customer_id"], $data["data"]);
+            $response = $this->deposit($data["customer_id"], $data["data"]);
             break;
           }
         case "retrieve_balance": {
-            return $this->retrieveBalance();
+            $response = $this->retrieveBalance();
             break;
           }
         case "withdraw": {
-            return $this->withdraw($data["account_id"], $data["data"]);
+            $response = $this->withdraw($data["account_id"], $data["data"]);
             break;
           }
         case "delete_account": {
-            return $this->deleteAccount($data["account_id"]);
+            $response = $this->deleteAccount($data["account_id"]);
             break;
           }
         case "delete_customer": {
-            return $this->deleteCustomer($data["customer_id"]);
+            $response = $this->deleteCustomer($data["customer_id"]);
             break;
           }
       }
       session_unset();
       session_destroy();
+      return $response;
     } catch (CardException $e) {
       return response()->json([
         "status" => false,
