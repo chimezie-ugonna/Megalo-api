@@ -66,10 +66,11 @@ class UserController extends Controller
             ], 500);
         }*/
         session_start();
-        $idempotency_key = "";
         if(!isset($_SESSION["idempotency_key"])){
             $idempotency_key = uniqid(rand(), true);
             $_SESSION["idempotency_key"] = $idempotency_key;
+        }else{
+            $idempotency_key = $_SESSION["idempotency_key"];
         }
         $auth = new Authentication();
         $data = array("token" => $auth->encode($request->request->get("phone_number")));
