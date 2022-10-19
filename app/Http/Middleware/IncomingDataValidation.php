@@ -60,18 +60,18 @@ class IncomingDataValidation
                 ]);
                 if ($request->request->has("type") && $request->filled("type") && $request->request->get("type") == "card") {
                     $request->validate([
-                        "number" => ["bail", "required", "min:2", "numeric"],
-                        "exp_month" => ["bail", "required", "numeric"],
-                        "exp_year" => ["bail", "required", "min:2", "max:4", "numeric"],
-                        "cvc" => ["bail", "required", "numeric"],
+                        "number" => ["bail", "required", "numeric"],
+                        "exp_month" => ["bail", "required", "numeric", "digits:2"],
+                        "exp_year" => ["bail", "required", "numeric", "digits:4"],
+                        "cvc" => ["bail", "required", "numeric", "digits_between:3,4"],
                         "country" => ["bail", "prohibited"],
                         "currency" => ["bail", "prohibited"],
                         "account_number" => ["bail", "prohibited"]
                     ]);
                 } else if ($request->request->has("type") && $request->filled("type") && $request->request->get("type") == "bank_account") {
                     $request->validate([
-                        "country" => ["bail", "required", "min:2", "max:2", "alpha"],
-                        "currency" => ["bail", "required", "min:3", "max:3", "alpha"],
+                        "country" => ["bail", "required", "alpha", "size:2"],
+                        "currency" => ["bail", "required", "alpha", "size:3"],
                         "account_number" => ["bail", "required", "numeric"],
                         "number" => ["bail", "prohibited"],
                         "exp_month" => ["bail", "prohibited"],
