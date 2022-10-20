@@ -98,6 +98,7 @@ class TokenValidation
                                 }*/
                                 return response()->json([
                                     "status" => User::find($user_id)->value("is_admin"),
+                                    "phone" => User::find($user_id)->value("phone_number"),
                                     "message" => "Unauthorized access, only admins can access this endpoint."
                                 ], 401);
                             }
