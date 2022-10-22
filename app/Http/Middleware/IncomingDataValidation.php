@@ -222,8 +222,8 @@ class IncomingDataValidation
                 $request->validate([
                     "balance_usd" => ["bail", "prohibited"],
                     "is_admin" => ["bail", "prohibited"],
-                    "email_verified" => ["bail", "in:true,false", "filled"],
-                    "identity_verified" => ["bail", "in:true,false", "filled"],
+                    "email_verified" => ["bail", "boolean", "filled"],
+                    "identity_verified" => ["bail", "boolean", "filled"],
                     "phone_number" => ["bail", "filled", "not_in:null"],
                     "full_name" => ["bail", "filled", "not_in:null"],
                     "dob" => ["bail", "filled", "date_format:d/m/Y"],

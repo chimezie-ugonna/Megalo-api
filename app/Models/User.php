@@ -25,7 +25,7 @@ class User extends Model
         "balance_usd",
         "is_admin",
         "email_verified",
-        "identity_verified",
+        "identity_verified"
     ];
     protected $casts = [
         "first_name" => "encrypted",
