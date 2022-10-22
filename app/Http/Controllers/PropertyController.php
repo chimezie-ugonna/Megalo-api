@@ -240,7 +240,7 @@ class PropertyController extends Controller
                     $property_dividend = $property_earning / $property_value;
                     $request->request->add(["monthly_dividend_usd" => $property_dividend]);
                 }
-                Property::where("property_id", $request->request->get("property_id"))->update($request->all());
+                Property::where("property_id", $request->request->get("property_id"))->update($request->except(["user_id"]));
                 $investor_user_ids = Investment::where("property_id", $request->request->get("property_id"))->get()->pluck("user_id")->unique();
                 $notification_manager = new NotificationManager();
                 if ($request->request->has("value_usd") && $request->filled("value_usd")) {

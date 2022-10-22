@@ -31,7 +31,7 @@ class PaymentManager
       }
       switch ($data["type"]) {
         case "create_account": {
-            $response = $this->createAccount();
+            $response = $this->createAccount($data["data"]);
             break;
           }
         case "create_customer": {
@@ -179,10 +179,8 @@ class PaymentManager
     }
   }
 
-  function createAccount()
+  function createAccount($data)
   {
-    date_default_timezone_set("UTC");
-    $get_ip_address = new GetIpAddress();
     return $this->stripe->accounts->create([
       "type" => "custom",
       "business_type" => "individual",
@@ -190,8 +188,8 @@ class PaymentManager
         "transfers" => ["requested" => true]
       ],
       "tos_acceptance" => [
-        "date" => strtotime(date("Y-m-d H:i:s")),
-        "ip" => $get_ip_address->get()
+        "date" => $data["time_stamp"],
+        "ip" => $data["ip_address"]
       ]
     ], [
       "idempotency_key" => $_SESSION["idempotency_key"]

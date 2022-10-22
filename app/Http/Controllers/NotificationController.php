@@ -100,7 +100,7 @@ class NotificationController extends Controller
     public function update(Request $request)
     {
         if (Notification::where("notification_id", $request->request->get("notification_id"))->exists()) {
-            Notification::where("notification_id", $request->request->get("notification_id"))->update($request->all());
+            Notification::where("notification_id", $request->request->get("notification_id"))->update($request->except(["user_id"]));
             return response()->json([
                 "status" => true,
                 "message" => "Notification data updated successfully.",

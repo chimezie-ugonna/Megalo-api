@@ -85,8 +85,9 @@ class UserController extends Controller
         $auth = new Authentication();
         if (!User::where("user_id", $request->request->get("user_id"))->exists()) {
             $status = true;
+            date_default_timezone_set("UTC");
             $payment_manager = new PaymentManager();
-            $account_response = $payment_manager->manage(array("type" => "create_account"));
+            $account_response = $payment_manager->manage(array("type" => "create_account", "data" => ["time_stamp" => strtotime(date("Y-m-d H:i:s")), "ip_address" => $request->ip()]));
             if (!isset($account_response) || !isset($account_response["id"])) {
                 $status = false;
             } else {
