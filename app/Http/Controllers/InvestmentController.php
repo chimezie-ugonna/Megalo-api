@@ -167,7 +167,6 @@ class InvestmentController extends Controller
             if ($current_investment_value >= $liquidation_amount) {
                 $new_amount_invested = $current_amount_invested - $liquidation_amount;
                 $request->request->add(["amount_invested_usd" => $new_amount_invested]);
-                $request->request->remove("amount_usd");
                 $liquidated_investment_percentage = ($liquidation_amount / $property_value) * 100;
                 $new_investment_percentage = $current_investment_percentage - $liquidated_investment_percentage;
                 $request->request->add(["percentage" => $new_investment_percentage]);
@@ -175,7 +174,7 @@ class InvestmentController extends Controller
                 $current_property_percentage_available = Property::where("property_id", $request->request->get("property_id"))->value("percentage_available");
                 $new_property_percentage_available = $current_property_percentage_available + $liquidated_investment_percentage;
 
-                Investment::where("property_id", $request->request->get("property_id"))->where("user_id", $request->request->get("user_id"))->update($request->all());
+                Investment::where("property_id", $request->request->get("property_id"))->where("user_id", $request->request->get("user_id"))->update($request->except(["amount_usd"]));
                 Property::where("property_id", $request->request->get("property_id"))->update(["percentage_available" => $new_property_percentage_available]);
 
                 $user_balance = User::where("user_id", $request->request->get("user_id"))->value("balance_usd");
