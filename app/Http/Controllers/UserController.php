@@ -124,7 +124,7 @@ class UserController extends Controller
                 } while (User::where("referral_code", $referral_code)->exists());
                 $request->request->add(["referral_code" => $referral_code]);
                 User::create($request->all());
-                User::where("user_id", $request->request->get("user_id"))->login()->updateOrCreate(["user_id" => $request->request->get("user_id"), "access_type" => $request->request->get("access_type"), "device_token" => $request->request->get("device_token")], $request->all());
+                User::find($request->request->get("user_id"))->login()->updateOrCreate(["user_id" => $request->request->get("user_id"), "access_type" => $request->request->get("access_type"), "device_token" => $request->request->get("device_token")], $request->all());
                 if ($has_referral) {
                     $referral_payment_usd = $payment_manager->getReferralBonus();
 
@@ -420,12 +420,12 @@ class UserController extends Controller
         }
 
         if ($status) {
-            User::where("user_id", $request->request->get("user_id"))->login()->delete();
-            User::where("user_id", $request->request->get("user_id"))->investment()->delete();
-            User::where("user_id", $request->request->get("user_id"))->notificationSender()->delete();
-            User::where("user_id", $request->request->get("user_id"))->notificationReceiver()->delete();
-            User::where("user_id", $request->request->get("user_id"))->payment()->delete();
-            User::where("user_id", $request->request->get("user_id"))->earning()->delete();
+            User::find($request->request->get("user_id"))->login()->delete();
+            User::find($request->request->get("user_id"))->investment()->delete();
+            User::find($request->request->get("user_id"))->notificationSender()->delete();
+            User::find($request->request->get("user_id"))->notificationReceiver()->delete();
+            User::find($request->request->get("user_id"))->payment()->delete();
+            User::find($request->request->get("user_id"))->earning()->delete();
             User::destroy($request->request->get("user_id"));
             return response()->json([
                 "status" => true,

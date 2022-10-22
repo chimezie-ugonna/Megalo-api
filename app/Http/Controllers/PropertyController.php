@@ -322,9 +322,9 @@ class PropertyController extends Controller
             }
 
             if ($status) {
-                Property::where("property_id", $request->request->get("property_id"))->investment()->delete();
-                Property::where("property_id", $request->request->get("property_id"))->paidDividend()->delete();
-                Property::where("property_id", $request->request->get("property_id"))->earning()->delete();
+                Property::find($request->request->get("property_id"))->investment()->delete();
+                Property::find($request->request->get("property_id"))->paidDividend()->delete();
+                Property::find($request->request->get("property_id"))->earning()->delete();
                 Property::destroy($request->request->get("property_id"));
                 return response()->json([
                     "status" => true,
