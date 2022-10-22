@@ -19,9 +19,6 @@ class Payment extends Model
         "reference",
         "amount_usd"
     ];
-    protected $casts = [
-        "reference" => "encrypted"
-    ];
 
     public function user()
     {

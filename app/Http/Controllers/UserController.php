@@ -376,7 +376,7 @@ class UserController extends Controller
                 ], 400);
             }
         }
-        User::where("user_id", $request->request->get("user_id"))->update($request->all());
+        User::find($request->request->get("user_id"))->update($request->all());
         return response()->json([
             "status" => true,
             "message" => "User data updated successfully.",

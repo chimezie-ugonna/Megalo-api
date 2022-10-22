@@ -25,8 +25,6 @@ class Notification extends Model
         "tapped"
     ];
     protected $casts = [
-        "title" => "encrypted",
-        "body" => "encrypted",
         "seen" => "boolean",
         "tappable" => "boolean",
         "tapped" => "boolean"

@@ -23,9 +23,6 @@ class Property extends Model
         "monthly_dividend_usd",
         "size_sf"
     ];
-    protected $casts = [
-        "address" => "encrypted"
-    ];
 
     public function investment()
     {
