@@ -115,7 +115,7 @@ class IncomingDataValidation
             } else if ($request->path() == "api/v1/notification/create") {
                 $request->validate([
                     "seen" => ["bail", "prohibited"],
-                    "tappable" => ["bail", "in:true,false", "filled"],
+                    "tappable" => ["bail", "boolean", "filled"],
                     "tapped" => ["bail", "prohibited"],
                     "redirection_page" => ["bail", "in:balance,earning,property", "filled"],
                     "redirection_page_id" => ["bail", "filled", "not_in:null"],
@@ -153,7 +153,7 @@ class IncomingDataValidation
             } else if ($request->path() == "api/v1/notification/create_all") {
                 $request->validate([
                     "seen" => ["bail", "prohibited"],
-                    "tappable" => ["bail", "in:true,false", "filled"],
+                    "tappable" => ["bail", "boolean", "filled"],
                     "tapped" => ["bail", "prohibited"],
                     "redirection_page" => ["bail", "in:balance,earning,property", "filled"],
                     "redirection_page_id" => ["bail", "filled", "not_in:null"],
@@ -285,9 +285,9 @@ class IncomingDataValidation
             } else if ($request->path() == "api/v1/notification/update") {
                 $request->validate([
                     "notification_id" => ["bail", "required"],
-                    "seen" => ["bail", "in:true,false", "filled"],
+                    "seen" => ["bail", "boolean", "filled"],
                     "tappable" => ["bail", "prohibited"],
-                    "tapped" => ["bail", "in:true,false", "filled"],
+                    "tapped" => ["bail", "boolean", "filled"],
                     "redirection_page" => ["bail", "prohibited"],
                     "redirection_page_id" => ["bail", "prohibited"],
                     "sender_user_id" => ["bail", "prohibited"],
