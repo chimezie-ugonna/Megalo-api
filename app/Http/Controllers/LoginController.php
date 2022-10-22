@@ -11,7 +11,7 @@ class LoginController extends Controller
 {
     public function create(Request $request)
     {
-        if (User::find($request->request->get("user_id"))) {
+        if (User::where("user_id", $request->request->get("user_id"))->exists()) {
             Login::updateOrCreate(["user_id" => $request->request->get("user_id"), "access_type" => $request->request->get("access_type"), "device_os" => $request->request->get("device_os"), "device_token" => $request->request->get("device_token")], $request->all());
             $auth = new Authentication();
             return response()->json([
@@ -31,7 +31,7 @@ class LoginController extends Controller
 
     public function read(Request $request)
     {
-        if (sizeof(Login::where("user_id", $request->request->get("user_id"))->get()) > 0) {
+        if (Login::where("user_id", $request->request->get("user_id"))->exists()) {
             return response()->json([
                 "status" => true,
                 "message" => "Login data retrieved successfully.",
@@ -63,7 +63,7 @@ class LoginController extends Controller
 
     public function delete(Request $request)
     {
-        if (sizeof(Login::where("user_id", $request->request->get("user_id"))->where("access_type", $request->header("access-type"))->where("device_os", $request->header("device-os", ""))->where("device_token", $request->header("device-token", ""))->get()) > 0) {
+        if (Login::where("user_id", $request->request->get("user_id"))->where("access_type", $request->header("access-type"))->where("device_os", $request->header("device-os", ""))->where("device_token", $request->header("device-token", ""))->exists()) {
             Login::where("user_id", $request->request->get("user_id"))->where("access_type", $request->header("access-type"))->where("device_os", $request->header("device-os", ""))->where("device_token", $request->header("device-token", ""))->delete();
             return response()->json([
                 "status" => true,

@@ -69,7 +69,7 @@ class PropertyController extends Controller
 
     public function payDividend(Request $request)
     {
-        if (Property::find($request->request->get("property_id"))) {
+        if (Property::where("property_id", $request->request->get("property_id"))->exists()) {
             $status = true;
             $last_dividend_payment_period = strtotime(PaidDividend::where("property_id", $request->request->get("property_id"))->latest()->first()->value("created_at"));
             $last_dividend_payment_year = date("Y", $last_dividend_payment_period);
@@ -82,17 +82,17 @@ class PropertyController extends Controller
             }
             if ($status) {
                 $notification_manager = new NotificationManager();
-                $current_property_monthly_earning = Property::find($request->request->get("property_id"))->value("monthly_earning_usd");
+                $current_property_monthly_earning = Property::where("property_id", $request->request->get("property_id"))->value("monthly_earning_usd");
                 $request->request->add(["amount_usd" => $current_property_monthly_earning]);
                 $investor_user_ids = Investment::where("property_id", $request->request->get("property_id"))->get()->pluck("user_id")->unique();
                 $request->request->add(["investor_count" => count($investor_user_ids)]);
                 if (count($investor_user_ids) > 0) {
                     $count = 0;
                     foreach ($investor_user_ids as $user_id) {
-                        if (User::find($user_id)) {
+                        if (User::where("user_id", $user_id)->exists()) {
                             $user_percentage = Investment::where("property_id", $request->request->get("property_id"))->where("user_id", $user_id)->value("percentage");
                             $user_percentage_of_property_monthly_earning = $current_property_monthly_earning * ($user_percentage / 100);
-                            $user_balance = User::find($user_id)->value("balance_usd");
+                            $user_balance = User::where("user_id", $user_id)->value("balance_usd");
                             $new_user_balance = $user_balance + $user_percentage_of_property_monthly_earning;
                             User::where("user_id", $user_id)->update(["balance_usd" => $new_user_balance]);
                             Earning::create(["property_id" => $request->request->get("property_id"), "user_id" => $user_id, "amount_usd" => $user_percentage_of_property_monthly_earning]);
@@ -141,7 +141,7 @@ class PropertyController extends Controller
 
     public function read(Request $request)
     {
-        if (Property::find($request->get("property_id"))) {
+        if (Property::where("property_id", $request->get("property_id"))->exists()) {
             return response()->json([
                 "status" => true,
                 "message" => "Property data retrieved successfully.",
@@ -173,7 +173,7 @@ class PropertyController extends Controller
 
     public function readPaidDividend(Request $request)
     {
-        if (sizeof(PaidDividend::where("property_id", $request->get("property_id"))->get()) > 0) {
+        if (PaidDividend::where("property_id", $request->get("property_id"))->exists()) {
             return response()->json([
                 "status" => true,
                 "message" => "Paid dividend data retrieved successfully.",
@@ -189,7 +189,7 @@ class PropertyController extends Controller
 
     public function update(Request $request)
     {
-        if (Property::find($request->request->get("property_id"))) {
+        if (Property::where("property_id", $request->request->get("property_id"))->exists()) {
             $status = true;
             if ($request->request->has("image_urls") && $request->filled("image_urls")) {
                 $image_urls = explode(", ", Property::where("property_id", $request->request->get("property_id"))->value("image_urls"));
@@ -234,22 +234,22 @@ class PropertyController extends Controller
                     if ($request->request->has("value_usd") && $request->filled("value_usd")) {
                         $property_value = $request->request->get("value_usd");
                     } else {
-                        $property_value = Property::find($request->request->get("property_id"))->value("value_usd");
+                        $property_value = Property::where("property_id", $request->request->get("property_id"))->value("value_usd");
                     }
                     $property_earning = $request->request->get("monthly_earning_usd");
                     $property_dividend = $property_earning / $property_value;
                     $request->request->add(["monthly_dividend_usd" => $property_dividend]);
                 }
-                Property::find($request->request->get("property_id"))->update($request->all());
+                Property::where("property_id", $request->request->get("property_id"))->update($request->all());
                 $investor_user_ids = Investment::where("property_id", $request->request->get("property_id"))->get()->pluck("user_id")->unique();
                 $notification_manager = new NotificationManager();
                 if ($request->request->has("value_usd") && $request->filled("value_usd")) {
-                    $current_property_value = Property::find($request->request->get("property_id"))->value("value_usd");
+                    $current_property_value = Property::where("property_id", $request->request->get("property_id"))->value("value_usd");
                     $new_property_value = $request->request->get("value_usd");
                     if ($new_property_value > $current_property_value) {
                         if (count($investor_user_ids) > 0) {
                             foreach ($investor_user_ids as $user_id) {
-                                if (User::find($user_id)) {
+                                if (User::where("user_id", $user_id)->exists()) {
                                     $notification_manager->sendNotification(array(
                                         "receiver_user_id" => $user_id,
                                         "title" => "Property value increase!!!",
@@ -264,12 +264,12 @@ class PropertyController extends Controller
                     }
                 }
                 if ($request->request->has("monthly_earning_usd") && $request->filled("monthly_earning_usd")) {
-                    $current_property_monthly_earnings = Property::find($request->request->get("property_id"))->value("monthly_earning_usd");
+                    $current_property_monthly_earnings = Property::where("property_id", $request->request->get("property_id"))->value("monthly_earning_usd");
                     $new_property_monthly_earnings = $request->request->get("monthly_earning_usd");
                     if ($new_property_monthly_earnings > $current_property_monthly_earnings) {
                         if (count($investor_user_ids) > 0) {
                             foreach ($investor_user_ids as $user_id) {
-                                if (User::find($user_id)) {
+                                if (User::where("user_id", $user_id)->exists()) {
                                     $notification_manager->sendNotification(array(
                                         "receiver_user_id" => $user_id,
                                         "title" => "Property earnings increase!!!",
@@ -304,7 +304,7 @@ class PropertyController extends Controller
 
     public function delete(Request $request)
     {
-        if (Property::find($request->request->get("property_id"))) {
+        if (Property::where("property_id", $request->request->get("property_id"))->exists()) {
             $status = true;
             $image_urls = explode(", ", Property::where("property_id", $request->request->get("property_id"))->value("image_urls"));
             if (count($image_urls) > 0) {
@@ -322,9 +322,9 @@ class PropertyController extends Controller
             }
 
             if ($status) {
-                Property::find($request->request->get("property_id"))->investment()->delete();
-                Property::find($request->request->get("property_id"))->paidDividend()->delete();
-                Property::find($request->request->get("property_id"))->earning()->delete();
+                Property::where("property_id", $request->request->get("property_id"))->investment()->delete();
+                Property::where("property_id", $request->request->get("property_id"))->paidDividend()->delete();
+                Property::where("property_id", $request->request->get("property_id"))->earning()->delete();
                 Property::destroy($request->request->get("property_id"));
                 return response()->json([
                     "status" => true,

@@ -42,7 +42,7 @@ class NotificationManager
         }
       }
 
-      if ($count != 0) {
+      if ($count > 0) {
         $response = $this->client->send($message);
       }
 
@@ -63,7 +63,7 @@ class NotificationManager
           }
         }
 
-        if ($count != 0) {
+        if ($count > 0) {
           $response = $this->client->send($message);
         }
       }
@@ -84,7 +84,7 @@ class NotificationManager
         }
       }
 
-      if ($count != 0) {
+      if ($count > 0) {
         $response = $this->client->send($message);
       }
 
@@ -105,7 +105,7 @@ class NotificationManager
           }
         }
 
-        if ($count != 0) {
+        if ($count > 0) {
           $response = $this->client->send($message);
         }
       }

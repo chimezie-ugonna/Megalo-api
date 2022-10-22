@@ -13,12 +13,12 @@ class NotificationController extends Controller
     {
         $status = true;
         if ($request->request->has("sender_user_id") && $request->filled("sender_user_id")) {
-            if (!User::find($request->request->get("sender_user_id"))) {
+            if (User::where("sender_user_id", $request->request->get("sender_user_id"))->exists()) {
                 $status = false;
             }
         }
         if ($status) {
-            if (User::find($request->request->get("receiver_user_id"))) {
+            if (User::where("receiver_user_id", $request->request->get("receiver_user_id"))->exists()) {
                 $notification_manager = new NotificationManager();
                 $notification_manager->sendNotification($request->all(), array(), "user_specific");
                 return response()->json([
@@ -51,7 +51,7 @@ class NotificationController extends Controller
 
     public function read(Request $request)
     {
-        if (Notification::find($request->get("notification_id"))) {
+        if (Notification::where("notification_id", $request->get("notification_id"))->exists()) {
             return response()->json([
                 "status" => true,
                 "message" => "Notification data retrieved successfully.",
@@ -83,7 +83,7 @@ class NotificationController extends Controller
 
     public function readUserSpecific(Request $request)
     {
-        if (sizeof(Notification::where("receiver_user_id", $request->request->get("user_id"))->get()) > 0) {
+        if (Notification::where("receiver_user_id", $request->request->get("user_id"))->exists()) {
             return response()->json([
                 "status" => true,
                 "message" => "Notification data retrieved successfully.",
@@ -99,8 +99,8 @@ class NotificationController extends Controller
 
     public function update(Request $request)
     {
-        if (Notification::find($request->request->get("notification_id"))) {
-            Notification::find($request->request->get("notification_id"))->update($request->all());
+        if (Notification::where("notification_id", $request->request->get("notification_id"))->exists()) {
+            Notification::where("notification_id", $request->request->get("notification_id"))->update($request->all());
             return response()->json([
                 "status" => true,
                 "message" => "Notification data updated successfully.",
@@ -115,7 +115,7 @@ class NotificationController extends Controller
 
     public function delete(Request $request)
     {
-        if (Notification::find($request->request->get("notification_id"))) {
+        if (Notification::where("notification_id", $request->request->get("notification_id"))->exists()) {
             Notification::destroy($request->request->get("notification_id"));
             return response()->json([
                 "status" => true,

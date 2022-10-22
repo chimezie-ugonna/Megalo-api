@@ -36,7 +36,7 @@ class TokenValidation
                             } else {
                                 do {
                                     $user_id = uniqid(rand(), true);
-                                } while (User::find($user_id));
+                                } while (User::where("user_id", $user_id)->exists());
                             }
                         } else {
                             return response()->json([
@@ -81,8 +81,8 @@ class TokenValidation
                             "ip_address" => $get_ip_address->get()
                         ]);
                     } else {
-                        if (User::find($user_id)) {
-                            if (sizeof(Login::where("user_id", $user_id)->where("access_type", $request->header("access-type"))->where("device_os", $request->header("device-os", ""))->where("device_token", $request->header("device-token", ""))->get()) == 0) {
+                        if (User::where("user_id", $user_id)->exists()) {
+                            if (!Login::where("user_id", $user_id)->where("access_type", $request->header("access-type"))->where("device_os", $request->header("device-os", ""))->where("device_token", $request->header("device-token", ""))->exists()) {
                                 return response()->json([
                                     "status" => false,
                                     "message" => "User not logged in. User needs to be logged in to access this endpoint."
@@ -90,18 +90,14 @@ class TokenValidation
                             }
 
                             if ($request->path() == "api/v1/user/read_all" || $request->path() == "api/v1/user/read_all_earning" || $request->path() == "api/v1/login/read" || $request->path() == "api/v1/login/read_all" || $request->path() == "api/v1/property/create" || $request->path() == "api/v1/property/pay_dividend" || $request->path() == "api/v1/property/read_all" || $request->path() == "api/v1/property/read_paid_dividend" || $request->path() == "api/v1/property/update" || $request->path() == "api/v1/property/delete" || $request->path() == "api/v1/investment/read_all" || $request->path() == "api/v1/payment/read_all" || $request->path() == "api/v1/notification/create" || $request->path() == "api/v1/notification/create_all" || $request->path() == "api/v1/notification/read_all") {
-                                /*if (!User::find($user_id)->value("is_admin")) {
+                                if (!User::where("user_id", $user_id)->value("is_admin")) {
                                     return response()->json([
                                         "status" => false,
+                                        "all_data1" => User::where("user_id", $user_id),
+                                        "all_data2" => User::find($user_id),
                                         "message" => "Unauthorized access, only admins can access this endpoint."
                                     ], 401);
-                                }*/
-                                return response()->json([
-                                    "status" => User::where("user_id", $user_id)->value("is_admin"),
-                                    "phone" => User::where("user_id", $user_id)->value("phone_number"),
-                                    "user_id" => $user_id,
-                                    "message" => "Unauthorized access, only admins can access this endpoint."
-                                ], 401);
+                                }
                             }
 
                             switch ($request->path()) {
@@ -112,7 +108,7 @@ class TokenValidation
 
                                     do {
                                         $property_id = uniqid(rand(), true);
-                                    } while (Property::find($property_id));
+                                    } while (Property::where("property_id", $property_id)->exists());
                                     $request->request->add(["property_id" => $property_id]);
 
                                     break;
@@ -123,7 +119,7 @@ class TokenValidation
 
                                     do {
                                         $payment_id = uniqid(rand(), true);
-                                    } while (Payment::find($payment_id));
+                                    } while (Payment::where("payment_id", $payment_id)->exists());
                                     $request->request->add(["payment_id" => $payment_id]);
 
                                     break;
@@ -134,7 +130,7 @@ class TokenValidation
 
                                     do {
                                         $notification_id = uniqid(rand(), true);
-                                    } while (Notification::find($notification_id));
+                                    } while (Notification::where("notification_id", $notification_id)->exists());
                                     $request->request->add(["notification_id" => $notification_id]);
 
                                     break;

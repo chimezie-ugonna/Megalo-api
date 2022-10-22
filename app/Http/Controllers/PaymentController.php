@@ -11,18 +11,18 @@ class PaymentController extends Controller
 {
     public function create(Request $request)
     {
-        $user_identity_verified = User::find($request->request->get("user_id"))->value("identity_verified");
+        $user_identity_verified = User::where("user_id", $request->request->get("user_id"))->value("identity_verified");
         if ($user_identity_verified) {
             $payment_amount = $request->request->get("amount_usd");
-            $user_balance = User::find($request->request->get("user_id"))->value("balance_usd");
+            $user_balance = User::where("user_id", $request->request->get("user_id"))->value("balance_usd");
             $new_user_balance = $user_balance;
             $payment_manager = new PaymentManager();
             if ($request->request->get("type") == "deposit") {
-                $list_all_customer_card_response = $payment_manager->manage(array("type" => "list_all_customer_payment_method", "customer_id" => User::find($request->request->get("user_id"))->value("payment_customer_id"), "data" => ["type" => "card", "limit" => 1]));
-                $list_all_customer_bank_account_response = $payment_manager->manage(array("type" => "list_all_customer_payment_method", "customer_id" => User::find($request->request->get("user_id"))->value("payment_customer_id"), "data" => ["type" => "bank_account", "limit" => 1]));
+                $list_all_customer_card_response = $payment_manager->manage(array("type" => "list_all_customer_payment_method", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id"), "data" => ["type" => "card", "limit" => 1]));
+                $list_all_customer_bank_account_response = $payment_manager->manage(array("type" => "list_all_customer_payment_method", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id"), "data" => ["type" => "bank_account", "limit" => 1]));
                 if (isset($list_all_customer_card_response) && isset($list_all_customer_card_response["data"]) || isset($list_all_customer_bank_account_response) && isset($list_all_customer_bank_account_response["data"])) {
                     if (sizeof($list_all_customer_card_response["data"]) > 0 || sizeof($list_all_customer_bank_account_response["data"]) > 0) {
-                        $deposit_response = $payment_manager->manage(array("type" => "deposit", "customer_id" => User::find($request->request->get("user_id"))->value("payment_customer_id"), "data" => ["amount" => $payment_amount, "currency" => "usd"]));
+                        $deposit_response = $payment_manager->manage(array("type" => "deposit", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id"), "data" => ["amount" => $payment_amount, "currency" => "usd"]));
                         if (isset($deposit_response) && isset($deposit_response["id"])) {
                             $request->request->add(["reference" => $deposit_response["id"]]);
                             $new_user_balance = $user_balance + $payment_amount;
@@ -46,14 +46,14 @@ class PaymentController extends Controller
                 }
             } else if ($request->request->get("type") == "withdrawal") {
                 if ($user_balance >= $payment_amount) {
-                    $list_all_account_card_response = $payment_manager->manage(array("type" => "list_all_account_payment_method", "account_id" => User::find($request->request->get("user_id"))->value("payment_account_id"), "data" => ["type" => "card", "limit" => 1]));
-                    $list_all_account_bank_account_response = $payment_manager->manage(array("type" => "list_all_account_payment_method", "account_id" => User::find($request->request->get("user_id"))->value("payment_account_id"), "data" => ["type" => "bank_account", "limit" => 1]));
+                    $list_all_account_card_response = $payment_manager->manage(array("type" => "list_all_account_payment_method", "account_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_account_id"), "data" => ["type" => "card", "limit" => 1]));
+                    $list_all_account_bank_account_response = $payment_manager->manage(array("type" => "list_all_account_payment_method", "account_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_account_id"), "data" => ["type" => "bank_account", "limit" => 1]));
                     if (isset($list_all_account_card_response) && isset($list_all_account_card_response["data"]) || isset($list_all_account_bank_account_response) && isset($list_all_account_bank_account_response["data"])) {
                         if (sizeof($list_all_account_card_response["data"]) > 0 || sizeof($list_all_account_bank_account_response["data"]) > 0) {
                             $retrieve_balance_response = $payment_manager->manage(array("type" => "retrieve_balance"));
                             if (isset($retrieve_balance_response) && isset($retrieve_balance_response["available"])) {
                                 if ($retrieve_balance_response["available"][0]["amount"] >= $payment_amount) {
-                                    $withdraw_response = $payment_manager->manage(array("type" => "withdraw", "account_id" => User::find($request->request->get("user_id"))->value("payment_account_id"), "data" => ["amount" => $payment_amount, "currency" => "usd"]));
+                                    $withdraw_response = $payment_manager->manage(array("type" => "withdraw", "account_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_account_id"), "data" => ["amount" => $payment_amount, "currency" => "usd"]));
                                     if (isset($withdraw_response) && isset($withdraw_response["id"])) {
                                         $request->request->add(["reference" => $withdraw_response["id"]]);
                                         $new_user_balance = $user_balance - $payment_amount;
@@ -110,7 +110,7 @@ class PaymentController extends Controller
 
     public function read(Request $request)
     {
-        if (Payment::find($request->get("payment_id"))) {
+        if (Payment::where("payment_id", $request->get("payment_id"))->exists()) {
             return response()->json([
                 "status" => true,
                 "message" => "Payment data retrieved successfully.",
@@ -142,7 +142,7 @@ class PaymentController extends Controller
 
     public function readUserSpecific(Request $request)
     {
-        if (sizeof(Payment::where("user_id", $request->request->get("user_id"))->get()) > 0) {
+        if (Payment::where("user_id", $request->request->get("user_id"))->exists()) {
             return response()->json([
                 "status" => true,
                 "message" => "Payment data retrieved successfully.",
@@ -158,7 +158,7 @@ class PaymentController extends Controller
 
     public function delete(Request $request)
     {
-        if (Payment::find($request->request->get("payment_id"))) {
+        if (Payment::where("payment_id", $request->request->get("payment_id"))->exists()) {
             Payment::destroy($request->request->get("payment_id"));
             return response()->json([
                 "status" => true,

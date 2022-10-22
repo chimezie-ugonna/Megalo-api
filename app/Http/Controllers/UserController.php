@@ -121,10 +121,10 @@ class UserController extends Controller
                     for ($i = 0; $i < 3; $i++) {
                         $referral_code .= $alphabets[rand(0, 25)] . rand(0, 9);
                     }
-                } while (sizeof(User::where("referral_code", $referral_code)->get()) != 0);
+                } while (User::where("referral_code", $referral_code)->exists());
                 $request->request->add(["referral_code" => $referral_code]);
                 User::create($request->all());
-                User::find($request->request->get("user_id"))->login()->updateOrCreate(["user_id" => $request->request->get("user_id"), "access_type" => $request->request->get("access_type"), "device_token" => $request->request->get("device_token")], $request->all());
+                User::where("user_id", $request->request->get("user_id"))->login()->updateOrCreate(["user_id" => $request->request->get("user_id"), "access_type" => $request->request->get("access_type"), "device_token" => $request->request->get("device_token")], $request->all());
                 if ($has_referral) {
                     $referral_payment_usd = $payment_manager->getReferralBonus();
 
@@ -194,20 +194,20 @@ class UserController extends Controller
             $token = $create_token_response["id"];
             $add_payment_method_response = null;
             if ($request->request->get("action") == "deposit") {
-                $add_payment_method_response = $payment_manager->manage(array("type" => "add_customer_payment_method", "customer_id" => User::find($request->request->get("user_id"))->value("payment_customer_id"), "data" => ["token" => $token]));
+                $add_payment_method_response = $payment_manager->manage(array("type" => "add_customer_payment_method", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id"), "data" => ["token" => $token]));
             } else if ($request->request->get("action") == "withdrawal") {
-                $add_payment_method_response = $payment_manager->manage(array("type" => "add_account_payment_method", "account_id" => User::find($request->request->get("user_id"))->value("payment_account_id"), "data" => ["token" => $token]));
+                $add_payment_method_response = $payment_manager->manage(array("type" => "add_account_payment_method", "account_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_account_id"), "data" => ["token" => $token]));
             }
             if (isset($add_payment_method_response) && isset($add_payment_method_response["id"])) {
                 if ($request->request->get("action") == "deposit" && $request->request->get("type") == "bank_account") {
-                    $verify_customer_bank_account_response = $payment_manager->manage(array("type" => "verify_customer_bank_account", "customer_id" => User::find($request->request->get("user_id"))->value("payment_customer_id"), "data" => ["id" => $add_payment_method_response["id"]]));
+                    $verify_customer_bank_account_response = $payment_manager->manage(array("type" => "verify_customer_bank_account", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id"), "data" => ["id" => $add_payment_method_response["id"]]));
                     if (isset($verify_customer_bank_account_response) && isset($verify_customer_bank_account_response["status"]) && $verify_customer_bank_account_response["status"] == "verified") {
                         return response()->json([
                             "status" => true,
                             "message" => "Payment method added successfully."
                         ], 201);
                     } else {
-                        $delete_customer_payment_method_response = $payment_manager->manage(array("type" => "delete_customer_payment_method", "customer_id" => User::find($request->request->get("user_id"))->value("payment_customer_id"), "data" => ["id" => $add_payment_method_response["id"]]));
+                        $delete_customer_payment_method_response = $payment_manager->manage(array("type" => "delete_customer_payment_method", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id"), "data" => ["id" => $add_payment_method_response["id"]]));
                         if (isset($delete_customer_payment_method_response) && isset($delete_customer_payment_method_response["deleted"]) && $delete_customer_payment_method_response["deleted"]) {
                             return response()->json([
                                 "status" => false,
@@ -242,11 +242,18 @@ class UserController extends Controller
 
     public function read(Request $request)
     {
-        return response()->json([
-            "status" => true,
-            "message" => "User data retrieved successfully.",
-            "data" => User::where("user_id", $request->request->get("user_id"))->get()
-        ], 200);
+        if (User::where("user_id", $request->request->get("user_id"))->exists()) {
+            return response()->json([
+                "status" => true,
+                "message" => "User data retrieved successfully.",
+                "data" => User::where("user_id", $request->request->get("user_id"))->get()
+            ], 200);
+        } else {
+            return response()->json([
+                "status" => false,
+                "message" => "User data not found."
+            ], 404);
+        }
     }
 
     public function readAll()
@@ -267,7 +274,7 @@ class UserController extends Controller
 
     public function readEarning(Request $request)
     {
-        if (sizeof(Earning::where("user_id", $request->request->get("user_id"))->where("property_id", $request->get("property_id"))->get()) > 0) {
+        if (Earning::where("user_id", $request->request->get("user_id"))->where("property_id", $request->get("property_id"))->exists()) {
             return response()->json([
                 "status" => true,
                 "message" => "User earning data retrieved successfully.",
@@ -283,7 +290,7 @@ class UserController extends Controller
 
     public function readAllEarning(Request $request)
     {
-        if (sizeof(Earning::where("user_id", $request->request->get("user_id"))->get()) > 0) {
+        if (Earning::where("user_id", $request->request->get("user_id"))->exists()) {
             return response()->json([
                 "status" => true,
                 "message" => "All user earning data retrieved successfully.",
@@ -302,9 +309,9 @@ class UserController extends Controller
         $payment_manager = new PaymentManager();
         $retrieve_payment_method_response = null;
         if ($request->get("action") == "deposit") {
-            $retrieve_payment_method_response = $payment_manager->manage(array("type" => "retrieve_customer_payment_method", "customer_id" => User::find($request->request->get("user_id"))->value("payment_customer_id"), "data" => ["id" => $request->get("id")]));
+            $retrieve_payment_method_response = $payment_manager->manage(array("type" => "retrieve_customer_payment_method", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id"), "data" => ["id" => $request->get("id")]));
         } else if ($request->get("action") == "withdrawal") {
-            $retrieve_payment_method_response = $payment_manager->manage(array("type" => "retrieve_account_payment_method", "account_id" => User::find($request->request->get("user_id"))->value("payment_account_id"), "data" => ["id" => $request->get("id")]));
+            $retrieve_payment_method_response = $payment_manager->manage(array("type" => "retrieve_account_payment_method", "account_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_account_id"), "data" => ["id" => $request->get("id")]));
         }
         if (isset($retrieve_payment_method_response) && isset($retrieve_payment_method_response["id"])) {
             return response()->json([
@@ -325,9 +332,9 @@ class UserController extends Controller
         $payment_manager = new PaymentManager();
         $list_all_payment_method_response = null;
         if ($request->get("action") == "deposit") {
-            $list_all_payment_method_response = $payment_manager->manage(array("type" => "list_all_customer_payment_method", "customer_id" => User::find($request->request->get("user_id"))->value("payment_customer_id"), "data" => $request->all()));
+            $list_all_payment_method_response = $payment_manager->manage(array("type" => "list_all_customer_payment_method", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id"), "data" => $request->all()));
         } else if ($request->get("action") == "withdrawal") {
-            $list_all_payment_method_response = $payment_manager->manage(array("type" => "list_all_account_payment_method", "account_id" => User::find($request->request->get("user_id"))->value("payment_account_id"), "data" => $request->all()));
+            $list_all_payment_method_response = $payment_manager->manage(array("type" => "list_all_account_payment_method", "account_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_account_id"), "data" => $request->all()));
         }
         if (isset($list_all_payment_method_response) && isset($list_all_payment_method_response["data"])) {
             if (sizeof($list_all_payment_method_response["data"]) > 0) {
@@ -353,7 +360,7 @@ class UserController extends Controller
     public function update(Request $request)
     {
         if ($request->request->has("first_name") && $request->filled("first_name") || $request->request->has("last_name") && $request->filled("last_name") || $request->request->has("dob") && $request->filled("dob")) {
-            $identity_verified = User::find($request->request->get("user_id"))->value("identity_verified");
+            $identity_verified = User::where("user_id", $request->request->get("user_id"))->value("identity_verified");
             if ($identity_verified) {
                 return response()->json([
                     "status" => false,
@@ -369,7 +376,7 @@ class UserController extends Controller
                 ], 400);
             }
         }
-        User::find($request->request->get("user_id"))->update($request->all());
+        User::where("user_id", $request->request->get("user_id"))->update($request->all());
         return response()->json([
             "status" => true,
             "message" => "User data updated successfully.",
@@ -381,9 +388,9 @@ class UserController extends Controller
         $payment_manager = new PaymentManager();
         $update_default_payment_method_response = null;
         if ($request->request->get("action") == "deposit") {
-            $update_default_payment_method_response = $payment_manager->manage(array("type" => "update_default_customer_payment_method", "customer_id" => User::find($request->request->get("user_id"))->value("payment_customer_id"), "data" => ["id" => $request->request->get("id")]));
+            $update_default_payment_method_response = $payment_manager->manage(array("type" => "update_default_customer_payment_method", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id"), "data" => ["id" => $request->request->get("id")]));
         } else if ($request->request->get("action") == "withdrawal") {
-            $update_default_payment_method_response = $payment_manager->manage(array("type" => "update_default_account_payment_method", "account_id" => User::find($request->request->get("user_id"))->value("payment_account_id"), "data" => ["id" => $request->request->get("id")]));
+            $update_default_payment_method_response = $payment_manager->manage(array("type" => "update_default_account_payment_method", "account_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_account_id"), "data" => ["id" => $request->request->get("id")]));
         }
         if (isset($update_default_payment_method_response) && isset($update_default_payment_method_response["id"])) {
             return response()->json([
@@ -402,23 +409,23 @@ class UserController extends Controller
     {
         $status = true;
         $payment_manager = new PaymentManager();
-        $account_response = $payment_manager->manage(array("type" => "delete_account", "account_id" => User::find($request->request->get("user_id"))->value("payment_account_id")));
+        $account_response = $payment_manager->manage(array("type" => "delete_account", "account_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_account_id")));
         if (!isset($account_response) || !isset($account_response["deleted"]) || !$account_response["deleted"]) {
             $status = false;
         } else {
-            $customer_response = $payment_manager->manage(array("type" => "delete_customer", "customer_id" => User::find($request->request->get("user_id"))->value("payment_customer_id")));
+            $customer_response = $payment_manager->manage(array("type" => "delete_customer", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id")));
             if (!isset($customer_response) || !isset($customer_response["deleted"]) || !$customer_response["deleted"]) {
                 $status = false;
             }
         }
 
         if ($status) {
-            User::find($request->request->get("user_id"))->login()->delete();
-            User::find($request->request->get("user_id"))->investment()->delete();
-            User::find($request->request->get("user_id"))->notificationSender()->delete();
-            User::find($request->request->get("user_id"))->notificationReceiver()->delete();
-            User::find($request->request->get("user_id"))->payment()->delete();
-            User::find($request->request->get("user_id"))->earning()->delete();
+            User::where("user_id", $request->request->get("user_id"))->login()->delete();
+            User::where("user_id", $request->request->get("user_id"))->investment()->delete();
+            User::where("user_id", $request->request->get("user_id"))->notificationSender()->delete();
+            User::where("user_id", $request->request->get("user_id"))->notificationReceiver()->delete();
+            User::where("user_id", $request->request->get("user_id"))->payment()->delete();
+            User::where("user_id", $request->request->get("user_id"))->earning()->delete();
             User::destroy($request->request->get("user_id"));
             return response()->json([
                 "status" => true,
@@ -437,9 +444,9 @@ class UserController extends Controller
         $payment_manager = new PaymentManager();
         $delete_payment_method_response = null;
         if ($request->request->get("action") == "deposit") {
-            $delete_payment_method_response = $payment_manager->manage(array("type" => "delete_customer_payment_method", "customer_id" => User::find($request->request->get("user_id"))->value("payment_customer_id"), "data" => ["id" => $request->request->get("id")]));
+            $delete_payment_method_response = $payment_manager->manage(array("type" => "delete_customer_payment_method", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id"), "data" => ["id" => $request->request->get("id")]));
         } else if ($request->request->get("action") == "withdrawal") {
-            $delete_payment_method_response = $payment_manager->manage(array("type" => "delete_account_payment_method", "account_id" => User::find($request->request->get("user_id"))->value("payment_account_id"), "data" => ["id" => $request->request->get("id")]));
+            $delete_payment_method_response = $payment_manager->manage(array("type" => "delete_account_payment_method", "account_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_account_id"), "data" => ["id" => $request->request->get("id")]));
         }
         if (isset($delete_payment_method_response) && isset($delete_payment_method_response["deleted"]) && $delete_payment_method_response["deleted"]) {
             return response()->json([

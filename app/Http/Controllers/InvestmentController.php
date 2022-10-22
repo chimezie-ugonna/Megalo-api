@@ -12,21 +12,21 @@ class InvestmentController extends Controller
 {
     public function create(Request $request)
     {
-        $user_identity_verified = User::find($request->request->get("user_id"))->value("identity_verified");
+        $user_identity_verified = User::where("user_id", $request->request->get("user_id"))->value("identity_verified");
         if ($user_identity_verified) {
-            if (Property::find($request->request->get("property_id"))) {
+            if (Property::where("property_id", $request->request->get("property_id"))->exists()) {
                 $payment_amount = $request->request->get("amount_invested_usd");
                 $payment_manager = new PaymentManager();
                 $fee = $payment_manager->getPaymentProcessingFee($payment_amount) + $payment_manager->getInvestmentFee($payment_amount);
-                $user_balance = User::find($request->request->get("user_id"))->value("balance_usd");
+                $user_balance = User::where("user_id", $request->request->get("user_id"))->value("balance_usd");
                 if ($user_balance >= $payment_amount) {
-                    $property_value = Property::find($request->request->get("property_id"))->value("value_usd");
+                    $property_value = Property::where("property_id", $request->request->get("property_id"))->value("value_usd");
                     $investment_percentage = (($payment_amount - $fee) / $property_value) * 100;
-                    $current_property_percentage_available = Property::find($request->request->get("property_id"))->value("percentage_available");
+                    $current_property_percentage_available = Property::where("property_id", $request->request->get("property_id"))->value("percentage_available");
                     $current_property_value_available = $property_value * ($current_property_percentage_available / 100);
                     if ($current_property_value_available >= ($payment_amount - $fee)) {
                         $new_property_percentage_available = $current_property_percentage_available - $investment_percentage;
-                        if (sizeof(Investment::where("user_id", $request->request->get("user_id"))->where("property_id", $request->request->get("property_id"))->get()) > 0) {
+                        if (Investment::where("user_id", $request->request->get("user_id"))->where("property_id", $request->request->get("property_id"))->exists()) {
                             $current_amount_invested = Investment::where("user_id", $request->request->get("user_id"))->where("property_id", $request->request->get("property_id"))->value("amount_invested_usd");
                             if ($current_amount_invested < 0.00) {
                                 $current_amount_invested = 0.00;
@@ -95,7 +95,7 @@ class InvestmentController extends Controller
 
     public function readUserAndPropertySpecific(Request $request)
     {
-        if (sizeof(Investment::where("property_id", $request->get("property_id"))->where("user_id", $request->request->get("user_id"))->get()) > 0) {
+        if (Investment::where("property_id", $request->get("property_id"))->where("user_id", $request->request->get("user_id"))->exists()) {
             return response()->json([
                 "status" => true,
                 "message" => "Investment data retrieved successfully.",
@@ -111,7 +111,7 @@ class InvestmentController extends Controller
 
     public function readUserSpecific(Request $request)
     {
-        if (sizeof(Investment::where("user_id", $request->request->get("user_id"))->get()) > 0) {
+        if (Investment::where("user_id", $request->request->get("user_id"))->exists()) {
             return response()->json([
                 "status" => true,
                 "message" => "Investment data retrieved successfully.",
@@ -127,7 +127,7 @@ class InvestmentController extends Controller
 
     public function readPropertySpecific(Request $request)
     {
-        if (sizeof(Investment::where("property_id", $request->get("property_id"))->get()) > 0) {
+        if (Investment::where("property_id", $request->get("property_id"))->exists()) {
             return response()->json([
                 "status" => true,
                 "message" => "Investment data retrieved successfully.",
@@ -143,7 +143,7 @@ class InvestmentController extends Controller
 
     public function liquidate(Request $request)
     {
-        if (sizeof(Investment::where("property_id", $request->request->get("property_id"))->where("user_id", $request->request->get("user_id"))->get()) > 0) {
+        if (Investment::where("property_id", $request->request->get("property_id"))->where("user_id", $request->request->get("user_id"))->exists()) {
             $fee = 0.00;
             $initial_investment_period = strtotime(Investment::where("property_id", $request->request->get("property_id"))->where("user_id", $request->request->get("user_id"))->value("created_at"));
             $initial_investment_year = date("Y", $initial_investment_period);
@@ -162,7 +162,7 @@ class InvestmentController extends Controller
             }
             $current_investment_percentage = Investment::where("user_id", $request->request->get("user_id"))->where("property_id", $request->request->get("property_id"))->value("percentage");
             $current_amount_invested = Investment::where("user_id", $request->request->get("user_id"))->where("property_id", $request->request->get("property_id"))->value("amount_invested_usd");
-            $property_value = Property::find($request->request->get("property_id"))->value("value_usd");
+            $property_value = Property::where("property_id", $request->request->get("property_id"))->value("value_usd");
             $current_investment_value = $property_value * ($current_investment_percentage / 100);
             if ($current_investment_value >= $liquidation_amount) {
                 $new_amount_invested = $current_amount_invested - $liquidation_amount;
@@ -172,18 +172,18 @@ class InvestmentController extends Controller
                 $new_investment_percentage = $current_investment_percentage - $liquidated_investment_percentage;
                 $request->request->add(["percentage" => $new_investment_percentage]);
 
-                $current_property_percentage_available = Property::find($request->request->get("property_id"))->value("percentage_available");
+                $current_property_percentage_available = Property::where("property_id", $request->request->get("property_id"))->value("percentage_available");
                 $new_property_percentage_available = $current_property_percentage_available + $liquidated_investment_percentage;
 
-                Investment::where("property_id", $request->get("property_id"))->where("user_id", $request->request->get("user_id"))->update($request->all());
+                Investment::where("property_id", $request->request->get("property_id"))->where("user_id", $request->request->get("user_id"))->update($request->all());
                 Property::where("property_id", $request->request->get("property_id"))->update(["percentage_available" => $new_property_percentage_available]);
 
-                $user_balance = User::find($request->request->get("user_id"))->value("balance_usd");
+                $user_balance = User::where("user_id", $request->request->get("user_id"))->value("balance_usd");
                 $new_user_balance = $user_balance + ($liquidation_amount - $fee);
                 User::where("user_id", $request->request->get("user_id"))->update(["balance_usd" => $new_user_balance]);
 
                 if ($new_investment_percentage <= 0.00) {
-                    Investment::where("property_id", $request->get("property_id"))->where("user_id", $request->request->get("user_id"))->delete();
+                    Investment::where("property_id", $request->request->get("property_id"))->where("user_id", $request->request->get("user_id"))->delete();
                 }
 
                 return response()->json([
