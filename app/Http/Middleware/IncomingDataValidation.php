@@ -116,77 +116,25 @@ class IncomingDataValidation
                     "seen" => ["bail", "prohibited"],
                     "tappable" => ["bail", "filled", "boolean"],
                     "tapped" => ["bail", "prohibited"],
-                    "redirection_page" => ["bail", "filled", "in:balance,earning,property"],
-                    "redirection_page_id" => ["bail", "filled", "not_in:null"],
+                    "redirection_page" => ["bail", "filled", "in:balance,earning,property", "required_if:tappable,true,1", "prohibited_if:tappable,false,0"],
+                    "redirection_page_id" => ["bail", "filled", "not_in:null", "required_if:tappable,true,1", "prohibited_if:tappable,false,0"],
                     "sender_user_id" => ["bail", "filled", "not_in:null"],
                     "receiver_user_id" => ["bail", "required"],
                     "title" => ["bail", "required"],
                     "body" => ["bail", "required"]
                 ]);
-
-                if ($request->request->has("tappable") && $request->filled("tappable") && $request->request->get("tappable") == "true") {
-                    if (!$request->request->has("redirection_page") || !$request->filled("redirection_page")) {
-                        return response()->json([
-                            "status" => false,
-                            "message" => "A 'redirection_page' value is required if 'tappable' value is 'true'."
-                        ], 400)->throwResponse();
-                    } else if (!$request->request->has("redirection_page_id") || !$request->filled("redirection_page_id")) {
-                        return response()->json([
-                            "status" => false,
-                            "message" => "A 'redirection_page_id' value is required if 'tappable' value is 'true'."
-                        ], 400)->throwResponse();
-                    }
-                } else {
-                    if ($request->request->has("redirection_page")) {
-                        return response()->json([
-                            "status" => false,
-                            "message" => "The 'redirection_page' field is not required if 'tappable' value is not 'true'."
-                        ], 400)->throwResponse();
-                    } else if ($request->request->has("redirection_page_id")) {
-                        return response()->json([
-                            "status" => false,
-                            "message" => "The 'redirection_page_id' field is not required if 'tappable' value is not 'true'."
-                        ], 400)->throwResponse();
-                    }
-                }
             } else if ($request->path() == "api/v1/notification/create_all") {
                 $request->validate([
                     "seen" => ["bail", "prohibited"],
                     "tappable" => ["bail", "filled", "boolean"],
                     "tapped" => ["bail", "prohibited"],
-                    "redirection_page" => ["bail", "filled", "in:balance,earning,property"],
-                    "redirection_page_id" => ["bail", "filled", "not_in:null"],
+                    "redirection_page" => ["bail", "filled", "in:balance,earning,property", "required_if:tappable,true,1", "prohibited_if:tappable,false,0"],
+                    "redirection_page_id" => ["bail", "filled", "not_in:null", "required_if:tappable,true,1", "prohibited_if:tappable,false,0"],
                     "sender_user_id" => ["bail", "prohibited"],
                     "receiver_user_id" => ["bail", "prohibited"],
                     "title" => ["bail", "required"],
                     "body" => ["bail", "required"]
                 ]);
-
-                if ($request->request->has("tappable") && $request->filled("tappable") && $request->request->get("tappable") == "true") {
-                    if (!$request->request->has("redirection_page") || !$request->filled("redirection_page")) {
-                        return response()->json([
-                            "status" => false,
-                            "message" => "A 'redirection_page' value is required if 'tappable' value is 'true'."
-                        ], 400)->throwResponse();
-                    } else if (!$request->request->has("redirection_page_id") || !$request->filled("redirection_page_id")) {
-                        return response()->json([
-                            "status" => false,
-                            "message" => "A 'redirection_page_id' value is required if 'tappable' value is 'true'."
-                        ], 400)->throwResponse();
-                    }
-                } else {
-                    if ($request->request->has("redirection_page")) {
-                        return response()->json([
-                            "status" => false,
-                            "message" => "The 'redirection_page' field is not required if 'tappable' value is not 'true'."
-                        ], 400)->throwResponse();
-                    } else if ($request->request->has("redirection_page_id")) {
-                        return response()->json([
-                            "status" => false,
-                            "message" => "The 'redirection_page_id' field is not required if 'tappable' value is not 'true'."
-                        ], 400)->throwResponse();
-                    }
-                }
             }
         } else if ($request->isMethod("put") || $request->isMethod("patch")) {
             if ($request->path() == "api/v1/property/update") {
