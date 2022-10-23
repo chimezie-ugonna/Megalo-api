@@ -39,12 +39,6 @@ class PropertyController extends Controller
         }
 
         if ($status) {
-            if ($request->request->has("monthly_earning_usd") && $request->filled("monthly_earning_usd")) {
-                $property_value = $request->request->get("value_usd");
-                $property_earning = $request->request->get("monthly_earning_usd");
-                $property_dividend = $property_earning / $property_value;
-                $request->request->add(["monthly_dividend_usd" => $property_dividend]);
-            }
             $request->request->add(["percentage_available" => 80]);
             $property = Property::Create($request->all());
             $notification_manager = new NotificationManager();
@@ -232,16 +226,6 @@ class PropertyController extends Controller
                 }
             }
             if ($status) {
-                if ($request->request->has("monthly_earning_usd") && $request->filled("monthly_earning_usd")) {
-                    if ($request->request->has("value_usd") && $request->filled("value_usd")) {
-                        $property_value = $request->request->get("value_usd");
-                    } else {
-                        $property_value = Property::where("property_id", $request->request->get("property_id"))->value("value_usd");
-                    }
-                    $property_earning = $request->request->get("monthly_earning_usd");
-                    $property_dividend = $property_earning / $property_value;
-                    $request->request->add(["monthly_dividend_usd" => $property_dividend]);
-                }
                 Property::where("property_id", $request->request->get("property_id"))->update($request->except(["user_id"]));
                 $investor_user_ids = Investment::where("property_id", $request->request->get("property_id"))->get()->pluck("user_id")->unique();
                 $notification_manager = new NotificationManager();

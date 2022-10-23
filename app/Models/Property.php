@@ -20,7 +20,6 @@ class Property extends Model
         "value_usd",
         "percentage_available",
         "monthly_earning_usd",
-        "monthly_dividend_usd",
         "size_sf"
     ];
 

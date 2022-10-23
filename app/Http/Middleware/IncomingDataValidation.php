@@ -97,8 +97,7 @@ class IncomingDataValidation
                     "description" => ["bail", "required"],
                     "percentage_available" => ["bail", "prohibited"],
                     "size_sf" => ["bail", "required", "numeric"],
-                    "monthly_earning_usd" => ["bail", "required", "numeric"],
-                    "monthly_dividend_usd" => ["bail", "prohibited"]
+                    "monthly_earning_usd" => ["bail", "required", "numeric"]
                 ]);
             } else if ($request->path() == "api/v1/property/pay_dividend") {
                 $request->validate([
@@ -199,8 +198,7 @@ class IncomingDataValidation
                     "image_urls" => ["bail", "filled", "not_in:null"],
                     "description" => ["bail", "filled", "not_in:null"],
                     "size_sf" => ["bail", "filled", "numeric"],
-                    "monthly_earning_usd" => ["bail", "filled", "numeric"],
-                    "monthly_dividend_usd" => ["bail", "prohibited"]
+                    "monthly_earning_usd" => ["bail", "filled", "numeric"]
                 ]);
                 if (sizeof($request->all()) <= 1) {
                     return response()->json([

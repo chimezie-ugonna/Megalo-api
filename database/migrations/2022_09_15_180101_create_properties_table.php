@@ -21,7 +21,6 @@ return new class extends Migration
             $table->decimal("value_usd", 11, 2);
             $table->decimal("percentage_available", 5, 2);
             $table->decimal("monthly_earning_usd", 11, 2);
-            $table->decimal("monthly_dividend_usd", 11, 2);
             $table->integer("size_sf");
             $table->timestampTz("created_at");
             $table->timestampTz("updated_at");
