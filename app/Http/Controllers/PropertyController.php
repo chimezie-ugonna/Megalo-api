@@ -172,13 +172,13 @@ class PropertyController extends Controller
         if (PaidDividend::where("property_id", $request->get("property_id"))->exists()) {
             return response()->json([
                 "status" => true,
-                "message" => "Paid dividend data retrieved successfully.",
+                "message" => "All paid dividend data retrieved successfully.",
                 "data" => PaidDividend::where("property_id", $request->get("property_id"))->get()
             ], 200);
         } else {
             return response()->json([
                 "status" => false,
-                "message" => "Paid dividend data not found."
+                "message" => "No paid dividend data not found."
             ], 404);
         }
     }
