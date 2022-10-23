@@ -71,14 +71,16 @@ class PropertyController extends Controller
     {
         if (Property::where("property_id", $request->request->get("property_id"))->exists()) {
             $status = true;
-            $last_dividend_payment_period = strtotime(PaidDividend::where("property_id", $request->request->get("property_id"))->latest()->first()->value("created_at"));
-            $last_dividend_payment_year = date("Y", $last_dividend_payment_period);
-            $last_dividend_payment_month = date("m", $last_dividend_payment_period);
-            date_default_timezone_set("UTC");
-            $current_year = date("Y");
-            $current_month = date("m");
-            if ($last_dividend_payment_year == $current_year && $last_dividend_payment_month == $current_month) {
-                $status = false;
+            if (PaidDividend::where("property_id", $request->request->get("property_id"))->exists()) {
+                $last_dividend_payment_period = strtotime(PaidDividend::where("property_id", $request->request->get("property_id"))->latest()->first()->value("created_at"));
+                $last_dividend_payment_year = date("Y", $last_dividend_payment_period);
+                $last_dividend_payment_month = date("m", $last_dividend_payment_period);
+                date_default_timezone_set("UTC");
+                $current_year = date("Y");
+                $current_month = date("m");
+                if ($last_dividend_payment_year == $current_year && $last_dividend_payment_month == $current_month) {
+                    $status = false;
+                }
             }
             if ($status) {
                 $notification_manager = new NotificationManager();
