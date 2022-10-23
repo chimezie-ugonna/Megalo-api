@@ -108,13 +108,13 @@ class UserController extends Controller
                         if (!Referral::where("referrer_phone_number", $referrer_phone_number)->where("referree_phone_number", $referree_phone_number)->exists() && !Referral::where("referrer_phone_number", $referree_phone_number)->where("referree_phone_number", $referrer_phone_number)->exists()) {
                             $has_referral = true;
                         }
+                        $request->request->remove("referral_code");
                     } else {
                         return response()->json([
                             "status" => false,
                             "message" => "Invalid referral code."
                         ], 404);
                     }
-                    $request->request->remove("referral_code");
                 }
                 do {
                     $alphabets = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
@@ -144,7 +144,7 @@ class UserController extends Controller
                         ), array(), "user_specific");
                     }
 
-                    if (User::where("phone_number", $referrer_phone_number)->exists()) {
+                    if (User::where("phone_number", $referree_phone_number)->exists()) {
                         $referree_balance = User::where("phone_number", $referree_phone_number)->value("balance_usd");
                         $new_referree_balance = $referree_balance + $referral_payment_usd;
                         User::where("phone_number", $referree_phone_number)->update(["balance_usd" => $new_referree_balance]);
