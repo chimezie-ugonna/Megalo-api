@@ -128,11 +128,10 @@ class UserController extends Controller
                 User::find($request->request->get("user_id"))->login()->updateOrCreate(["user_id" => $request->request->get("user_id"), "access_type" => $request->request->get("access_type"), "device_token" => $request->request->get("device_token")], $request->all());
                 if ($has_referral) {
                     $referral_payment_usd = $payment_manager->getReferralBonus();
-
-                    $referrer_balance = User::where("phone_number", $referrer_phone_number)->value("balance_usd");
-                    $new_referrer_balance = $referrer_balance + $referral_payment_usd;
-                    User::where("phone_number", $referrer_phone_number)->update(["balance_usd" => $new_referrer_balance]);
                     if (User::where("phone_number", $referrer_phone_number)->exists()) {
+                        $referrer_balance = User::where("phone_number", $referrer_phone_number)->value("balance_usd");
+                        $new_referrer_balance = $referrer_balance + $referral_payment_usd;
+                        User::where("phone_number", $referrer_phone_number)->update(["balance_usd" => $new_referrer_balance]);
                         $referrer_user_id = User::where("phone_number", $referrer_phone_number)->value("user_id");
                         $notification_manager = new NotificationManager();
                         $notification_manager->sendNotification(array(
