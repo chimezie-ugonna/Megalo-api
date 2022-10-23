@@ -144,10 +144,10 @@ class UserController extends Controller
                         ), array(), "user_specific");
                     }
 
-                    $referree_balance = User::where("phone_number", $referree_phone_number)->value("balance_usd");
-                    $new_referree_balance = $referree_balance + $referral_payment_usd;
-                    User::where("phone_number", $referree_phone_number)->update(["balance_usd" => $new_referree_balance]);
                     if (User::where("phone_number", $referrer_phone_number)->exists()) {
+                        $referree_balance = User::where("phone_number", $referree_phone_number)->value("balance_usd");
+                        $new_referree_balance = $referree_balance + $referral_payment_usd;
+                        User::where("phone_number", $referree_phone_number)->update(["balance_usd" => $new_referree_balance]);
                         $referree_user_id = User::where("phone_number", $referree_phone_number)->value("user_id");
                         $notification_manager = new NotificationManager();
                         $notification_manager->sendNotification(array(
