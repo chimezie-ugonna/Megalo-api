@@ -95,7 +95,7 @@ class PropertyController extends Controller
                             $notification_manager->sendNotification(array(
                                 "receiver_user_id" => $user_id,
                                 "title" => "Property dividend payment!!!",
-                                "body" => "You just received $" . round($user_percentage_of_property_monthly_earning, 2) . " in your balance as dividend from a property you invested in.",
+                                "body" => "You just received $" . number_format($user_percentage_of_property_monthly_earning, 2) . " in your balance as dividend from a property you invested in.",
                                 "tappable" => true,
                                 "redirection_page" => "earning",
                                 "redirection_page_id" => $request->request->get("property_id")
