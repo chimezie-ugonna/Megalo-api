@@ -178,7 +178,7 @@ class PropertyController extends Controller
         } else {
             return response()->json([
                 "status" => false,
-                "message" => "No paid dividend data not found."
+                "message" => "No paid dividend data found."
             ], 404);
         }
     }
