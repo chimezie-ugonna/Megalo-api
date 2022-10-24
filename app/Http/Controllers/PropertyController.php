@@ -226,11 +226,12 @@ class PropertyController extends Controller
                 }
             }
             if ($status) {
+                $current_property_value = Property::where("property_id", $request->request->get("property_id"))->value("value_usd");
+                $current_property_monthly_earnings = Property::where("property_id", $request->request->get("property_id"))->value("monthly_earning_usd");
                 Property::where("property_id", $request->request->get("property_id"))->update($request->except(["user_id"]));
                 $investor_user_ids = Investment::where("property_id", $request->request->get("property_id"))->get()->pluck("user_id")->unique();
                 $notification_manager = new NotificationManager();
                 if ($request->request->has("value_usd") && $request->filled("value_usd")) {
-                    $current_property_value = Property::where("property_id", $request->request->get("property_id"))->value("value_usd");
                     $new_property_value = $request->request->get("value_usd");
                     if ($new_property_value > $current_property_value) {
                         if (count($investor_user_ids) > 0) {
@@ -250,7 +251,6 @@ class PropertyController extends Controller
                     }
                 }
                 if ($request->request->has("monthly_earning_usd") && $request->filled("monthly_earning_usd")) {
-                    $current_property_monthly_earnings = Property::where("property_id", $request->request->get("property_id"))->value("monthly_earning_usd");
                     $new_property_monthly_earnings = $request->request->get("monthly_earning_usd");
                     if ($new_property_monthly_earnings > $current_property_monthly_earnings) {
                         if (count($investor_user_ids) > 0) {
