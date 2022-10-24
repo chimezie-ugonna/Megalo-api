@@ -18,7 +18,7 @@ return new class extends Migration
             $table->text("property_id");
             $table->text("user_id");
             $table->decimal("amount_invested_usd", 11, 2);
-            $table->decimal("percentage", 5, 2);
+            $table->decimal("percentage", 17, 12);
             $table->timestampTz("created_at");
             $table->timestampTz("updated_at");
         });
