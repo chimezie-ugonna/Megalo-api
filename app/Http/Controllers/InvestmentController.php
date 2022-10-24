@@ -15,20 +15,21 @@ class InvestmentController extends Controller
         $user_identity_verified = User::where("user_id", $request->request->get("user_id"))->value("identity_verified");
         if ($user_identity_verified) {
             if (Property::where("property_id", $request->request->get("property_id"))->exists()) {
-                $payment_amount = $request->request->get("amount_invested_usd");
+                $amount_invested_usd = $request->request->get("amount_invested_usd");
                 $payment_manager = new PaymentManager();
-                $fee = $payment_manager->getPaymentProcessingFee($payment_amount) + $payment_manager->getInvestmentFee($payment_amount);
+                $fee = $payment_manager->getPaymentProcessingFee($request->request->get("amount_invested_usd")) + $payment_manager->getInvestmentFee($request->request->get("amount_invested_usd"));
                 $user_balance = User::where("user_id", $request->request->get("user_id"))->value("balance_usd");
-                if ($user_balance >= $payment_amount) {
+                if ($user_balance >= $request->request->get("amount_invested_usd")) {
+                    $request->request->set("amount_invested_usd", $request->request->get("amount_invested_usd") - $fee);
                     $property_value = Property::where("property_id", $request->request->get("property_id"))->value("value_usd");
-                    $investment_percentage = (($payment_amount - $fee) / $property_value) * 100;
+                    $investment_percentage = ($request->request->get("amount_invested_usd") / $property_value) * 100;
                     $current_property_percentage_available = Property::where("property_id", $request->request->get("property_id"))->value("percentage_available");
                     $current_property_value_available = $property_value * ($current_property_percentage_available / 100);
-                    if ($current_property_value_available >= ($payment_amount - $fee)) {
+                    if ($current_property_value_available >= $request->request->get("amount_invested_usd")) {
                         $new_property_percentage_available = $current_property_percentage_available - $investment_percentage;
                         if (Investment::where("user_id", $request->request->get("user_id"))->where("property_id", $request->request->get("property_id"))->exists()) {
                             $current_amount_invested = Investment::where("user_id", $request->request->get("user_id"))->where("property_id", $request->request->get("property_id"))->value("amount_invested_usd");
-                            $request->request->set("amount_invested_usd", ($payment_amount - $fee) + $current_amount_invested);
+                            $request->request->set("amount_invested_usd", $request->request->get("amount_invested_usd") + $current_amount_invested);
                             $current_investment_percentage = Investment::where("user_id", $request->request->get("user_id"))->where("property_id", $request->request->get("property_id"))->value("percentage");
                             $investment_percentage = $current_investment_percentage + $investment_percentage;
                         }
@@ -36,7 +37,7 @@ class InvestmentController extends Controller
                             $request->request->add(["percentage" => $investment_percentage]);
                             Investment::updateOrCreate(["user_id" => $request->request->get("user_id"), "property_id" => $request->request->get("property_id")], $request->all());
                             Property::where("property_id", $request->request->get("property_id"))->update(["percentage_available" => $new_property_percentage_available]);
-                            $new_user_balance = $user_balance - $payment_amount;
+                            $new_user_balance = $user_balance - $amount_invested_usd;
                             User::where("user_id", $request->request->get("user_id"))->update(["balance_usd" => $new_user_balance]);
                             return response()->json([
                                 "status" => true,
