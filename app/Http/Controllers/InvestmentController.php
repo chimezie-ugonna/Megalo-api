@@ -28,9 +28,6 @@ class InvestmentController extends Controller
                         $new_property_percentage_available = $current_property_percentage_available - $investment_percentage;
                         if (Investment::where("user_id", $request->request->get("user_id"))->where("property_id", $request->request->get("property_id"))->exists()) {
                             $current_amount_invested = Investment::where("user_id", $request->request->get("user_id"))->where("property_id", $request->request->get("property_id"))->value("amount_invested_usd");
-                            if ($current_amount_invested < 0.00) {
-                                $current_amount_invested = 0.00;
-                            }
                             $request->request->set("amount_invested_usd", ($payment_amount - $fee) + $current_amount_invested);
                             $current_investment_percentage = Investment::where("user_id", $request->request->get("user_id"))->where("property_id", $request->request->get("property_id"))->value("percentage");
                             $investment_percentage = $current_investment_percentage + $investment_percentage;
@@ -166,6 +163,9 @@ class InvestmentController extends Controller
             $current_investment_value = $property_value * ($current_investment_percentage / 100);
             if ($current_investment_value >= $liquidation_amount) {
                 $new_amount_invested = $current_amount_invested - $liquidation_amount;
+                if (number_format($current_amount_invested, 2) <= 0.00) {
+                    $new_amount_invested = 0.00;
+                }
                 $request->request->add(["amount_invested_usd" => $new_amount_invested]);
                 $liquidated_investment_percentage = ($liquidation_amount / $property_value) * 100;
                 $new_investment_percentage = $current_investment_percentage - $liquidated_investment_percentage;
@@ -181,7 +181,7 @@ class InvestmentController extends Controller
                 $new_user_balance = $user_balance + ($liquidation_amount - $fee);
                 User::where("user_id", $request->request->get("user_id"))->update(["balance_usd" => $new_user_balance]);
 
-                if ($new_investment_percentage <= 0.00) {
+                if (number_format($new_investment_percentage, 2) <= 0.00) {
                     Investment::where("property_id", $request->request->get("property_id"))->where("user_id", $request->request->get("user_id"))->delete();
                 }
 
