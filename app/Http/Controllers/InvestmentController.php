@@ -168,7 +168,7 @@ class InvestmentController extends Controller
                 $current_investment_percentage = Investment::where("user_id", $request->request->get("user_id"))->where("property_id", $request->request->get("property_id"))->value("percentage");
                 $current_amount_invested = Investment::where("user_id", $request->request->get("user_id"))->where("property_id", $request->request->get("property_id"))->value("amount_invested_usd");
                 $property_value = Property::where("property_id", $request->request->get("property_id"))->value("value_usd");
-                $current_investment_value = $property_value * ($current_investment_percentage / 100);
+                $current_investment_value = ($current_investment_percentage / 100) * $property_value;
                 if ($current_investment_value >= $request->request->get("amount_usd")) {
                     $new_amount_invested = round($current_amount_invested - $request->request->get("amount_usd"), 2);
                     if ($new_amount_invested < 0) {
