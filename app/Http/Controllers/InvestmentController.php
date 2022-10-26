@@ -200,7 +200,9 @@ class InvestmentController extends Controller
                 } else {
                     return response()->json([
                         "status" => false,
-                        "message" => "Liquidation amount exceeds user's investment value on property."
+                        "message" => "Liquidation amount exceeds user's investment value on property.",
+                        "current_investment_value" => $current_investment_value,
+                        "amount_usd" => $request->request->get("amount_usd")
                     ], 402);
                 }
             } else {
