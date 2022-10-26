@@ -21,7 +21,7 @@ class InvestmentController extends Controller
                     $fee = $payment_manager->getPaymentProcessingFee($request->request->get("amount_invested_usd")) + $payment_manager->getInvestmentFee($request->request->get("amount_invested_usd"));
                     $user_balance = User::where("user_id", $request->request->get("user_id"))->value("balance_usd");
                     if ($user_balance >= $request->request->get("amount_invested_usd")) {
-                        $request->request->set("amount_invested_usd", $request->request->get("amount_invested_usd") - $fee);
+                        $request->request->set("amount_invested_usd", round($request->request->get("amount_invested_usd") - $fee, 2));
                         $property_value = Property::where("property_id", $request->request->get("property_id"))->value("value_usd");
                         $investment_percentage = ($request->request->get("amount_invested_usd") / $property_value) * 100;
                         $current_property_percentage_available = Property::where("property_id", $request->request->get("property_id"))->value("percentage_available");
@@ -150,7 +150,7 @@ class InvestmentController extends Controller
     {
         if (Investment::where("property_id", $request->request->get("property_id"))->where("user_id", $request->request->get("user_id"))->exists()) {
             if ($request->request->get("amount_usd") >= 0.50) {
-                $fee = 0.00;
+                $fee = 0;
                 $initial_investment_period = strtotime(Investment::where("property_id", $request->request->get("property_id"))->where("user_id", $request->request->get("user_id"))->value("created_at"));
                 $initial_investment_year = date("Y", $initial_investment_period);
                 $initial_investment_month = date("m", $initial_investment_period);
@@ -170,9 +170,9 @@ class InvestmentController extends Controller
                 $property_value = Property::where("property_id", $request->request->get("property_id"))->value("value_usd");
                 $current_investment_value = $property_value * ($current_investment_percentage / 100);
                 if ($current_investment_value >= $request->request->get("amount_usd")) {
-                    $new_amount_invested = $current_amount_invested - $request->request->get("amount_usd");
-                    if (number_format($new_amount_invested, 2) <= 0.00) {
-                        $new_amount_invested = 0.00;
+                    $new_amount_invested = round($current_amount_invested - $request->request->get("amount_usd"), 2);
+                    if ($new_amount_invested < 0) {
+                        $new_amount_invested = 0;
                     }
                     $request->request->add(["amount_invested_usd" => $new_amount_invested]);
                     $liquidated_investment_percentage = ($request->request->get("amount_usd") / $property_value) * 100;

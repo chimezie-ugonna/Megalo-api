@@ -44,7 +44,7 @@ class PropertyController extends Controller
             $notification_manager = new NotificationManager();
             $notification_manager->sendNotification(array(
                 "title" => "New property available!!!",
-                "body" => "We just listed a new property, be the first to invest in it and reap the benefits.",
+                "body" => "We just listed a new property, be among the first to invest in it and reap the benefits.",
                 "tappable" => true,
                 "redirection_page" => "property",
                 "redirection_page_id" => $property->property_id
