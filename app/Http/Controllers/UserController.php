@@ -107,12 +107,7 @@ class UserController extends Controller
                         $referrer_user_id = User::where("referral_code", $request->request->get("referral_code"))->value("user_id");
                         $referree_phone_number = $request->request->get("phone_number");
                         $referree_user_id = $request->request->get("user_id");
-                        if (
-                            !Referral::where("referrer_phone_number", $referrer_phone_number)->where("referree_phone_number", $referree_phone_number)->exists()
-                            && !Referral::where("referrer_user_id", $referrer_user_id)->where("referree_phone_number", $referree_phone_number)->exists()
-                            && !Referral::where("referrer_phone_number", $referree_phone_number)->where("referree_phone_number", $referrer_phone_number)->exists()
-                            && !Referral::where("referrer_phone_number", $referree_phone_number)->where("referree_user_id", $referrer_user_id)->exists()
-                        ) {
+                        if (!Referral::where("referree_phone_number", $referree_phone_number)->exists() && !Referral::where("referrer_phone_number", $referree_phone_number)->exists()) {
                             $has_referral = true;
                         }
                         $request->request->remove("referral_code");
