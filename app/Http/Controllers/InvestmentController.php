@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Custom\NotificationManager;
 use App\Custom\PaymentManager;
 use App\Models\Investment;
 use App\Models\Property;
+use App\Models\Referral;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -40,6 +42,57 @@ class InvestmentController extends Controller
                                 Property::where("property_id", $request->request->get("property_id"))->update(["percentage_available" => $new_property_percentage_available]);
                                 $new_user_balance = $user_balance - $amount_invested_usd;
                                 User::where("user_id", $request->request->get("user_id"))->update(["balance_usd" => $new_user_balance]);
+
+                                if (Referral::where("referree_phone_number", User::where("user_id", $request->request->get("user_id"))->value("phone_number"))->where("rewarded", false)->exists() || Referral::where("referree_user_id", $request->request->get("user_id"))->where("rewarded", false)->exists()) {
+                                    $referree_investments = Investment::where("user_id", $request->request->get("user_id"))->get()->pluck("amount_invested_usd");
+                                    if (count($referree_investments) > 0) {
+                                        $total_amount_invested_usd = 0;
+                                        foreach ($referree_investments as $amount_invested_usd) {
+                                            $total_amount_invested_usd += $amount_invested_usd;
+                                        }
+                                        if ($total_amount_invested_usd >= 100) {
+                                            $referral_payment_usd = $payment_manager->getReferralBonus();
+                                            if (Referral::where("referree_phone_number", User::where("user_id", $request->request->get("user_id"))->value("phone_number"))->where("rewarded", false)->exists()) {
+                                                $referrer_user_id = Referral::where("referree_phone_number", User::where("user_id", $request->request->get("user_id"))->value("phone_number"))->where("rewarded", false)->value("referrer_user_id");
+                                                $referree_user_id = Referral::where("referree_phone_number", User::where("user_id", $request->request->get("user_id"))->value("phone_number"))->where("rewarded", false)->value("referree_user_id");
+                                            } else {
+                                                $referrer_user_id = Referral::where("referree_user_id", $request->request->get("user_id"))->where("rewarded", false)->value("referrer_user_id");
+                                                $referree_user_id = Referral::where("referree_user_id", $request->request->get("user_id"))->where("rewarded", false)->value("referree_user_id");
+                                            }
+                                            if (User::where("user_id", $referrer_user_id)->exists()) {
+                                                $referrer_balance = User::where("user_id", $referrer_user_id)->value("balance_usd");
+                                                $new_referrer_balance = $referrer_balance + $referral_payment_usd;
+                                                User::where("user_id", $referrer_user_id)->update(["balance_usd" => $new_referrer_balance]);
+                                                $notification_manager = new NotificationManager();
+                                                $notification_manager->sendNotification(array(
+                                                    "receiver_user_id" => $referrer_user_id,
+                                                    "title" => "Referral bonus received!!!",
+                                                    "body" => "You have just received $" . $referral_payment_usd . " in your balance because someone you referred with your referral code has invested $100 or more on Megalo. Keep referring people to earn more!",
+                                                    "tappable" => true,
+                                                    "redirection_page" => "balance",
+                                                    "redirection_page_id" => ""
+                                                ), array(), "user_specific");
+                                            }
+
+                                            if (User::where("user_id", $referree_user_id)->exists()) {
+                                                $referree_balance = User::where("user_id", $referree_user_id)->value("balance_usd");
+                                                $new_referree_balance = $referree_balance + $referral_payment_usd;
+                                                User::where("user_id", $referree_user_id)->update(["balance_usd" => $new_referree_balance]);
+                                                $notification_manager = new NotificationManager();
+                                                $notification_manager->sendNotification(array(
+                                                    "receiver_user_id" => $referree_user_id,
+                                                    "title" => "Referral bonus received!!!",
+                                                    "body" => "You have just received $" . $referral_payment_usd . " in your balance because you joined Megalo with someone's referral code and have invested $100 or more on Megalo. You can earn more if you refer someone too.",
+                                                    "tappable" => true,
+                                                    "redirection_page" => "balance",
+                                                    "redirection_page_id" => ""
+                                                ), array(), "user_specific");
+                                            }
+
+                                            Referral::where("referrer_user_id", $referrer_user_id)->where("referree_user_id", $referree_user_id)->update(["rewarded" => true]);
+                                        }
+                                    }
+                                }
                                 return response()->json([
                                     "status" => true,
                                     "message" => "Investment created successfully."

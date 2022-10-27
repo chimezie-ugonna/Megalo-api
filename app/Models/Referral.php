@@ -11,6 +11,13 @@ class Referral extends Model
 
     protected $fillable = [
         "referrer_phone_number",
-        "referree_phone_number"
+        "referrer_user_id",
+        "referree_phone_number",
+        "referree_user_id",
+        "rewarded"
+    ];
+
+    protected $casts = [
+        "rewarded" => "boolean"
     ];
 }

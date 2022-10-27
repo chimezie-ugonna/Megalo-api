@@ -104,8 +104,15 @@ class UserController extends Controller
                 if ($request->request->has("referral_code") && $request->filled("referral_code")) {
                     if (User::where("referral_code", $request->request->get("referral_code"))->exists()) {
                         $referrer_phone_number = User::where("referral_code", $request->request->get("referral_code"))->value("phone_number");
+                        $referrer_user_id = User::where("referral_code", $request->request->get("referral_code"))->value("user_id");
                         $referree_phone_number = $request->request->get("phone_number");
-                        if (!Referral::where("referrer_phone_number", $referrer_phone_number)->where("referree_phone_number", $referree_phone_number)->exists() && !Referral::where("referrer_phone_number", $referree_phone_number)->where("referree_phone_number", $referrer_phone_number)->exists()) {
+                        $referree_user_id = $request->request->get("user_id");
+                        if (
+                            !Referral::where("referrer_phone_number", $referrer_phone_number)->where("referree_phone_number", $referree_phone_number)->exists()
+                            && !Referral::where("referrer_user_id", $referrer_user_id)->where("referree_phone_number", $referree_phone_number)->exists()
+                            && !Referral::where("referrer_phone_number", $referree_phone_number)->where("referree_phone_number", $referrer_phone_number)->exists()
+                            && !Referral::where("referrer_phone_number", $referree_phone_number)->where("referree_user_id", $referrer_user_id)->exists()
+                        ) {
                             $has_referral = true;
                         }
                         $request->request->remove("referral_code");
@@ -127,40 +134,7 @@ class UserController extends Controller
                 User::create($request->all());
                 User::find($request->request->get("user_id"))->login()->updateOrCreate(["user_id" => $request->request->get("user_id"), "access_type" => $request->request->get("access_type"), "device_token" => $request->request->get("device_token")], $request->all());
                 if ($has_referral) {
-                    $referral_payment_usd = $payment_manager->getReferralBonus();
-                    if (User::where("phone_number", $referrer_phone_number)->exists()) {
-                        $referrer_balance = User::where("phone_number", $referrer_phone_number)->value("balance_usd");
-                        $new_referrer_balance = $referrer_balance + $referral_payment_usd;
-                        User::where("phone_number", $referrer_phone_number)->update(["balance_usd" => $new_referrer_balance]);
-                        $referrer_user_id = User::where("phone_number", $referrer_phone_number)->value("user_id");
-                        $notification_manager = new NotificationManager();
-                        $notification_manager->sendNotification(array(
-                            "receiver_user_id" => $referrer_user_id,
-                            "title" => "Referral bonus received!!!",
-                            "body" => "You have just received $" . $referral_payment_usd . " in your balance because someone joined Megalo with your referral code. Keep referring people to earn more!",
-                            "tappable" => true,
-                            "redirection_page" => "balance",
-                            "redirection_page_id" => ""
-                        ), array(), "user_specific");
-                    }
-
-                    if (User::where("phone_number", $referree_phone_number)->exists()) {
-                        $referree_balance = User::where("phone_number", $referree_phone_number)->value("balance_usd");
-                        $new_referree_balance = $referree_balance + $referral_payment_usd;
-                        User::where("phone_number", $referree_phone_number)->update(["balance_usd" => $new_referree_balance]);
-                        $referree_user_id = User::where("phone_number", $referree_phone_number)->value("user_id");
-                        $notification_manager = new NotificationManager();
-                        $notification_manager->sendNotification(array(
-                            "receiver_user_id" => $referree_user_id,
-                            "title" => "Referral bonus received!!!",
-                            "body" => "You have just received $" . $referral_payment_usd . " in your balance because you joined Megalo with someone's referral code. You can earn more if you refer someone too.",
-                            "tappable" => true,
-                            "redirection_page" => "balance",
-                            "redirection_page_id" => ""
-                        ), array(), "user_specific");
-                    }
-
-                    Referral::create(["referrer_phone_number" => $referrer_phone_number, "referree_phone_number" => $referree_phone_number]);
+                    Referral::create(["referrer_phone_number" => $referrer_phone_number, "referrer_user_id" => $referrer_user_id, "referree_phone_number" => $referree_phone_number, "referree_user_id" => $referree_user_id]);
                 }
                 return response()->json([
                     "status" => true,

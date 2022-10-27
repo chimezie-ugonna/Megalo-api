@@ -13,10 +13,13 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('referrals', function (Blueprint $table) {
-            $table->increments('id');
+        Schema::create("referrals", function (Blueprint $table) {
+            $table->increments("id");
             $table->text("referrer_phone_number");
+            $table->text("referrer_user_id");
             $table->text("referree_phone_number");
+            $table->text("referree_user_id");
+            $table->boolean("rewarded")->default(false);
             $table->timestampTz("created_at");
             $table->timestampTz("updated_at");
         });
