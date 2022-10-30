@@ -17,7 +17,7 @@ class InvestmentController extends Controller
         $user_identity_verified = User::where("user_id", $request->request->get("user_id"))->value("identity_verified");
         if ($user_identity_verified) {
             if (Property::where("property_id", $request->request->get("property_id"))->exists()) {
-                if ($request->request->get("amount_invested_usd") >= 0.50) {
+                if ($request->request->get("amount_invested_usd") >= 0.50 && $request->request->get("amount_invested_usd") <= 999999.99) {
                     $amount_invested_usd = $request->request->get("amount_invested_usd");
                     $payment_manager = new PaymentManager();
                     $fee = $payment_manager->getPaymentProcessingFee($request->request->get("amount_invested_usd")) + $payment_manager->getInvestmentFee($request->request->get("amount_invested_usd"));
@@ -115,10 +115,15 @@ class InvestmentController extends Controller
                             "message" => "User does not have sufficient fund in balance for this investment."
                         ], 402);
                     }
+                } else if ($request->request->get("amount_invested_usd") > 999999.99) {
+                    return response()->json([
+                        "status" => false,
+                        "message" => "You can only invest a maximum of $999,999.99 at once. You can invest more subsequently."
+                    ], 402);
                 } else {
                     return response()->json([
                         "status" => false,
-                        "message" => "You can only invest $0.50 or higher."
+                        "message" => "You can only invest a minimum of $0.50."
                     ], 402);
                 }
             } else {
@@ -202,7 +207,7 @@ class InvestmentController extends Controller
     public function liquidate(Request $request)
     {
         if (Investment::where("property_id", $request->request->get("property_id"))->where("user_id", $request->request->get("user_id"))->exists()) {
-            if ($request->request->get("amount_usd") >= 0.50) {
+            if ($request->request->get("amount_usd") >= 0.50 && $request->request->get("amount_usd") <= 999999.99) {
                 $fee = 0;
                 $initial_investment_period = strtotime(Investment::where("property_id", $request->request->get("property_id"))->where("user_id", $request->request->get("user_id"))->value("created_at"));
                 $initial_investment_year = date("Y", $initial_investment_period);
@@ -256,10 +261,15 @@ class InvestmentController extends Controller
                         "message" => "Liquidation amount exceeds user's investment value on property."
                     ], 402);
                 }
+            } else if ($request->request->get("amount_usd") > 999999.99) {
+                return response()->json([
+                    "status" => false,
+                    "message" => "You can only liquidate a maximum of $999,999.99 at once. You can liquidate more subsequently."
+                ], 402);
             } else {
                 return response()->json([
                     "status" => false,
-                    "message" => "You can only liquidate $0.50 or higher."
+                    "message" => "You can only liquidate a minimum of $0.50."
                 ], 402);
             }
         } else {

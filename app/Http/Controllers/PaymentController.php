@@ -13,7 +13,7 @@ class PaymentController extends Controller
     {
         $user_identity_verified = User::where("user_id", $request->request->get("user_id"))->value("identity_verified");
         if ($user_identity_verified) {
-            if ($request->request->get("amount_usd") >= 0.50) {
+            if ($request->request->get("amount_usd") >= 0.50 && $request->request->get("amount_usd") <= 999999.99) {
                 $user_balance = User::where("user_id", $request->request->get("user_id"))->value("balance_usd");
                 $payment_manager = new PaymentManager();
                 if ($request->request->get("type") == "deposit") {
@@ -99,10 +99,15 @@ class PaymentController extends Controller
                     "status" => true,
                     "message" => "Payment made successfully."
                 ], 201);
+            } else if ($request->request->get("amount_usd") > 999999.99) {
+                return response()->json([
+                    "status" => false,
+                    "message" => "You can only initiate a maximum payment of $999,999.99 at once. You can initiate more subsequently."
+                ], 402);
             } else {
                 return response()->json([
                     "status" => false,
-                    "message" => "You can only initiate payments of $0.50 or higher."
+                    "message" => "You can only initiate a minimum payment of $0.50."
                 ], 402);
             }
         } else {
