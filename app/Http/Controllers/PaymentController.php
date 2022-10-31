@@ -274,10 +274,11 @@ class PaymentController extends Controller
             "YER" => "Yemen Rial",
             "ZWD" => "Zimbabwe Dollar"
         );
+        ksort($currencies);
         return response()->json([
             "status" => true,
             "message" => "All currency data retrieved successfully.",
-            "data" => ksort($currencies)
+            "data" => $currencies
         ], 200);
     }
 
