@@ -157,7 +157,7 @@ class PaymentController extends Controller
 
     public function readAllCurrency()
     {
-        $currencies = ksort(array(
+        $currencies = array(
             "ALL" => "Albania Lek",
             "AFN" => "Afghanistan Afghani",
             "ARS" => "Argentina Peso",
@@ -273,11 +273,11 @@ class PaymentController extends Controller
             "VND" => "Viet Nam Dong",
             "YER" => "Yemen Rial",
             "ZWD" => "Zimbabwe Dollar"
-        ));
+        );
         return response()->json([
             "status" => true,
             "message" => "All currency data retrieved successfully.",
-            "data" => $currencies
+            "data" => ksort($currencies)
         ], 200);
     }
 
