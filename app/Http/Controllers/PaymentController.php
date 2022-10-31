@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Custom\CurrencyConverter;
 use App\Custom\PaymentManager;
 use App\Models\Payment;
 use App\Models\User;
@@ -163,6 +164,24 @@ class PaymentController extends Controller
                 "status" => false,
                 "message" => "Payment data not found."
             ], 404);
+        }
+    }
+
+    public function convertCurrency(Request $request)
+    {
+        $currency_converter = new CurrencyConverter();
+        $response = $currency_converter->convert($request->get("amount"), $request->get("from"), $request->get("to"));
+        if (isset($response) && isset($response["result"]) && $response["success"]) {
+            return response()->json([
+                "status" => true,
+                "message" => "Currency converted successfully.",
+                "data" => $response
+            ], 200);
+        } else {
+            return response()->json([
+                "status" => false,
+                "message" => "An error occurred while converting currency, currency conversion failed."
+            ], 500);
         }
     }
 

@@ -86,7 +86,7 @@ class IncomingDataValidation
             } else if ($request->path() == "api/v1/investment/create") {
                 $request->validate([
                     "property_id" => ["bail", "required"],
-                    "amount_invested_usd" => ["bail", "required", "numeric"],
+                    "amount_invested_usd" => ["bail", "required", "numeric", "gte:0.50", "lte:999999.99"],
                     "percentage" => ["bail", "prohibited"]
                 ]);
             } else if ($request->path() == "api/v1/property/create") {
@@ -109,7 +109,7 @@ class IncomingDataValidation
                 $request->validate([
                     "type" => ["bail", "required", "in:deposit,withdrawal"],
                     "reference" => ["bail", "prohibited"],
-                    "amount_usd" => ["bail", "required", "numeric"]
+                    "amount_usd" => ["bail", "required", "numeric", "gte:0.50", "lte:999999.99"]
                 ]);
             } else if ($request->path() == "api/v1/notification/create") {
                 $request->validate([
@@ -225,7 +225,7 @@ class IncomingDataValidation
             } else if ($request->path() == "api/v1/investment/liquidate") {
                 $request->validate([
                     "property_id" => ["bail", "required"],
-                    "amount_usd" => ["bail", "required", "numeric"],
+                    "amount_usd" => ["bail", "required", "numeric", "gte:0.50", "lte:999999.99"],
                     "percentage" => ["bail", "prohibited"]
                 ]);
             } else if ($request->path() == "api/v1/notification/update") {
@@ -275,6 +275,12 @@ class IncomingDataValidation
             } else if ($request->path() == "api/v1/payment/read" || $request->path() == "api/v1/payment/read_user_and_payment_specific") {
                 $request->validate([
                     "payment_id" => ["bail", "required"]
+                ]);
+            } else if ($request->path() == "api/v1/payment/convert_currency") {
+                $request->validate([
+                    "amount" => ["bail", "required", "numeric", "gt:0"],
+                    "from" => ["bail", "required", "alpha", "size:3"],
+                    "to" => ["bail", "required", "alpha", "size:3"]
                 ]);
             } else if ($request->path() == "api/v1/notification/read") {
                 $request->validate([
