@@ -155,6 +155,15 @@ class PaymentController extends Controller
         }
     }
 
+    public function listAllCurrency(Request $request)
+    {
+        return response()->json([
+            "status" => true,
+            "message" => "Currency converted successfully.",
+            "data" => json_encode($response)
+        ], 200);
+    }
+
     public function convertCurrency(Request $request)
     {
         $currency_converter = new CurrencyConverter();
@@ -163,7 +172,7 @@ class PaymentController extends Controller
             return response()->json([
                 "status" => true,
                 "message" => "Currency converted successfully.",
-                "data" => json_encode($response)
+                "data" => json_decode($response)
             ], 200);
         } else {
             return response()->json([
