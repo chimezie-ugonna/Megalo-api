@@ -278,7 +278,7 @@ class IncomingDataValidation
                 ]);
             } else if ($request->path() == "api/v1/payment/convert_currency") {
                 $request->validate([
-                    "amount" => ["bail", "required", "numeric", "gt:0"],
+                    "amount" => ["bail", "required", "numeric", "gte:0.50", "lte:999999.99"],
                     "from" => ["bail", "required", "alpha", "size:3"],
                     "to" => ["bail", "required", "alpha", "size:3"]
                 ]);
