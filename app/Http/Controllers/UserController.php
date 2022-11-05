@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Custom\Authentication;
-use App\Custom\NotificationManager;
 use Illuminate\Http\Request;
 use App\Custom\OtpManager;
 use App\Custom\PaymentManager;
@@ -16,7 +15,18 @@ class UserController extends Controller
     public function sendOtp(Request $request)
     {
         /*$send = new OtpManager();
-        $status = $send->sendOtp($request->request->get("phone_number"));
+        if ($request->request->get("type") == "email") {
+            if (User::where("user_id", $request->request->get("user_id"))->value("email_verified")) {
+                return response()->json([
+                    "status" => false,
+                    "message" => "This email has already been verified."
+                ], 401);
+            } else {
+                $status = $send->sendOtp($request->request->get("type"), $request->request->get("email"), "");
+            }
+        } else {
+            $status = $send->sendOtp($request->request->get("type"), "", $request->request->get("phone_number"));
+        }
         if (isset($status)) {
             return response()->json([
                 "status" => true,
@@ -28,6 +38,15 @@ class UserController extends Controller
                 "message" => "A failure occurred while trying to send otp."
             ], 500);
         }*/
+
+        if ($request->request->get("type") == "email") {
+            if (User::where("user_id", $request->request->get("user_id"))->value("email_verified")) {
+                return response()->json([
+                    "status" => false,
+                    "message" => "This email has already been verified."
+                ], 401);
+            }
+        }
         return response()->json([
             "status" => true,
             "message" => "The otp was not sent because our twilio credit is exhausted. But for testing purposes, this response is successful."
@@ -37,22 +56,34 @@ class UserController extends Controller
     public function verifyOtp(Request $request)
     {
         /*$send = new OtpManager();
-        $status = $send->verifyOtp($request->request->get("phone_number"), $request->request->get("otp"));
+        if ($request->request->get("type") == "email") {
+            $status = $send->verifyOtp($request->request->get("type"), $request->request->get("email"), "", $request->request->get("otp"));
+        } else {
+            $status = $send->verifyOtp($request->request->get("type"), "", $request->request->get("phone_number"), $request->request->get("otp"));
+        }
         if (isset($status)) {
             if ($status->status == "approved") {
-                $auth = new Authentication();
-                $data = array("token" => $auth->encode($request->request->get("phone_number")));
-                if (User::where("phone_number", $request->request->get("phone_number"))->exists()) {
-                    $data["user_exists"] = true;
-                    $data["is_admin"] = User::where("phone_number", $request->request->get("phone_number"))->value("is_admin");
+                if ($request->request->get("type") == "email") {
+                    User::where("user_id", $request->request->get("user_id"))->update(["email_verified" => true]);
+                    return response()->json([
+                        "status" => true,
+                        "message" => "Otp and email were successfully verified."
+                    ], 200);
                 } else {
-                    $data["user_exists"] = false;
+                    $auth = new Authentication();
+                    $data = array("token" => $auth->encode($request->request->get("phone_number")));
+                    if (User::where("phone_number", $request->request->get("phone_number"))->exists()) {
+                        $data["user_exists"] = true;
+                        $data["is_admin"] = User::where("phone_number", $request->request->get("phone_number"))->value("is_admin");
+                    } else {
+                        $data["user_exists"] = false;
+                    }
+                    return response()->json([
+                        "status" => true,
+                        "message" => "Otp was successfully verified.",
+                        "data" => $data
+                    ], 200);
                 }
-                return response()->json([
-                    "status" => true,
-                    "message" => "Otp was successfully verified.",
-                    "data" => $data
-                ], 200);
             } else {
                 return response()->json([
                     "status" => false,
@@ -65,19 +96,28 @@ class UserController extends Controller
                 "message" => "A failure occurred while trying to verify otp."
             ], 500);
         }*/
-        $auth = new Authentication();
-        $data = array("token" => $auth->encode($request->request->get("phone_number")));
-        if (User::where("phone_number", $request->request->get("phone_number"))->exists()) {
-            $data["user_exists"] = true;
-            $data["is_admin"] = User::where("phone_number", $request->request->get("phone_number"))->value("is_admin");
+
+        if ($request->request->get("type") == "email") {
+            User::where("user_id", $request->request->get("user_id"))->update(["email_verified" => true]);
+            return response()->json([
+                "status" => true,
+                "message" => "The otp was not verified because our twilio credit is exhausted. But for testing purposes, this response is successful and the email has been verified."
+            ], 200);
         } else {
-            $data["user_exists"] = false;
+            $auth = new Authentication();
+            $data = array("token" => $auth->encode($request->request->get("phone_number")));
+            if (User::where("phone_number", $request->request->get("phone_number"))->exists()) {
+                $data["user_exists"] = true;
+                $data["is_admin"] = User::where("phone_number", $request->request->get("phone_number"))->value("is_admin");
+            } else {
+                $data["user_exists"] = false;
+            }
+            return response()->json([
+                "status" => true,
+                "message" => "The otp was not verified because our twilio credit is exhausted. But for testing purposes, this response is successful.",
+                "data" => $data
+            ], 200);
         }
-        return response()->json([
-            "status" => true,
-            "message" => "The otp was not verified because our twilio credit is exhausted. But for testing purposes, this response is successful.",
-            "data" => $data
-        ], 200);
     }
 
     public function create(Request $request)

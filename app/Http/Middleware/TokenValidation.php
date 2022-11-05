@@ -5,7 +5,6 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use App\Custom\Authentication;
-use App\Custom\GetIpAddress;
 use App\Models\User;
 use App\Models\Login;
 use App\Models\Notification;

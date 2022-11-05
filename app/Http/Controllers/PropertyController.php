@@ -8,6 +8,7 @@ use App\Models\Earning;
 use App\Models\Investment;
 use App\Models\PaidDividend;
 use App\Models\Property;
+use App\Models\PropertyValueHistory;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -39,8 +40,8 @@ class PropertyController extends Controller
         }
 
         if ($status) {
-            $request->request->add(["percentage_available" => 80]);
             $property = Property::Create($request->all());
+            Property::find($property->property_id)->propertyValueHistory()->create(["property_id" => $property->property_id, "value_usd" => $property->value_usd, "appreciation_rate" => $property->latest_appreciation_rate]);
             $notification_manager = new NotificationManager();
             $notification_manager->sendNotification(array(
                 "title" => "New property available!!!",
@@ -124,7 +125,7 @@ class PropertyController extends Controller
             } else {
                 return response()->json([
                     "status" => false,
-                    "message" => "This property has already paid it's dividend this month."
+                    "message" => "This property has already paid its dividend this month."
                 ], 400);
             }
         } else {
@@ -228,12 +229,18 @@ class PropertyController extends Controller
             if ($status) {
                 $current_property_value = Property::where("property_id", $request->request->get("property_id"))->value("value_usd");
                 $current_property_monthly_earnings = Property::where("property_id", $request->request->get("property_id"))->value("monthly_earning_usd");
+                if ($request->request->has("value_usd") && $request->filled("value_usd")) {
+                    $latest_appreciation_rate = ($request->request->get("value_usd") - $current_property_value) / $current_property_value;
+                    $request->request->add(["latest_appreciation_rate" => $latest_appreciation_rate]);
+                }
                 Property::where("property_id", $request->request->get("property_id"))->update($request->except(["user_id"]));
                 $investor_user_ids = Investment::where("property_id", $request->request->get("property_id"))->get()->pluck("user_id")->unique();
                 $notification_manager = new NotificationManager();
                 if ($request->request->has("value_usd") && $request->filled("value_usd")) {
-                    $new_property_value = $request->request->get("value_usd");
-                    if ($new_property_value > $current_property_value) {
+                    if ($request->request->get("value_usd") != $current_property_value) {
+                        PropertyValueHistory::create(["property_id" => $request->request->get("property_id"), "value_usd" => $request->request->get("value_usd"), "appreciation_rate" => $request->request->get("latest_appreciation_rate")]);
+                    }
+                    if ($$request->request->get("value_usd") > $current_property_value) {
                         if (count($investor_user_ids) > 0) {
                             foreach ($investor_user_ids as $user_id) {
                                 if (User::where("user_id", $user_id)->exists()) {
@@ -311,6 +318,7 @@ class PropertyController extends Controller
                 Property::find($request->request->get("property_id"))->investment()->delete();
                 Property::find($request->request->get("property_id"))->paidDividend()->delete();
                 Property::find($request->request->get("property_id"))->earning()->delete();
+                Property::find($request->request->get("property_id"))->propertyValueHistory()->delete();
                 Property::destroy($request->request->get("property_id"));
                 return response()->json([
                     "status" => true,

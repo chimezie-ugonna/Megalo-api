@@ -20,7 +20,12 @@ class Property extends Model
         "value_usd",
         "percentage_available",
         "monthly_earning_usd",
-        "size_sf"
+        "size_sf",
+        "latest_appreciation_rate",
+        "sold"
+    ];
+    protected $casts = [
+        "sold" => "boolean"
     ];
 
     public function investment()
@@ -36,5 +41,10 @@ class Property extends Model
     public function earning()
     {
         return $this->hasMany(Earning::class, "property_id");
+    }
+
+    public function propertyValueHistory()
+    {
+        return $this->hasMany(PropertyValueHistory::class, "property_id");
     }
 }

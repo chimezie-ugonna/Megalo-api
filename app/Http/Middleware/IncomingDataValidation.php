@@ -19,11 +19,15 @@ class IncomingDataValidation
         if ($request->isMethod("post")) {
             if ($request->path() == "api/v1/user/send_otp") {
                 $request->validate([
-                    "phone_number" => ["bail", "required"]
+                    "type" => ["bail", "required", "in:email,sms"],
+                    "email" => ["bail", "prohibited_if:type,sms", "filled", "required_if:type,email"],
+                    "phone_number" => ["bail", "prohibited_if:type,email", "filled", "required_if:type,sms"]
                 ]);
             } else if ($request->path() == "api/v1/user/verify_otp") {
                 $request->validate([
-                    "phone_number" => ["bail", "required"],
+                    "type" => ["bail", "required", "in:email,sms"],
+                    "email" => ["bail", "prohibited_if:type,sms", "filled", "required_if:type,email"],
+                    "phone_number" => ["bail", "prohibited_if:type,email", "filled", "required_if:type,sms"],
                     "otp" => ["bail", "required"]
                 ]);
             } else if ($request->path() == "api/v1/user/create") {
@@ -95,9 +99,11 @@ class IncomingDataValidation
                     "value_usd" => ["bail", "required", "numeric"],
                     "image_urls" => ["bail", "required"],
                     "description" => ["bail", "required"],
-                    "percentage_available" => ["bail", "prohibited"],
+                    "percentage_available" => ["bail", "required", "numeric"],
                     "size_sf" => ["bail", "required", "numeric"],
-                    "monthly_earning_usd" => ["bail", "required", "numeric"]
+                    "monthly_earning_usd" => ["bail", "required", "numeric"],
+                    "latest_appreciation_rate" => ["bail", "prohibited"],
+                    "sold" => ["bail", "prohibited"]
                 ]);
             } else if ($request->path() == "api/v1/property/pay_dividend") {
                 $request->validate([
@@ -146,7 +152,9 @@ class IncomingDataValidation
                     "image_urls" => ["bail", "filled", "not_in:null"],
                     "description" => ["bail", "filled", "not_in:null"],
                     "size_sf" => ["bail", "filled", "numeric"],
-                    "monthly_earning_usd" => ["bail", "filled", "numeric"]
+                    "monthly_earning_usd" => ["bail", "filled", "numeric"],
+                    "latest_appreciation_rate" => ["bail", "prohibited"],
+                    "sold" => ["bail", "filled", "boolean"]
                 ]);
                 if (sizeof($request->all()) <= 1) {
                     return response()->json([
@@ -168,8 +176,8 @@ class IncomingDataValidation
                 $request->validate([
                     "balance_usd" => ["bail", "prohibited"],
                     "is_admin" => ["bail", "prohibited"],
-                    "email_verified" => ["bail", "filled", "boolean"],
-                    "identity_verified" => ["bail", "filled", "boolean"],
+                    "email_verified" => ["bail", "prohibited"],
+                    "identity_verified" => ["bail", "prohibited"],
                     "phone_number" => ["bail", "filled", "not_in:null"],
                     "full_name" => ["bail", "filled", "not_in:null"],
                     "dob" => ["bail", "filled", "date_format:d/m/Y"],
