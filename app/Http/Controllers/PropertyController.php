@@ -187,105 +187,112 @@ class PropertyController extends Controller
     public function update(Request $request)
     {
         if (Property::where("property_id", $request->request->get("property_id"))->exists()) {
-            $status = true;
-            if ($request->request->has("image_urls") && $request->filled("image_urls")) {
-                $image_urls = explode(", ", Property::where("property_id", $request->request->get("property_id"))->value("image_urls"));
-                if (count($image_urls) > 0) {
-                    $media_manager = new MediaManager();
-                    for ($i = 0; $i < count($image_urls); $i++) {
-                        $data = explode("+ ", $image_urls[$i]);
-                        if (count($data) > 1) {
-                            $data = $media_manager->deleteMedia("image", $data[1]);
-                            if (!isset($data) || !isset($data["result"]) || $data["result"] != "ok") {
-                                $status = false;
-                                break;
-                            }
-                        }
-                    }
-                }
-
-                if ($status) {
-                    $image_urls = explode(", ", $request->request->get("image_urls"));
+            if (!Property::where("property_id", $request->request->get("property_id"))->value("sold")) {
+                $status = true;
+                if ($request->request->has("image_urls") && $request->filled("image_urls")) {
+                    $image_urls = explode(", ", Property::where("property_id", $request->request->get("property_id"))->value("image_urls"));
                     if (count($image_urls) > 0) {
-                        $cloudinary_image_urls = "";
                         $media_manager = new MediaManager();
                         for ($i = 0; $i < count($image_urls); $i++) {
-                            $data = $media_manager->uploadMedia("image", $image_urls[$i]);
-                            if (isset($data) && isset($data["url"]) && isset($data["public_id"])) {
-                                if ($i == count($image_urls) - 1) {
-                                    $cloudinary_image_urls .= $data["url"] . "+ " . $data["public_id"];
-                                } else {
-                                    $cloudinary_image_urls .= $data["url"] . "+ " . $data["public_id"] . ", ";
-                                }
-                            } else {
-                                $status = false;
-                                break;
-                            }
-                        }
-                        $request->request->set("image_urls", $cloudinary_image_urls);
-                    }
-                }
-            }
-            if ($status) {
-                $current_property_value = Property::where("property_id", $request->request->get("property_id"))->value("value_usd");
-                $current_property_monthly_earnings = Property::where("property_id", $request->request->get("property_id"))->value("monthly_earning_usd");
-                if ($request->request->has("value_usd") && $request->filled("value_usd")) {
-                    $latest_appreciation_rate = ($request->request->get("value_usd") - $current_property_value) / $current_property_value;
-                    $request->request->add(["latest_appreciation_rate" => $latest_appreciation_rate]);
-                }
-                Property::where("property_id", $request->request->get("property_id"))->update($request->except(["user_id"]));
-                $investor_user_ids = Investment::where("property_id", $request->request->get("property_id"))->get()->pluck("user_id")->unique();
-                $notification_manager = new NotificationManager();
-                if ($request->request->has("value_usd") && $request->filled("value_usd")) {
-                    if ($request->request->get("value_usd") != $current_property_value) {
-                        PropertyValueHistory::create(["property_id" => $request->request->get("property_id"), "value_usd" => $request->request->get("value_usd"), "appreciation_rate" => $request->request->get("latest_appreciation_rate")]);
-                    }
-                    if ($$request->request->get("value_usd") > $current_property_value) {
-                        if (count($investor_user_ids) > 0) {
-                            foreach ($investor_user_ids as $user_id) {
-                                if (User::where("user_id", $user_id)->exists()) {
-                                    $notification_manager->sendNotification(array(
-                                        "receiver_user_id" => $user_id,
-                                        "title" => "Property value increase!!!",
-                                        "body" => "A property that you invested in has increased in value.",
-                                        "tappable" => true,
-                                        "redirection_page" => "property",
-                                        "redirection_page_id" => $request->request->get("property_id")
-                                    ), array(), "user_specific");
+                            $data = explode("+ ", $image_urls[$i]);
+                            if (count($data) > 1) {
+                                $data = $media_manager->deleteMedia("image", $data[1]);
+                                if (!isset($data) || !isset($data["result"]) || $data["result"] != "ok") {
+                                    $status = false;
+                                    break;
                                 }
                             }
                         }
                     }
-                }
-                if ($request->request->has("monthly_earning_usd") && $request->filled("monthly_earning_usd")) {
-                    $new_property_monthly_earnings = $request->request->get("monthly_earning_usd");
-                    if ($new_property_monthly_earnings > $current_property_monthly_earnings) {
-                        if (count($investor_user_ids) > 0) {
-                            foreach ($investor_user_ids as $user_id) {
-                                if (User::where("user_id", $user_id)->exists()) {
-                                    $notification_manager->sendNotification(array(
-                                        "receiver_user_id" => $user_id,
-                                        "title" => "Property earnings increase!!!",
-                                        "body" => "A property that you invested in has increased its earnings.",
-                                        "tappable" => true,
-                                        "redirection_page" => "property",
-                                        "redirection_page_id" => $request->request->get("property_id")
-                                    ), array(), "user_specific");
-                                }
-                            }
-                        }
-                    }
-                }
 
-                return response()->json([
-                    "status" => true,
-                    "message" => "Property data updated successfully.",
-                ], 200);
+                    if ($status) {
+                        $image_urls = explode(", ", $request->request->get("image_urls"));
+                        if (count($image_urls) > 0) {
+                            $cloudinary_image_urls = "";
+                            $media_manager = new MediaManager();
+                            for ($i = 0; $i < count($image_urls); $i++) {
+                                $data = $media_manager->uploadMedia("image", $image_urls[$i]);
+                                if (isset($data) && isset($data["url"]) && isset($data["public_id"])) {
+                                    if ($i == count($image_urls) - 1) {
+                                        $cloudinary_image_urls .= $data["url"] . "+ " . $data["public_id"];
+                                    } else {
+                                        $cloudinary_image_urls .= $data["url"] . "+ " . $data["public_id"] . ", ";
+                                    }
+                                } else {
+                                    $status = false;
+                                    break;
+                                }
+                            }
+                            $request->request->set("image_urls", $cloudinary_image_urls);
+                        }
+                    }
+                }
+                if ($status) {
+                    $current_property_value = Property::where("property_id", $request->request->get("property_id"))->value("value_usd");
+                    $current_property_monthly_earnings = Property::where("property_id", $request->request->get("property_id"))->value("monthly_earning_usd");
+                    if ($request->request->has("value_usd") && $request->filled("value_usd")) {
+                        $latest_appreciation_rate = ($request->request->get("value_usd") - $current_property_value) / $current_property_value;
+                        $request->request->add(["latest_appreciation_rate" => $latest_appreciation_rate]);
+                    }
+                    Property::where("property_id", $request->request->get("property_id"))->update($request->except(["user_id"]));
+                    $investor_user_ids = Investment::where("property_id", $request->request->get("property_id"))->get()->pluck("user_id")->unique();
+                    $notification_manager = new NotificationManager();
+                    if ($request->request->has("value_usd") && $request->filled("value_usd")) {
+                        if ($request->request->get("value_usd") != $current_property_value) {
+                            PropertyValueHistory::create(["property_id" => $request->request->get("property_id"), "value_usd" => $request->request->get("value_usd"), "appreciation_rate" => $request->request->get("latest_appreciation_rate")]);
+                        }
+                        if ($$request->request->get("value_usd") > $current_property_value) {
+                            if (count($investor_user_ids) > 0) {
+                                foreach ($investor_user_ids as $user_id) {
+                                    if (User::where("user_id", $user_id)->exists()) {
+                                        $notification_manager->sendNotification(array(
+                                            "receiver_user_id" => $user_id,
+                                            "title" => "Property value increase!!!",
+                                            "body" => "A property that you invested in has increased in value.",
+                                            "tappable" => true,
+                                            "redirection_page" => "property",
+                                            "redirection_page_id" => $request->request->get("property_id")
+                                        ), array(), "user_specific");
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if ($request->request->has("monthly_earning_usd") && $request->filled("monthly_earning_usd")) {
+                        $new_property_monthly_earnings = $request->request->get("monthly_earning_usd");
+                        if ($new_property_monthly_earnings > $current_property_monthly_earnings) {
+                            if (count($investor_user_ids) > 0) {
+                                foreach ($investor_user_ids as $user_id) {
+                                    if (User::where("user_id", $user_id)->exists()) {
+                                        $notification_manager->sendNotification(array(
+                                            "receiver_user_id" => $user_id,
+                                            "title" => "Property earnings increase!!!",
+                                            "body" => "A property that you invested in has increased its earnings.",
+                                            "tappable" => true,
+                                            "redirection_page" => "property",
+                                            "redirection_page_id" => $request->request->get("property_id")
+                                        ), array(), "user_specific");
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    return response()->json([
+                        "status" => true,
+                        "message" => "Property data updated successfully.",
+                    ], 200);
+                } else {
+                    return response()->json([
+                        "status" => false,
+                        "message" => "An error occurred while updating property image, property data could not be updated."
+                    ], 500);
+                }
             } else {
                 return response()->json([
                     "status" => false,
-                    "message" => "An error occurred while updating property image, property data could not be updated."
-                ], 500);
+                    "message" => "This property has been sold so its details can not be edited any longer."
+                ], 404);
             }
         } else {
             return response()->json([

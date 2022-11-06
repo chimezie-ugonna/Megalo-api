@@ -98,7 +98,7 @@ class UserController extends Controller
         }*/
 
         if ($request->request->get("type") == "email") {
-            User::where("user_id", $request->request->get("user_id"))->update(["email_verified" => 1]);
+            User::where("user_id", $request->request->get("user_id"))->update(["email_verified" => true]);
             return response()->json([
                 "status" => true,
                 "message" => "The otp was not verified because our twilio credit is exhausted. But for testing purposes, this response is successful and the email has been verified."
@@ -376,7 +376,7 @@ class UserController extends Controller
                 return response()->json([
                     "status" => true,
                     "message" => "Identity verification initiated successfully.",
-                    "data" => ["verfication_session_id" => $create_verification_session_response["id"], "ephemeral_key_secret" => $create_ephemeral_key_response["secret"]]
+                    "data" => ["verification_session_id" => $create_verification_session_response["id"], "ephemeral_key_secret" => $create_ephemeral_key_response["secret"]]
                 ], 200);
             } else {
                 return response()->json([
