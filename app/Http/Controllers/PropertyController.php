@@ -41,7 +41,7 @@ class PropertyController extends Controller
 
         if ($status) {
             $property = Property::Create($request->all());
-            Property::find($property->property_id)->propertyValueHistory()->create(["property_id" => $property->property_id, "value_usd" => $property->value_usd, "appreciation_rate" => $property->latest_appreciation_rate]);
+            Property::find($property->property_id)->propertyValueHistory()->create(["property_id" => $property->property_id, "value_usd" => $property->value_usd, "appreciation_rate" => 0]);
             $notification_manager = new NotificationManager();
             $notification_manager->sendNotification(array(
                 "title" => "New property available!!!",
