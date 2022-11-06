@@ -98,7 +98,7 @@ class UserController extends Controller
         }*/
 
         if ($request->request->get("type") == "email") {
-            User::where("user_id", $request->request->get("user_id"))->update(["email_verified" => true]);
+            User::where("user_id", $request->request->get("user_id"))->update(["email_verified" => 1]);
             return response()->json([
                 "status" => true,
                 "message" => "The otp was not verified because our twilio credit is exhausted. But for testing purposes, this response is successful and the email has been verified."
