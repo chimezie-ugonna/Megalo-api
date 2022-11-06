@@ -366,6 +366,32 @@ class UserController extends Controller
         }
     }
 
+    public function initiateIdentityVerification(Request $request)
+    {
+        $payment_manager = new PaymentManager();
+        $create_verification_session_response = $payment_manager->manage(array("type" => "create_verification_session", "data" => ["user_id" => $request->request->get("user_id")]));
+        if (isset($create_verification_session_response) && isset($create_verification_session_response["id"])) {
+            $create_ephemeral_key_response = $payment_manager->manage(array("type" => "create_ephemeral_key", "data" => ["verification_session_id" => $create_verification_session_response["id"]]));
+            if (isset($create_ephemeral_key_response) && isset($create_ephemeral_key_response["secret"])) {
+                return response()->json([
+                    "status" => true,
+                    "message" => "Identity verification initiated successfully.",
+                    "data" => ["verfication_session_id" => $create_verification_session_response["id"], "ephemeral_key_secret" => $create_ephemeral_key_response["secret"]]
+                ], 200);
+            } else {
+                return response()->json([
+                    "status" => false,
+                    "message" => "An error occurred while initiating identity verification, identity verification could not be initiated."
+                ], 500);
+            }
+        } else {
+            return response()->json([
+                "status" => false,
+                "message" => "An error occurred while initiating identity verification, identity verification could not be initiated."
+            ], 500);
+        }
+    }
+
     public function update(Request $request)
     {
         if ($request->request->has("first_name") && $request->filled("first_name") || $request->request->has("last_name") && $request->filled("last_name") || $request->request->has("dob") && $request->filled("dob")) {
