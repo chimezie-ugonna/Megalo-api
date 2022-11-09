@@ -22,7 +22,7 @@ class TokenValidation
      */
     public function handle(Request $request, Closure $next)
     {
-        if ($request->path() != "api/v1/user/send_otp" && $request->path() != "api/v1/user/verify_otp") {
+        if ($request->path() != "api/v1/user/send_otp" && $request->path() != "api/v1/user/verify_otp" || $request->path() == "api/v1/user/send_otp" && $request->request->has("email") || $request->path() == "api/v1/user/verify_otp" && $request->request->has("email")) {
             if ($request->bearerToken() != "") {
                 $auth = new Authentication();
                 $data = $auth->decode($request->bearerToken());
