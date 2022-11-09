@@ -190,18 +190,21 @@ class PropertyController extends Controller
             if (!Property::where("property_id", $request->request->get("property_id"))->value("sold")) {
                 $status = true;
                 if ($request->request->has("image_urls") && $request->filled("image_urls")) {
-                    $image_urls = explode(", ", Property::where("property_id", $request->request->get("property_id"))->value("image_urls"));
-                    if (count($image_urls) > 0) {
-                        $media_manager = new MediaManager();
-                        for ($i = 0; $i < count($image_urls); $i++) {
-                            $data = explode("+ ", $image_urls[$i]);
-                            if (count($data) > 1) {
-                                $data = $media_manager->deleteMedia("image", $data[1]);
-                                if (!isset($data) || !isset($data["result"]) || $data["result"] != "ok") {
-                                    $status = false;
-                                    break;
+                    if (Property::where("property_id", $request->request->get("property_id"))->value("image_urls") != "") {
+                        $image_urls = explode(", ", Property::where("property_id", $request->request->get("property_id"))->value("image_urls"));
+                        if (count($image_urls) > 0) {
+                            $media_manager = new MediaManager();
+                            for ($i = 0; $i < count($image_urls); $i++) {
+                                $data = explode("+ ", $image_urls[$i]);
+                                if (count($data) > 1) {
+                                    $data = $media_manager->deleteMedia("image", $data[1]);
+                                    if (!isset($data) || !isset($data["result"]) || $data["result"] != "ok") {
+                                        $status = false;
+                                        break;
+                                    }
                                 }
                             }
+                            Property::where("property_id", $request->request->get("property_id"))->update(["image_urls" => ""]);
                         }
                     }
 
@@ -306,18 +309,21 @@ class PropertyController extends Controller
     {
         if (Property::where("property_id", $request->request->get("property_id"))->exists()) {
             $status = true;
-            $image_urls = explode(", ", Property::where("property_id", $request->request->get("property_id"))->value("image_urls"));
-            if (count($image_urls) > 0) {
-                $media_manager = new MediaManager();
-                for ($i = 0; $i < count($image_urls); $i++) {
-                    $data = explode("+ ", $image_urls[$i]);
-                    if (count($data) > 1) {
-                        $data = $media_manager->deleteMedia("image", $data[1]);
-                        if (!isset($data) || !isset($data["result"]) || $data["result"] != "ok") {
-                            $status = false;
-                            break;
+            if (Property::where("property_id", $request->request->get("property_id"))->value("image_urls") != "") {
+                $image_urls = explode(", ", Property::where("property_id", $request->request->get("property_id"))->value("image_urls"));
+                if (count($image_urls) > 0) {
+                    $media_manager = new MediaManager();
+                    for ($i = 0; $i < count($image_urls); $i++) {
+                        $data = explode("+ ", $image_urls[$i]);
+                        if (count($data) > 1) {
+                            $data = $media_manager->deleteMedia("image", $data[1]);
+                            if (!isset($data) || !isset($data["result"]) || $data["result"] != "ok") {
+                                $status = false;
+                                break;
+                            }
                         }
                     }
+                    Property::where("property_id", $request->request->get("property_id"))->update(["image_urls" => ""]);
                 }
             }
 
