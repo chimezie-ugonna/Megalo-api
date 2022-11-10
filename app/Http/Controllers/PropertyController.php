@@ -190,46 +190,44 @@ class PropertyController extends Controller
             if (!Property::where("property_id", $request->request->get("property_id"))->value("sold")) {
                 $status = true;
                 if ($request->request->has("image_urls") && $request->filled("image_urls")) {
-                    if (Property::where("property_id", $request->request->get("property_id"))->value("image_urls") != "") {
-                        $image_urls = explode(", ", Property::where("property_id", $request->request->get("property_id"))->value("image_urls"));
-                        if (count($image_urls) > 0) {
-                            $media_manager = new MediaManager();
-                            for ($i = 0; $i < count($image_urls); $i++) {
-                                $data = explode("+ ", $image_urls[$i]);
-                                if (count($data) > 1) {
-                                    $data = $media_manager->deleteMedia("image", $data[1]);
-                                    if (!isset($data) || !isset($data["result"]) || $data["result"] != "ok") {
-                                        $status = false;
-                                        break;
-                                    }
+                    $current_image_urls_with_public_id = explode(", ", Property::where("property_id", $request->request->get("property_id"))->value("image_urls"));
+                    $new_image_urls = explode(", ", $request->request->get("image_urls"));
+                    $cloudinary_image_urls = "";
+                    $current_image_urls = array();
+                    $media_manager = new MediaManager();
+
+                    for ($i = 0; $i < count($current_image_urls_with_public_id); $i++) {
+                        $data = explode("+ ", $current_image_urls_with_public_id[$i]);
+                        if (count($data) > 1) {
+                            if (!in_array($data[0], $new_image_urls)) {
+                                $data = $media_manager->deleteMedia("image", $data[1]);
+                                if (!isset($data) || !isset($data["result"]) || $data["result"] != "ok") {
+                                    $status = false;
+                                    break;
                                 }
+                            } else {
+                                $cloudinary_image_urls .= $current_image_urls_with_public_id[$i] . ", ";
                             }
-                            Property::where("property_id", $request->request->get("property_id"))->update(["image_urls" => ""]);
+                            $current_image_urls[$i] = $data[0];
                         }
                     }
 
                     if ($status) {
-                        $image_urls = explode(", ", $request->request->get("image_urls"));
-                        if (count($image_urls) > 0) {
-                            $cloudinary_image_urls = "";
-                            $media_manager = new MediaManager();
-                            for ($i = 0; $i < count($image_urls); $i++) {
-                                $data = $media_manager->uploadMedia("image", $image_urls[$i]);
+                        for ($i = 0; $i < count($new_image_urls); $i++) {
+                            if (!in_array($new_image_urls[$i], $current_image_urls)) {
+                                $data = $media_manager->uploadMedia("image", $new_image_urls[$i]);
                                 if (isset($data) && isset($data["url"]) && isset($data["public_id"])) {
-                                    if ($i == count($image_urls) - 1) {
-                                        $cloudinary_image_urls .= $data["url"] . "+ " . $data["public_id"];
-                                    } else {
-                                        $cloudinary_image_urls .= $data["url"] . "+ " . $data["public_id"] . ", ";
-                                    }
+                                    $cloudinary_image_urls .= $data["url"] . "+ " . $data["public_id"] . ", ";
                                 } else {
                                     $status = false;
                                     break;
                                 }
                             }
-                            $request->request->set("image_urls", $cloudinary_image_urls);
                         }
+                        $request->request->set("image_urls", substr($cloudinary_image_urls, 0, strlen($cloudinary_image_urls) - 2));
                     }
                 }
+
                 if ($status) {
                     $current_property_value = Property::where("property_id", $request->request->get("property_id"))->value("value_usd");
                     $current_property_monthly_earnings = Property::where("property_id", $request->request->get("property_id"))->value("monthly_earning_usd");
@@ -309,21 +307,18 @@ class PropertyController extends Controller
     {
         if (Property::where("property_id", $request->request->get("property_id"))->exists()) {
             $status = true;
-            if (Property::where("property_id", $request->request->get("property_id"))->value("image_urls") != "") {
-                $image_urls = explode(", ", Property::where("property_id", $request->request->get("property_id"))->value("image_urls"));
-                if (count($image_urls) > 0) {
-                    $media_manager = new MediaManager();
-                    for ($i = 0; $i < count($image_urls); $i++) {
-                        $data = explode("+ ", $image_urls[$i]);
-                        if (count($data) > 1) {
-                            $data = $media_manager->deleteMedia("image", $data[1]);
-                            if (!isset($data) || !isset($data["result"]) || $data["result"] != "ok") {
-                                $status = false;
-                                break;
-                            }
+            $image_urls = explode(", ", Property::where("property_id", $request->request->get("property_id"))->value("image_urls"));
+            if (count($image_urls) > 0) {
+                $media_manager = new MediaManager();
+                for ($i = 0; $i < count($image_urls); $i++) {
+                    $data = explode("+ ", $image_urls[$i]);
+                    if (count($data) > 1) {
+                        $data = $media_manager->deleteMedia("image", $data[1]);
+                        if (!isset($data) || !isset($data["result"]) || $data["result"] != "ok") {
+                            $status = false;
+                            break;
                         }
                     }
-                    Property::where("property_id", $request->request->get("property_id"))->update(["image_urls" => ""]);
                 }
             }
 
