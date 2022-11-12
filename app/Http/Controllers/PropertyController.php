@@ -242,7 +242,7 @@ class PropertyController extends Controller
                         if ($request->request->get("value_usd") != $current_property_value) {
                             PropertyValueHistory::create(["property_id" => $request->request->get("property_id"), "value_usd" => $request->request->get("value_usd"), "appreciation_rate" => $request->request->get("latest_appreciation_rate")]);
                         }
-                        if ($$request->request->get("value_usd") > $current_property_value) {
+                        if ($request->request->get("value_usd") > $current_property_value) {
                             if (count($investor_user_ids) > 0) {
                                 foreach ($investor_user_ids as $user_id) {
                                     if (User::where("user_id", $user_id)->exists()) {
