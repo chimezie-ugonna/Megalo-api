@@ -196,7 +196,7 @@ class PropertyController extends Controller
                     $current_image_urls = array();
                     $media_manager = new MediaManager();
 
-                    for ($i = 0; $i < count($current_image_urls_with_public_id); $i++) {
+                    /*for ($i = 0; $i < count($current_image_urls_with_public_id); $i++) {
                         $data = explode("+ ", $current_image_urls_with_public_id[$i]);
                         if (count($data) > 1) {
                             if (!in_array($data[0], $new_image_urls)) {
@@ -210,7 +210,7 @@ class PropertyController extends Controller
                             }
                             $current_image_urls[$i] = $data[0];
                         }
-                    }
+                    }*/
 
                     if ($status) {
                         for ($i = 0; $i < count($new_image_urls); $i++) {
