@@ -196,12 +196,12 @@ class PropertyController extends Controller
                     $current_image_urls = array();
                     $media_manager = new MediaManager();
 
-                    /*for ($i = 0; $i < count($current_image_urls_with_public_id); $i++) {
+                    for ($i = 0; $i < count($current_image_urls_with_public_id); $i++) {
                         $data = explode("+ ", $current_image_urls_with_public_id[$i]);
                         if (count($data) > 1) {
                             if (!in_array($data[0], $new_image_urls)) {
-                                $data = $media_manager->deleteMedia("image", $data[1]);
-                                if (!isset($data) || !isset($data["result"]) || $data["result"] != "ok") {
+                                $response = $media_manager->deleteMedia("image", $data[1]);
+                                if (!isset($response) || !isset($response["result"]) || $response["result"] != "ok") {
                                     $status = false;
                                     break;
                                 }
@@ -210,7 +210,7 @@ class PropertyController extends Controller
                             }
                             $current_image_urls[$i] = $data[0];
                         }
-                    }*/
+                    }
 
                     if ($status) {
                         for ($i = 0; $i < count($new_image_urls); $i++) {
@@ -282,6 +282,7 @@ class PropertyController extends Controller
                     return response()->json([
                         "status" => true,
                         "message" => "Property data updated successfully.",
+                        "data" => Property::where("property_id", $request->request->get("property_id"))->get()
                     ], 200);
                 } else {
                     return response()->json([
