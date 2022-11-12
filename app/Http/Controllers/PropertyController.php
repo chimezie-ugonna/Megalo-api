@@ -158,7 +158,7 @@ class PropertyController extends Controller
             return response()->json([
                 "status" => true,
                 "message" => "All property data retrieved successfully.",
-                "data" => Property::all()
+                "data" => Property::all()->orderBy("created_at", "desc")
             ], 200);
         } else {
             return response()->json([
