@@ -87,7 +87,25 @@ class TokenValidation
                                 ], 401);
                             }
 
-                            if ($request->path() == "api/v1/user/read_all" || $request->path() == "api/v1/user/read_all_earning" || $request->path() == "api/v1/login/read" || $request->path() == "api/v1/login/read_all" || $request->path() == "api/v1/property/create" || $request->path() == "api/v1/property/pay_dividend" || $request->path() == "api/v1/property/read_all" || $request->path() == "api/v1/property/read_paid_dividend" || $request->path() == "api/v1/property/update" || $request->path() == "api/v1/property/delete" || $request->path() == "api/v1/investment/read_all" || $request->path() == "api/v1/payment/read_all" || $request->path() == "api/v1/notification/create" || $request->path() == "api/v1/notification/create_all" || $request->path() == "api/v1/notification/read_all") {
+                            $admin_only_endpoints = [
+                                "api/v1/user/read_all",
+                                "api/v1/user/read_all_earning",
+                                "api/v1/user/read_dashboard_data",
+                                "api/v1/login/read",
+                                "api/v1/login/read_all",
+                                "api/v1/property/create",
+                                "api/v1/property/pay_dividend",
+                                "api/v1/property/read_all",
+                                "api/v1/property/read_paid_dividend",
+                                "api/v1/property/update",
+                                "api/v1/property/delete",
+                                "api/v1/investment/read_all",
+                                "api/v1/payment/read_all",
+                                "api/v1/notification/create",
+                                "api/v1/notification/create_all",
+                                "api/v1/notification/read_all"
+                            ];
+                            if (in_array($request->path(), $admin_only_endpoints)) {
                                 if (!User::where("user_id", $user_id)->value("is_admin")) {
                                     return response()->json([
                                         "status" => false,

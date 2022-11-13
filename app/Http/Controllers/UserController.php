@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Custom\OtpManager;
 use App\Custom\PaymentManager;
 use App\Models\Earning;
+use App\Models\Property;
 use App\Models\Referral;
 use App\Models\User;
 
@@ -363,6 +364,22 @@ class UserController extends Controller
                 "status" => false,
                 "message" => "An error occurred while retrieving all payment methods, all payment methods could not be retrieved."
             ], 500);
+        }
+    }
+
+    public function readDashBoardData(Request $request)
+    {
+        if (User::where("user_id", $request->request->get("user_id"))->exists()) {
+            return response()->json([
+                "status" => true,
+                "message" => "Dashboard data retrieved successfully.",
+                "data" => ["user_count" => User::count(), "property_count" => Property::count(), "all_property_value" => Property::all()->sum("value_usd")]
+            ], 200);
+        } else {
+            return response()->json([
+                "status" => false,
+                "message" => "User data not found."
+            ], 404);
         }
     }
 
