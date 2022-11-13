@@ -367,7 +367,7 @@ class UserController extends Controller
         }
     }
 
-    public function readDashBoardData(Request $request)
+    public function readDashboardData(Request $request)
     {
         if (User::where("user_id", $request->request->get("user_id"))->exists()) {
             return response()->json([
