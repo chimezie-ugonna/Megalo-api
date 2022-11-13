@@ -129,7 +129,7 @@ class PaymentController extends Controller
             return response()->json([
                 "status" => true,
                 "message" => "All payment data retrieved successfully.",
-                "data" => Payment::all()
+                "data" => Payment::latest()->get()
             ], 200);
         } else {
             return response()->json([

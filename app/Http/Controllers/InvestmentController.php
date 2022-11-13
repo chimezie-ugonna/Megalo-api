@@ -134,7 +134,7 @@ class InvestmentController extends Controller
             return response()->json([
                 "status" => true,
                 "message" => "All investment data retrieved successfully.",
-                "data" => Investment::all()
+                "data" => Investment::latest()->get()
             ], 200);
         } else {
             return response()->json([
