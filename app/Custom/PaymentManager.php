@@ -417,11 +417,6 @@ class PaymentManager
     return $amount_usd * 0.03;
   }
 
-  function getInvestmentFee($amount_usd)
-  {
-    return $amount_usd * 0.01;
-  }
-
   function getReferralBonus()
   {
     return 5;

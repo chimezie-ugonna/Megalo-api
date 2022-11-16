@@ -111,6 +111,12 @@ class IncomingDataValidation
                     "amount_usd" => ["bail", "prohibited"],
                     "investor_count" => ["bail", "prohibited"]
                 ]);
+            } else if ($request->path() == "api/v1/property/calculate_potential") {
+                $request->validate([
+                    "property_id" => ["bail", "required"],
+                    "amount_usd" => ["bail", "required", "numeric", "gte:0.50", "lte:999999.99"],
+                    "time_period" => ["bail", "required", "numeric"]
+                ]);
             } else if ($request->path() == "api/v1/payment/create") {
                 $request->validate([
                     "type" => ["bail", "required", "in:deposit,withdrawal"],

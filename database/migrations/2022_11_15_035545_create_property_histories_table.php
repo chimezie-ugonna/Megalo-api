@@ -13,11 +13,15 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('property_value_histories', function (Blueprint $table) {
+        Schema::create('property_histories', function (Blueprint $table) {
             $table->increments('id');
             $table->text("property_id");
             $table->decimal("value_usd", 11, 2);
-            $table->decimal("appreciation_rate", 17, 12);
+            $table->decimal("monthly_earning_usd", 11, 2);
+            $table->decimal("value_annual_change_rate", 17, 12);
+            $table->decimal("monthly_earning_annual_change_rate", 17, 12);
+            $table->boolean("value_changed");
+            $table->boolean("monthly_earning_changed");
             $table->timestampTz("created_at");
             $table->timestampTz("updated_at");
         });
@@ -30,6 +34,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('property_value_histories');
+        Schema::dropIfExists('property_histories');
     }
 };

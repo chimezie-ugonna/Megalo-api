@@ -55,6 +55,7 @@ Route::middleware([CheckHeader::class, IncomingDataValidation::class, TokenValid
     Route::controller(PropertyController::class)->group(function () {
         Route::post("/property/create", "create");
         Route::post("/property/pay_dividend", "payDividend");
+        Route::post("/property/calculate_potential", "calculatePotential");
         Route::get("/property/read", "read");
         Route::get("/property/read_all", "readAll");
         Route::get("/property/read_paid_dividend", "readPaidDividend");

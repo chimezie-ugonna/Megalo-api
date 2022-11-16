@@ -8,7 +8,7 @@ use App\Models\Earning;
 use App\Models\Investment;
 use App\Models\PaidDividend;
 use App\Models\Property;
-use App\Models\PropertyValueHistory;
+use App\Models\PropertyHistory;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -41,7 +41,7 @@ class PropertyController extends Controller
 
         if ($status) {
             $property = Property::Create($request->all());
-            Property::find($property->property_id)->propertyValueHistory()->create(["property_id" => $property->property_id, "value_usd" => $property->value_usd, "appreciation_rate" => 0]);
+            Property::find($property->property_id)->propertyHistory()->create(["property_id" => $property->property_id, "value_usd" => $property->value_usd, "monthly_earning_usd" => $property->monthly_earning_usd, "value_annual_change_rate" => 0, "monthly_earning_annual_change_rate" => 0, "value_changed" => false, "monthly_earning_changed" => false]);
             $notification_manager = new NotificationManager();
             $notification_manager->sendNotification(array(
                 "title" => "New property available!!!",
@@ -128,6 +128,32 @@ class PropertyController extends Controller
                     "message" => "This property has already paid its dividend this month."
                 ], 400);
             }
+        } else {
+            return response()->json([
+                "status" => false,
+                "message" => "Property data not found."
+            ], 404);
+        }
+    }
+
+    public function calculatePotential(Request $request)
+    {
+        if (Property::where("property_id", $request->request->get("property_id"))->exists()) {
+            $current_property_value = Property::where("property_id", $request->request->get("property_id"))->value("value_usd");
+            $current_value_annual_change_rate = Property::where("property_id", $request->request->get("property_id"))->value("current_value_annual_change_rate");
+            $investment_percentage = ($request->request->get("amount_usd") / $current_property_value) * 100;
+            $potential_property_value = $current_property_value * (1 + $current_value_annual_change_rate) ** $request->request->get("time_period");
+            $potential_investment_value = ($investment_percentage / 100) * $potential_property_value;
+
+            $current_property_monthly_earning = Property::where("property_id", $request->request->get("property_id"))->value("monthly_earning_usd");
+            $current_monthly_earning_annual_change_rate = Property::where("property_id", $request->request->get("property_id"))->value("current_monthly_earning_annual_change_rate");
+            $potential_property_earning = ($current_property_monthly_earning * 12) * (1 + $current_monthly_earning_annual_change_rate) ** $request->request->get("time_period");
+            $potential_earning = ($investment_percentage / 100) * $potential_property_earning;
+            return response()->json([
+                "status" => true,
+                "message" => "Potential calculated successfully.",
+                "data" => ["potential_investment_value" => $potential_investment_value, "potential_earning" => $potential_earning]
+            ], 200);
         } else {
             return response()->json([
                 "status" => false,
@@ -231,18 +257,41 @@ class PropertyController extends Controller
                 if ($status) {
                     $current_property_value = Property::where("property_id", $request->request->get("property_id"))->value("value_usd");
                     $current_property_monthly_earnings = Property::where("property_id", $request->request->get("property_id"))->value("monthly_earning_usd");
-                    if ($request->request->has("value_usd") && $request->filled("value_usd")) {
-                        $latest_appreciation_rate = ($request->request->get("value_usd") - $current_property_value) / $current_property_value;
-                        $request->request->add(["latest_appreciation_rate" => $latest_appreciation_rate]);
+                    if ($request->request->has("value_usd") && $request->filled("value_usd") || $request->request->has("monthly_earning_usd") && $request->filled("monthly_earning_usd")) {
+                        $current_value_annual_change_rate = 0;
+                        $current_monthly_earning_annual_change_rate = 0;
+                        if ($request->request->has("value_usd") && $request->filled("value_usd")) {
+                            $current_value_annual_change_rate = ($request->request->get("value_usd") - $current_property_value) / $current_property_value;
+                        }
+                        if ($request->request->has("monthly_earning_usd") && $request->filled("monthly_earning_usd")) {
+                            $current_monthly_earning_annual_change_rate = ($request->request->get("monthly_earning_usd") - $current_property_monthly_earnings) / $current_property_monthly_earnings;
+                        }
+
+                        $request->request->add(["current_value_annual_change_rate" => $current_value_annual_change_rate]);
+                        $request->request->add(["current_monthly_earning_annual_change_rate" => $current_monthly_earning_annual_change_rate]);
                     }
                     Property::where("property_id", $request->request->get("property_id"))->update($request->except(["user_id"]));
                     $investor_user_ids = Investment::where("property_id", $request->request->get("property_id"))->get()->pluck("user_id")->unique();
                     $notification_manager = new NotificationManager();
-                    if ($request->request->has("value_usd") && $request->filled("value_usd")) {
-                        if ($request->request->get("value_usd") != $current_property_value) {
-                            PropertyValueHistory::create(["property_id" => $request->request->get("property_id"), "value_usd" => $request->request->get("value_usd"), "appreciation_rate" => $request->request->get("latest_appreciation_rate")]);
+                    if ($request->request->has("value_usd") && $request->filled("value_usd") || $request->request->has("monthly_earning_usd") && $request->filled("monthly_earning_usd")) {
+                        $value_usd = $current_property_value;
+                        $value_changed = false;
+                        $monthly_earning_usd = $current_property_monthly_earnings;
+                        $monthly_earning_changed = false;
+
+                        if ($request->request->has("value_usd") && $request->filled("value_usd") && $request->request->get("value_usd") != $current_property_value) {
+                            $value_usd = $request->request->get("value_usd");
+                            $value_changed = true;
                         }
-                        if ($request->request->get("value_usd") > $current_property_value) {
+                        if ($request->request->has("monthly_earning_usd") && $request->filled("monthly_earning_usd") && $request->request->get("monthly_earning_usd") != $current_property_monthly_earnings) {
+                            $monthly_earning_usd = $request->request->get("monthly_earning_usd");
+                            $monthly_earning_changed = true;
+                        }
+                        if ($value_changed || $monthly_earning_changed) {
+                            PropertyHistory::create(["property_id" => $request->request->get("property_id"), "value_usd" => $value_usd, "monthly_earning_usd" => $monthly_earning_usd, "value_annual_change_rate" => $current_value_annual_change_rate, "monthly_earning_annual_change_rate" => $current_monthly_earning_annual_change_rate, "value_changed" => $value_changed, "monthly_earning_changed" => $monthly_earning_changed]);
+                        }
+
+                        if ($request->request->has("value_usd") && $request->filled("value_usd") && $request->request->get("value_usd") > $current_property_value) {
                             if (count($investor_user_ids) > 0) {
                                 foreach ($investor_user_ids as $user_id) {
                                     if (User::where("user_id", $user_id)->exists()) {
@@ -258,10 +307,8 @@ class PropertyController extends Controller
                                 }
                             }
                         }
-                    }
-                    if ($request->request->has("monthly_earning_usd") && $request->filled("monthly_earning_usd")) {
-                        $new_property_monthly_earnings = $request->request->get("monthly_earning_usd");
-                        if ($new_property_monthly_earnings > $current_property_monthly_earnings) {
+
+                        if ($request->request->has("monthly_earning_usd") && $request->filled("monthly_earning_usd") && $request->request->get("monthly_earning_usd") > $current_property_monthly_earnings) {
                             if (count($investor_user_ids) > 0) {
                                 foreach ($investor_user_ids as $user_id) {
                                     if (User::where("user_id", $user_id)->exists()) {
@@ -327,7 +374,7 @@ class PropertyController extends Controller
                 Property::find($request->request->get("property_id"))->investment()->delete();
                 Property::find($request->request->get("property_id"))->paidDividend()->delete();
                 Property::find($request->request->get("property_id"))->earning()->delete();
-                Property::find($request->request->get("property_id"))->propertyValueHistory()->delete();
+                Property::find($request->request->get("property_id"))->propertyHistory()->delete();
                 Property::destroy($request->request->get("property_id"));
                 return response()->json([
                     "status" => true,

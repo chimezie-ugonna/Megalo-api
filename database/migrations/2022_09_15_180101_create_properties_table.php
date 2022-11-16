@@ -22,7 +22,8 @@ return new class extends Migration
             $table->decimal("percentage_available", 17, 12);
             $table->decimal("monthly_earning_usd", 11, 2);
             $table->integer("size_sf");
-            $table->decimal("latest_appreciation_rate", 17, 12)->default(0);
+            $table->decimal("current_value_annual_change_rate", 17, 12)->default(0);
+            $table->decimal("current_monthly_earning_annual_change_rate", 17, 12)->default(0);
             $table->boolean("sold")->default(false);
             $table->timestampTz("created_at");
             $table->timestampTz("updated_at");

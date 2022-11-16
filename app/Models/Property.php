@@ -43,8 +43,8 @@ class Property extends Model
         return $this->hasMany(Earning::class, "property_id");
     }
 
-    public function propertyValueHistory()
+    public function propertyHistory()
     {
-        return $this->hasMany(PropertyValueHistory::class, "property_id");
+        return $this->hasMany(PropertyHistory::class, "property_id");
     }
 }
