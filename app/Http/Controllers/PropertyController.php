@@ -142,12 +142,12 @@ class PropertyController extends Controller
             $current_property_value = Property::where("property_id", $request->request->get("property_id"))->value("value_usd");
             $current_value_annual_change_rate = Property::where("property_id", $request->request->get("property_id"))->value("current_value_annual_change_rate");
             $investment_percentage = ($request->request->get("amount_usd") / $current_property_value) * 100;
-            $potential_property_value = $current_property_value * (1 + $current_value_annual_change_rate) ** $request->request->get("time_period");
+            $potential_property_value = $current_property_value * (1 + ($current_value_annual_change_rate / 100)) ** $request->request->get("time_period");
             $potential_investment_value = ($investment_percentage / 100) * $potential_property_value;
 
             $current_property_monthly_earning = Property::where("property_id", $request->request->get("property_id"))->value("monthly_earning_usd");
             $current_monthly_earning_annual_change_rate = Property::where("property_id", $request->request->get("property_id"))->value("current_monthly_earning_annual_change_rate");
-            $potential_property_earning = ($current_property_monthly_earning * 12) * (1 + $current_monthly_earning_annual_change_rate) ** $request->request->get("time_period");
+            $potential_property_earning = ($current_property_monthly_earning * 12) * (1 + ($current_monthly_earning_annual_change_rate / 100)) ** $request->request->get("time_period");
             $potential_earning = ($investment_percentage / 100) * $potential_property_earning;
             return response()->json([
                 "status" => true,
