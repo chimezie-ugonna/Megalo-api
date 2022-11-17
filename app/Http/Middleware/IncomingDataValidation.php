@@ -102,8 +102,7 @@ class IncomingDataValidation
                     "percentage_available" => ["bail", "required", "numeric"],
                     "size_sf" => ["bail", "required", "numeric"],
                     "monthly_earning_usd" => ["bail", "required", "numeric"],
-                    "current_value_annual_change_rate" => ["bail", "required", "numeric"],
-                    "current_monthly_earning_annual_change_rate" => ["bail", "required", "numeric"],
+                    "value_average_annual_change_rate" => ["bail", "required", "numeric"],
                     "sold" => ["bail", "prohibited"]
                 ]);
             } else if ($request->path() == "api/v1/property/pay_dividend") {

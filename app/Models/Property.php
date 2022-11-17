@@ -21,8 +21,7 @@ class Property extends Model
         "percentage_available",
         "monthly_earning_usd",
         "size_sf",
-        "current_value_annual_change_rate",
-        "current_monthly_earning_annual_change_rate",
+        "value_average_annual_change_rate",
         "sold"
     ];
     protected $casts = [
@@ -44,8 +43,8 @@ class Property extends Model
         return $this->hasMany(Earning::class, "property_id");
     }
 
-    public function propertyHistory()
+    public function propertyValueHistory()
     {
-        return $this->hasMany(PropertyHistory::class, "property_id");
+        return $this->hasMany(PropertyValueHistory::class, "property_id");
     }
 }

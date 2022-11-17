@@ -407,9 +407,13 @@ class PaymentManager
     ]);
   }
 
-  function getPaymentProcessingFee($amount_usd)
+  function getPaymentProcessingFee($amount_usd, $type)
   {
-    return ($amount_usd * 0.029) + 0.30;
+    if ($type == "transfer") {
+      return ($amount_usd * 0.029) + 0.10;
+    } else {
+      return ($amount_usd * 0.029) + 0.30;
+    }
   }
 
   function getEarlyLiquidationFee($amount_usd)
