@@ -17,7 +17,7 @@ return new class extends Migration
             $table->increments('id');
             $table->text("property_id");
             $table->decimal("value_usd", 11, 2);
-            $table->decimal("value_annual_change_rate", 17, 12);
+            $table->decimal("value_annual_change_percentage", 17, 12);
             $table->timestampTz("created_at");
             $table->timestampTz("updated_at");
         });

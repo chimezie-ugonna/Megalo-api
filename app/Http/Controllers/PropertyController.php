@@ -41,7 +41,7 @@ class PropertyController extends Controller
 
         if ($status) {
             $property = Property::Create($request->all());
-            Property::find($property->property_id)->propertyValueHistory()->create(["property_id" => $property->property_id, "value_usd" => $property->value_usd, "value_annual_change_rate" => $property->value_average_annual_change_rate]);
+            Property::find($property->property_id)->propertyValueHistory()->create(["property_id" => $property->property_id, "value_usd" => $property->value_usd, "value_annual_change_percentage" => $property->value_average_annual_change_percentage]);
             $notification_manager = new NotificationManager();
             $notification_manager->sendNotification(array(
                 "title" => "New property available!!!",
@@ -141,8 +141,8 @@ class PropertyController extends Controller
         if (Property::where("property_id", $request->request->get("property_id"))->exists()) {
             $current_property_value = Property::where("property_id", $request->request->get("property_id"))->value("value_usd");
             $investment_percentage = ($request->request->get("amount_usd") / $current_property_value) * 100;
-            $value_average_annual_change_rate = Property::where("property_id", $request->request->get("property_id"))->value("value_average_annual_change_rate");
-            $potential_property_value = $current_property_value * (1 + ($value_average_annual_change_rate / 100)) ** $request->request->get("time_period");
+            $value_average_annual_change_percentage = Property::where("property_id", $request->request->get("property_id"))->value("value_average_annual_change_percentage");
+            $potential_property_value = $current_property_value * (1 + ($value_average_annual_change_percentage / 100)) ** $request->request->get("time_period");
             $potential_investment_value = ($investment_percentage / 100) * $potential_property_value;
 
             $current_property_monthly_earning = Property::where("property_id", $request->request->get("property_id"))->value("monthly_earning_usd");
@@ -257,9 +257,9 @@ class PropertyController extends Controller
                     $current_property_value = Property::where("property_id", $request->request->get("property_id"))->value("value_usd");
                     $current_property_monthly_earnings = Property::where("property_id", $request->request->get("property_id"))->value("monthly_earning_usd");
                     if ($request->request->has("value_usd") && $request->filled("value_usd") && $request->request->get("value_usd") != $current_property_value) {
-                        $value_annual_change_rate = ($request->request->get("value_usd") - $current_property_value) / $current_property_value;
-                        Property::find($request->request->get("property_id"))->propertyValueHistory()->create(["property_id" => $request->request->get("property_id"), "value_usd" => $request->request->get("value_usd"), "value_annual_change_rate" => $value_annual_change_rate]);
-                        $request->request->add(["value_average_annual_change_rate" => (Property::find($request->request->get("property_id"))->propertyValueHistory()->sum("value_annual_change_rate")) / Property::find($request->request->get("property_id"))->propertyValueHistory()->count()]);
+                        $value_annual_change_percentage = (($request->request->get("value_usd") - $current_property_value) / $current_property_value) * 100;
+                        Property::find($request->request->get("property_id"))->propertyValueHistory()->create(["property_id" => $request->request->get("property_id"), "value_usd" => $request->request->get("value_usd"), "value_annual_change_percentage" => $value_annual_change_percentage]);
+                        $request->request->add(["value_average_annual_change_percentage" => (Property::find($request->request->get("property_id"))->propertyValueHistory()->sum("value_annual_change_percentage")) / Property::find($request->request->get("property_id"))->propertyValueHistory()->count()]);
                     }
                     Property::where("property_id", $request->request->get("property_id"))->update($request->except(["user_id"]));
                     $investor_user_ids = Investment::where("property_id", $request->request->get("property_id"))->get()->pluck("user_id")->unique();

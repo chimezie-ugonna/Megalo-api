@@ -12,7 +12,7 @@ class PropertyValueHistory extends Model
     protected $fillable = [
         "property_id",
         "value_usd",
-        "value_annual_change_rate"
+        "value_annual_change_percentage"
     ];
 
     public function property()

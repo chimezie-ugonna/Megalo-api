@@ -21,7 +21,7 @@ class Property extends Model
         "percentage_available",
         "monthly_earning_usd",
         "size_sf",
-        "value_average_annual_change_rate",
+        "value_average_annual_change_percentage",
         "sold"
     ];
     protected $casts = [
