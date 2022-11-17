@@ -130,7 +130,7 @@ class IncomingDataValidation
                     "tapped" => ["bail", "prohibited"],
                     "redirection_page" => ["bail", "prohibited_if:tappable,false,0", "filled", "in:balance,earning,property", "required_if:tappable,true,1"],
                     "redirection_page_id" => ["bail", "prohibited_if:tappable,false,0", "filled", "not_in:null", "required_if:tappable,true,1"],
-                    "sender_user_id" => ["bail", "filled", "not_in:null"],
+                    "sender_user_id" => ["bail", "prohibited"],
                     "receiver_user_id" => ["bail", "required"],
                     "title" => ["bail", "required"],
                     "body" => ["bail", "required"]

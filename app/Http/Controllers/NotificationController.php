@@ -11,30 +11,17 @@ class NotificationController extends Controller
 {
     public function create(Request $request)
     {
-        $status = true;
-        if ($request->request->has("sender_user_id") && $request->filled("sender_user_id")) {
-            if (!User::where("user_id", $request->request->get("sender_user_id"))->exists()) {
-                $status = false;
-            }
-        }
-        if ($status) {
-            if (User::where("user_id", $request->request->get("receiver_user_id"))->exists()) {
-                $notification_manager = new NotificationManager();
-                $notification_manager->sendNotification($request->all(), array(), "user_specific");
-                return response()->json([
-                    "status" => true,
-                    "message" => "Notification sent successfully."
-                ], 201);
-            } else {
-                return response()->json([
-                    "status" => false,
-                    "message" => "Receiver not found."
-                ], 404);
-            }
+        if (User::where("user_id", $request->request->get("receiver_user_id"))->exists()) {
+            $notification_manager = new NotificationManager();
+            $notification_manager->sendNotification($request->all(), array(), "user_specific");
+            return response()->json([
+                "status" => true,
+                "message" => "Notification sent successfully."
+            ], 201);
         } else {
             return response()->json([
                 "status" => false,
-                "message" => "Sender not found."
+                "message" => "Receiver not found."
             ], 404);
         }
     }
