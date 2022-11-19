@@ -28,7 +28,7 @@ class UserController extends Controller
         } else {
             $status = $send->sendOtp($request->request->get("type"), "", $request->request->get("phone_number"));
         }
-        if (isset($status)) {
+        if (isset($status) && isset($status->status) && $status->status == "pending") {
             return response()->json([
                 "status" => true,
                 "message" => "Otp was successfully sent."
@@ -62,7 +62,7 @@ class UserController extends Controller
         } else {
             $status = $send->verifyOtp($request->request->get("type"), "", $request->request->get("phone_number"), $request->request->get("otp"));
         }
-        if (isset($status)) {
+        if (isset($status) && isset($status->status)) {
             if ($status->status == "approved") {
                 if ($request->request->get("type") == "email") {
                     User::where("user_id", $request->request->get("user_id"))->update(["email_verified" => true]);
