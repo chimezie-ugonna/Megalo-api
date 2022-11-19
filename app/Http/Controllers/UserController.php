@@ -28,7 +28,7 @@ class UserController extends Controller
         } else {
             $status = $send->sendOtp($request->request->get("type"), "", $request->request->get("phone_number"));
         }
-        echo json_decode($status);
+        return json_decode($status);
         /*if (isset($status)) {
             return response()->json([
                 "status" => true,
