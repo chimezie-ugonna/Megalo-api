@@ -28,18 +28,18 @@ class UserController extends Controller
         } else {
             $status = $send->sendOtp($request->request->get("type"), "", $request->request->get("phone_number"));
         }
-        if (isset($status)) {
-            return $status;
-            /*return response()->json([
+        echo json_decode($status);
+        /*if (isset($status)) {
+            return response()->json([
                 "status" => true,
-                "message" => print_r($status)
-            ], 200);*/
+                "message" => "Otp was successfully sent."
+            ], 200);
         } else {
             return response()->json([
                 "status" => false,
                 "message" => "A failure occurred while trying to send otp."
             ], 500);
-        }
+        }*/
 
         /*if ($request->request->get("type") == "email") {
             if (User::where("user_id", $request->request->get("user_id"))->value("email_verified")) {
