@@ -29,10 +29,11 @@ class UserController extends Controller
             $status = $send->sendOtp($request->request->get("type"), "", $request->request->get("phone_number"));
         }
         if (isset($status)) {
-            return response()->json([
+            print_r($status);
+            /*return response()->json([
                 "status" => true,
                 "message" => print_r($status)
-            ], 200);
+            ], 200);*/
         } else {
             return response()->json([
                 "status" => false,
