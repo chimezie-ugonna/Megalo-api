@@ -31,7 +31,7 @@ class UserController extends Controller
         if (isset($status)) {
             return response()->json([
                 "status" => true,
-                "message" => print($status->sid)
+                "message" => "Otp was successfully sent."
             ], 200);
         } else {
             return response()->json([
