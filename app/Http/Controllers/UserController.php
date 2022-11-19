@@ -31,7 +31,7 @@ class UserController extends Controller
         if (isset($status)) {
             return response()->json([
                 "status" => true,
-                "message" => $status
+                "message" => print_r($status)
             ], 200);
         } else {
             return response()->json([
