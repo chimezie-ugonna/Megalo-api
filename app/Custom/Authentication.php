@@ -14,7 +14,7 @@ class Authentication
         $this->token_key = getenv("APP_KEY");
     }
 
-    function encode($data, $expirable = false, $exp = 60)
+    function encode($data, $expirable = false, $exp = 1800)
     {
         $payload = [
             "iat" => time(),
