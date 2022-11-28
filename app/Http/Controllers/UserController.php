@@ -56,7 +56,7 @@ class UserController extends Controller
 
     public function verifyOtp(Request $request)
     {
-        /*$send = new OtpManager();
+        $send = new OtpManager();
         if ($request->request->get("type") == "email") {
             $status = $send->verifyOtp($request->request->get("type"), $request->request->get("email"), "", $request->request->get("otp"));
         } else {
@@ -96,9 +96,9 @@ class UserController extends Controller
                 "status" => false,
                 "message" => "A failure occurred while trying to verify otp."
             ], 500);
-        }*/
+        }
 
-        if ($request->request->get("type") == "email") {
+        /*if ($request->request->get("type") == "email") {
             User::where("user_id", $request->request->get("user_id"))->update(["email_verified" => true]);
             return response()->json([
                 "status" => true,
@@ -118,7 +118,7 @@ class UserController extends Controller
                 "message" => "The otp was not verified because our twilio credit is exhausted. But for testing purposes, this response is successful.",
                 "data" => $data
             ], 200);
-        }
+        }*/
     }
 
     public function create(Request $request)
