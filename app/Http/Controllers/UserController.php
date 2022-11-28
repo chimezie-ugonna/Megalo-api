@@ -124,6 +124,10 @@ class UserController extends Controller
     public function create(Request $request)
     {
         $auth = new Authentication();
+        $expirable = false;
+        if ($request->header("access-type") != "mobile") {
+            $expirable = true;
+        }
         if (!User::where("user_id", $request->request->get("user_id"))->exists()) {
             $status = true;
             date_default_timezone_set("UTC");
@@ -176,7 +180,7 @@ class UserController extends Controller
                     "status" => true,
                     "message" => "User registered successfully.",
                     "data" => [
-                        "token" => $auth->encode($request->request->get("user_id"))
+                        "token" => $auth->encode($request->request->get("user_id"), $expirable)
                     ]
                 ], 201);
             } else {
@@ -190,7 +194,7 @@ class UserController extends Controller
                 "status" => true,
                 "message" => "User already registered successfully.",
                 "data" => [
-                    "token" => $auth->encode($request->request->get("user_id"))
+                    "token" => $auth->encode($request->request->get("user_id"), $expirable)
                 ]
             ], 200);
         }
