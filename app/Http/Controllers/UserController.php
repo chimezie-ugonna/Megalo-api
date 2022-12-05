@@ -20,7 +20,7 @@ class UserController extends Controller
             if (User::where("user_id", $request->request->get("user_id"))->value("email_verified")) {
                 return response()->json([
                     "status" => false,
-                    "message" => "This email has already been verified."
+                    "message" => "This user's email has already been verified."
                 ], 401);
             } else {
                 $status = $send->sendOtp($request->request->get("type"), $request->request->get("email"), "");
