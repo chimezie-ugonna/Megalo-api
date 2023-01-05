@@ -8,7 +8,6 @@ use App\Models\Earning;
 use App\Models\Investment;
 use App\Models\PaidDividend;
 use App\Models\Property;
-use App\Models\PropertyValueHistory;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -17,6 +16,7 @@ class PropertyController extends Controller
     public function create(Request $request)
     {
         $status = true;
+        $request->request->add(["company_percentage" => 100 - $request->request->get("percentage_available")]);
         if ($request->request->has("image_urls") && $request->filled("image_urls")) {
             $image_urls = explode(", ", $request->request->get("image_urls"));
             if (count($image_urls) > 0) {

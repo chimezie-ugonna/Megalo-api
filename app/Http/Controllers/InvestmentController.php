@@ -19,10 +19,9 @@ class InvestmentController extends Controller
             if (Property::where("property_id", $request->request->get("property_id"))->exists()) {
                 $amount_invested_usd = $request->request->get("amount_invested_usd");
                 $payment_manager = new PaymentManager();
-                $fee = $payment_manager->getPaymentProcessingFee($request->request->get("amount_invested_usd"), "charge");
                 $user_balance = User::where("user_id", $request->request->get("user_id"))->value("balance_usd");
                 if ($user_balance >= $request->request->get("amount_invested_usd")) {
-                    $request->request->set("amount_invested_usd", round($request->request->get("amount_invested_usd") - $fee, 2));
+                    $request->request->set("amount_invested_usd", round($request->request->get("amount_invested_usd"), 2));
                     $property_value = Property::where("property_id", $request->request->get("property_id"))->value("value_usd");
                     $investment_percentage = ($request->request->get("amount_invested_usd") / $property_value) * 100;
                     $current_property_percentage_available = Property::where("property_id", $request->request->get("property_id"))->value("percentage_available");

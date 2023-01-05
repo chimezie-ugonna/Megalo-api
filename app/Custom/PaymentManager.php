@@ -409,7 +409,7 @@ class PaymentManager
 
   function getPaymentProcessingFee($amount_usd, $type)
   {
-    if ($type == "transfer") {
+    if ($type == "withdrawal") {
       return ($amount_usd * 0.029) + 0.10;
     } else {
       return ($amount_usd * 0.029) + 0.30;

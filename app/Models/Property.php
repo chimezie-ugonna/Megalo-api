@@ -18,6 +18,7 @@ class Property extends Model
         "image_urls",
         "description",
         "value_usd",
+        "company_percentage",
         "percentage_available",
         "monthly_earning_usd",
         "size_sf",

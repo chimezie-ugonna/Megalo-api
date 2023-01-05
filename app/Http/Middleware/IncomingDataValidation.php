@@ -103,7 +103,8 @@ class IncomingDataValidation
                     "size_sf" => ["bail", "required", "numeric"],
                     "monthly_earning_usd" => ["bail", "required", "numeric"],
                     "value_average_annual_change_percentage" => ["bail", "required", "numeric"],
-                    "sold" => ["bail", "prohibited"]
+                    "sold" => ["bail", "prohibited"],
+                    "company_percentage" => ["bail", "prohibited"]
                 ]);
             } else if ($request->path() == "api/v1/property/pay_dividend") {
                 $request->validate([
@@ -152,6 +153,7 @@ class IncomingDataValidation
             if ($request->path() == "api/v1/property/update") {
                 $request->validate([
                     "property_id" => ["bail", "required"],
+                    "company_percentage" => ["bail", "prohibited"],
                     "percentage_available" => ["bail", "prohibited"],
                     "value_usd" => ["bail", "filled", "numeric"],
                     "address" => ["bail", "filled", "not_in:null"],
