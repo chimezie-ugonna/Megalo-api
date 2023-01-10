@@ -301,7 +301,7 @@ class IncomingDataValidation
             } else if ($request->path() == "api/v1/payment/read_all_bonus_and_fee") {
                 $request->validate([
                     "type" => ["bail", "required", "in:bonus,fee"],
-                    "amount_usd" => ["bail", "filled", "required_if:type,fee"]
+                    "amount_usd" => ["bail", "filled", "numeric", "gte:0.50", "lte:999999.99", "required_if:type,fee"]
                 ]);
             } else if ($request->path() == "api/v1/notification/read") {
                 $request->validate([
