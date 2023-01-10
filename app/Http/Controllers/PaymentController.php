@@ -16,15 +16,20 @@ class PaymentController extends Controller
         if ($user_identity_verified) {
             $user_balance = User::where("user_id", $request->request->get("user_id"))->value("balance_usd");
             $payment_manager = new PaymentManager();
+            $fee = $payment_manager->getPaymentProcessingFee($request->request->get("amount_usd"), $request->request->get("type"));
             if ($request->request->get("type") == "deposit") {
                 $list_all_customer_card_response = $payment_manager->manage(array("type" => "list_all_customer_payment_method", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id"), "data" => ["type" => "card", "limit" => 1]));
                 $list_all_customer_bank_account_response = $payment_manager->manage(array("type" => "list_all_customer_payment_method", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id"), "data" => ["type" => "bank_account", "limit" => 1]));
                 if (isset($list_all_customer_card_response) && isset($list_all_customer_card_response["data"]) || isset($list_all_customer_bank_account_response) && isset($list_all_customer_bank_account_response["data"])) {
                     if (sizeof($list_all_customer_card_response["data"]) > 0 || sizeof($list_all_customer_bank_account_response["data"]) > 0) {
-                        $deposit_response = $payment_manager->manage(array("type" => "deposit", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id"), "data" => ["amount" => $request->request->get("amount_usd"), "currency" => "usd"]));
+                        $deposit_response = $payment_manager->manage(array("type" => "deposit", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id"), "data" => ["amount" => $request->request->get("amount_usd") + $fee, "currency" => "usd"]));
                         if (isset($deposit_response) && isset($deposit_response["id"])) {
                             $request->request->add(["reference" => $deposit_response["id"]]);
                             $user_balance = $user_balance + $request->request->get("amount_usd");
+                            return response()->json([
+                                "status" => true,
+                                "message" => "Deposit was successful."
+                            ], 200);
                         } else {
                             return response()->json([
                                 "status" => false,
@@ -44,18 +49,22 @@ class PaymentController extends Controller
                     ], 500);
                 }
             } else if ($request->request->get("type") == "withdrawal") {
-                if ($user_balance >= $request->request->get("amount_usd")) {
+                if ($user_balance >= $request->request->get("amount_usd") + $fee) {
                     $list_all_account_card_response = $payment_manager->manage(array("type" => "list_all_account_payment_method", "account_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_account_id"), "data" => ["type" => "card", "limit" => 1]));
                     $list_all_account_bank_account_response = $payment_manager->manage(array("type" => "list_all_account_payment_method", "account_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_account_id"), "data" => ["type" => "bank_account", "limit" => 1]));
                     if (isset($list_all_account_card_response) && isset($list_all_account_card_response["data"]) || isset($list_all_account_bank_account_response) && isset($list_all_account_bank_account_response["data"])) {
                         if (sizeof($list_all_account_card_response["data"]) > 0 || sizeof($list_all_account_bank_account_response["data"]) > 0) {
                             $retrieve_balance_response = $payment_manager->manage(array("type" => "retrieve_balance"));
                             if (isset($retrieve_balance_response) && isset($retrieve_balance_response["available"])) {
-                                if ($retrieve_balance_response["available"][0]["amount"] >= $request->request->get("amount_usd")) {
-                                    $withdraw_response = $payment_manager->manage(array("type" => "withdraw", "account_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_account_id"), "data" => ["amount" => $request->request->get("amount_usd"), "currency" => "usd"]));
+                                if ($retrieve_balance_response["available"][0]["amount"] >= $request->request->get("amount_usd") + $fee) {
+                                    $withdraw_response = $payment_manager->manage(array("type" => "withdraw", "account_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_account_id"), "data" => ["amount" => $request->request->get("amount_usd") + $fee, "currency" => "usd"]));
                                     if (isset($withdraw_response) && isset($withdraw_response["id"])) {
                                         $request->request->add(["reference" => $withdraw_response["id"]]);
-                                        $user_balance = $user_balance - $request->request->get("amount_usd");
+                                        $user_balance = $user_balance - ($request->request->get("amount_usd") - $fee);
+                                        return response()->json([
+                                            "status" => true,
+                                            "message" => "Withdrawal was successful."
+                                        ], 200);
                                     } else {
                                         return response()->json([
                                             "status" => false,
@@ -63,10 +72,13 @@ class PaymentController extends Controller
                                         ], 500);
                                     }
                                 } else {
+                                    //Notify admins that there is no sufficient fund in company balance for transaction.
+                                    //Initiate cron job to retry transaction after some time.
+                                    //Avoid duplicate transactions.
                                     return response()->json([
-                                        "status" => false,
-                                        "message" => "No sufficient fund in Company's balance for this withdrawal."
-                                    ], 402);
+                                        "status" => true,
+                                        "message" => "Withdrawal request was received. Process will be completed shortly."
+                                    ], 200);
                                 }
                             } else {
                                 return response()->json([
@@ -298,6 +310,24 @@ class PaymentController extends Controller
                 "message" => "An error occurred while converting currency, currency conversion failed."
             ], 500);
         }
+    }
+
+    public function readAllBonusAndFee(Request $request)
+    {
+        $payment_manager = new PaymentManager();
+        $list = array();
+        if ($request->get("type") == "fee") {
+            $list["payment_processing_fee_deposit_usd"] = $payment_manager->getPaymentProcessingFee($request->get("amount_usd"), "deposit");
+            $list["payment_processing_fee_withdrawal_usd"] = $payment_manager->getPaymentProcessingFee($request->get("amount_usd"), "withdrawal");
+            $list["early_liquidation_fee_usd"] = $payment_manager->getEarlyLiquidationFee($request->get("amount_usd"));
+        } else {
+            $list["referral_bonus_usd"] = $payment_manager->getReferralBonus();
+        }
+        return response()->json([
+            "status" => true,
+            "message" => "All " . $request->get("type") . " data retrieved successfully.",
+            "data" => $list
+        ], 200);
     }
 
     public function delete(Request $request)

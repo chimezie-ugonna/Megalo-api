@@ -65,51 +65,58 @@ class PropertyController extends Controller
     public function payDividend(Request $request)
     {
         if (Property::where("property_id", $request->request->get("property_id"))->exists()) {
-            $status = true;
-            if (PaidDividend::where("property_id", $request->request->get("property_id"))->exists()) {
-                $last_dividend_payment_period = strtotime(PaidDividend::where("property_id", $request->request->get("property_id"))->latest()->first()->value("created_at"));
-                $last_dividend_payment_year = date("Y", $last_dividend_payment_period);
-                $last_dividend_payment_month = date("m", $last_dividend_payment_period);
-                date_default_timezone_set("UTC");
-                $current_year = date("Y");
-                $current_month = date("m");
-                if ($last_dividend_payment_year == $current_year && $last_dividend_payment_month == $current_month) {
-                    $status = false;
-                }
-            }
-            if ($status) {
-                $notification_manager = new NotificationManager();
-                $current_property_monthly_earning = Property::where("property_id", $request->request->get("property_id"))->value("monthly_earning_usd");
-                $request->request->add(["amount_usd" => $current_property_monthly_earning]);
-                $investor_user_ids = Investment::where("property_id", $request->request->get("property_id"))->get()->pluck("user_id")->unique();
-                $request->request->add(["investor_count" => count($investor_user_ids)]);
-                if (count($investor_user_ids) > 0) {
-                    $count = 0;
-                    foreach ($investor_user_ids as $user_id) {
-                        if (User::where("user_id", $user_id)->exists()) {
-                            $user_percentage = Investment::where("property_id", $request->request->get("property_id"))->where("user_id", $user_id)->value("percentage");
-                            $user_percentage_of_property_monthly_earning = $current_property_monthly_earning * ($user_percentage / 100);
-                            $user_balance = User::where("user_id", $user_id)->value("balance_usd");
-                            $new_user_balance = $user_balance + $user_percentage_of_property_monthly_earning;
-                            User::where("user_id", $user_id)->update(["balance_usd" => $new_user_balance]);
-                            Earning::create(["property_id" => $request->request->get("property_id"), "user_id" => $user_id, "amount_usd" => $user_percentage_of_property_monthly_earning]);
-                            $notification_manager->sendNotification(array(
-                                "receiver_user_id" => $user_id,
-                                "title" => "Property dividend payment!!!",
-                                "body" => "You just received $" . number_format($user_percentage_of_property_monthly_earning, 2) . " in your balance as dividend from a property you invested in.",
-                                "tappable" => true,
-                                "redirection_page" => "earning",
-                                "redirection_page_id" => $request->request->get("property_id")
-                            ), array(), "user_specific");
-                            $count++;
-                        }
+            if (!Property::where("property_id", $request->request->get("property_id"))->value("sold")) {
+                $status = true;
+                if (PaidDividend::where("property_id", $request->request->get("property_id"))->exists()) {
+                    $last_dividend_payment_period = strtotime(PaidDividend::where("property_id", $request->request->get("property_id"))->latest()->first()->value("created_at"));
+                    $last_dividend_payment_year = date("Y", $last_dividend_payment_period);
+                    $last_dividend_payment_month = date("m", $last_dividend_payment_period);
+                    date_default_timezone_set("UTC");
+                    $current_year = date("Y");
+                    $current_month = date("m");
+                    if ($last_dividend_payment_year == $current_year && $last_dividend_payment_month == $current_month) {
+                        $status = false;
                     }
-                    if ($count > 0) {
-                        PaidDividend::Create($request->all());
-                        return response()->json([
-                            "status" => true,
-                            "message" => "Property dividends paid successfully."
-                        ], 200);
+                }
+                if ($status) {
+                    $notification_manager = new NotificationManager();
+                    $current_property_monthly_earning = Property::where("property_id", $request->request->get("property_id"))->value("monthly_earning_usd");
+                    $request->request->add(["amount_usd" => $current_property_monthly_earning]);
+                    $investor_user_ids = Investment::where("property_id", $request->request->get("property_id"))->get()->pluck("user_id")->unique();
+                    $request->request->add(["investor_count" => count($investor_user_ids)]);
+                    if (count($investor_user_ids) > 0) {
+                        $count = 0;
+                        foreach ($investor_user_ids as $user_id) {
+                            if (User::where("user_id", $user_id)->exists()) {
+                                $user_percentage = Investment::where("property_id", $request->request->get("property_id"))->where("user_id", $user_id)->value("percentage");
+                                $user_percentage_of_property_monthly_earning = $current_property_monthly_earning * ($user_percentage / 100);
+                                $user_balance = User::where("user_id", $user_id)->value("balance_usd");
+                                $new_user_balance = $user_balance + $user_percentage_of_property_monthly_earning;
+                                User::where("user_id", $user_id)->update(["balance_usd" => $new_user_balance]);
+                                Earning::create(["property_id" => $request->request->get("property_id"), "user_id" => $user_id, "amount_usd" => $user_percentage_of_property_monthly_earning]);
+                                $notification_manager->sendNotification(array(
+                                    "receiver_user_id" => $user_id,
+                                    "title" => "Property dividend payment!!!",
+                                    "body" => "You just received $" . number_format($user_percentage_of_property_monthly_earning, 2) . " in your balance as dividend from a property you invested in.",
+                                    "tappable" => true,
+                                    "redirection_page" => "earning",
+                                    "redirection_page_id" => $request->request->get("property_id")
+                                ), array(), "user_specific");
+                                $count++;
+                            }
+                        }
+                        if ($count > 0) {
+                            PaidDividend::Create($request->all());
+                            return response()->json([
+                                "status" => true,
+                                "message" => "Property dividends paid successfully."
+                            ], 200);
+                        } else {
+                            return response()->json([
+                                "status" => false,
+                                "message" => "This property does not have any investor to pay."
+                            ], 404);
+                        }
                     } else {
                         return response()->json([
                             "status" => false,
@@ -119,14 +126,14 @@ class PropertyController extends Controller
                 } else {
                     return response()->json([
                         "status" => false,
-                        "message" => "This property does not have any investor to pay."
-                    ], 404);
+                        "message" => "This property has already paid its dividend this month."
+                    ], 400);
                 }
             } else {
                 return response()->json([
                     "status" => false,
-                    "message" => "This property has already paid its dividend this month."
-                ], 400);
+                    "message" => "This property has been sold so it can not pay dividends any longer."
+                ], 403);
             }
         } else {
             return response()->json([
@@ -298,6 +305,33 @@ class PropertyController extends Controller
                         }
                     }
 
+                    if ($request->request->has("sold") && $request->filled("sold") && $request->request->get("sold")) {
+                        $current_property_value = Property::where("property_id", $request->request->get("property_id"))->value("value_usd");
+                        $investor_user_ids = Investment::where("property_id", $request->request->get("property_id"))->get()->pluck("user_id")->unique();
+                        if (count($investor_user_ids) > 0) {
+                            foreach ($investor_user_ids as $user_id) {
+                                if (User::where("user_id", $user_id)->exists()) {
+                                    $user_percentage = Investment::where("property_id", $request->request->get("property_id"))->where("user_id", $user_id)->value("percentage");
+                                    $user_percentage_of_property_value = $current_property_value * ($user_percentage / 100);
+                                    $user_balance = User::where("user_id", $user_id)->value("balance_usd");
+                                    $new_user_balance = $user_balance + $user_percentage_of_property_value;
+                                    User::where("user_id", $user_id)->update(["balance_usd" => $new_user_balance]);
+                                    Earning::create(["property_id" => $request->request->get("property_id"), "user_id" => $user_id, "amount_usd" => $user_percentage_of_property_value]);
+                                    $notification_manager->sendNotification(array(
+                                        "receiver_user_id" => $user_id,
+                                        "title" => "Property sale payment!!!",
+                                        "body" => "You just received $" . number_format($user_percentage_of_property_value, 2) . " in your balance as payment from the sale of a property you invested in.",
+                                        "tappable" => true,
+                                        "redirection_page" => "earning",
+                                        "redirection_page_id" => $request->request->get("property_id")
+                                    ), array(), "user_specific");
+                                }
+                            }
+                        }
+
+                        Investment::where("property_id", $request->request->get("property_id"))->delete();
+                    }
+
                     return response()->json([
                         "status" => true,
                         "message" => "Property data updated successfully.",
@@ -313,7 +347,7 @@ class PropertyController extends Controller
                 return response()->json([
                     "status" => false,
                     "message" => "This property has been sold so its details can not be edited any longer."
-                ], 404);
+                ], 403);
             }
         } else {
             return response()->json([

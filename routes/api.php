@@ -81,6 +81,7 @@ Route::middleware([CheckHeader::class, IncomingDataValidation::class, TokenValid
         Route::get("/payment/read_user_specific", "readUserSpecific");
         Route::get("/payment/read_all_currency", "readAllCurrency");
         Route::get("/payment/convert_currency", "convertCurrency");
+        Route::get("/payment/read_all_bonus_and_fee", "readAllBonusAndFee");
         Route::delete("/payment/delete", "delete");
     });
 
