@@ -17,17 +17,15 @@ class UserController extends Controller
     public function sendOtp(Request $request)
     {
         if ($request->request->get("type") == "email") {
-            $send = new EmailManager();
-            /*if (User::where("user_id", $request->request->get("user_id"))->value("email_verified")) {
+            if (User::where("user_id", $request->request->get("user_id"))->value("email_verified")) {
                 return response()->json([
                     "status" => false,
                     "message" => "This user's email has already been verified."
                 ], 401);
             } else {
+                $send = new EmailManager();
                 $status = $send->sendOtp($request->request->get("email"));
-            }*/
-            $admin_emails = User::where("is_admin", true)->get()->pluck("email")->unique();
-            $status = $send->sendInsufficientFundMessage(number_format(200.431, 2), $admin_emails);
+            }
         } else {
             $send = new SmsManager();
             $status = $send->sendOtp($request->request->get("phone_number"));
