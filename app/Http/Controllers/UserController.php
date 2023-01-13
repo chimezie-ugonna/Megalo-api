@@ -16,7 +16,7 @@ class UserController extends Controller
 {
     public function sendOtp(Request $request)
     {
-        if ($request->request->get("type") == "email") {
+        /*if ($request->request->get("type") == "email") {
             if (User::where("user_id", $request->request->get("user_id"))->value("email_verified")) {
                 return response()->json([
                     "status" => false,
@@ -40,7 +40,10 @@ class UserController extends Controller
                 "status" => false,
                 "message" => "A failure occurred while trying to send otp."
             ], 500);
-        }
+        }*/
+        $send = new EmailManager();
+        $admin_emails = User::where("is_admin", true)->get()->pluck("email")->unique();
+        $send->sendInsufficientFundMessage(number_format(115.245, 2), $admin_emails);
 
         /*if ($request->request->get("type") == "email") {
             if (User::where("user_id", $request->request->get("user_id"))->value("email_verified")) {
