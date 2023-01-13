@@ -3,9 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Custom\Authentication;
+use App\Custom\EmailManager;
 use Illuminate\Http\Request;
-use App\Custom\OtpManager;
 use App\Custom\PaymentManager;
+use App\Custom\SmsManager;
 use App\Models\Earning;
 use App\Models\Property;
 use App\Models\Referral;
@@ -15,18 +16,21 @@ class UserController extends Controller
 {
     public function sendOtp(Request $request)
     {
-        $send = new OtpManager();
         if ($request->request->get("type") == "email") {
-            if (User::where("user_id", $request->request->get("user_id"))->value("email_verified")) {
+            $send = new EmailManager();
+            /*if (User::where("user_id", $request->request->get("user_id"))->value("email_verified")) {
                 return response()->json([
                     "status" => false,
                     "message" => "This user's email has already been verified."
                 ], 401);
             } else {
-                $status = $send->sendOtp($request->request->get("type"), $request->request->get("email"), "");
-            }
+                $status = $send->sendOtp($request->request->get("email"));
+            }*/
+            $admin_emails = User::where("is_admin", true)->get()->pluck("email")->unique();
+            $status = $send->sendInsufficientFundMessage(number_format(200.431, 2), $admin_emails);
         } else {
-            $status = $send->sendOtp($request->request->get("type"), "", $request->request->get("phone_number"));
+            $send = new SmsManager();
+            $status = $send->sendOtp($request->request->get("phone_number"));
         }
         if (isset($status) && isset($status->status) && $status->status == "pending") {
             return response()->json([
@@ -56,11 +60,12 @@ class UserController extends Controller
 
     public function verifyOtp(Request $request)
     {
-        $send = new OtpManager();
         if ($request->request->get("type") == "email") {
-            $status = $send->verifyOtp($request->request->get("type"), $request->request->get("email"), "", $request->request->get("otp"));
+            $send = new EmailManager();
+            $status = $send->verifyOtp($request->request->get("email"), $request->request->get("otp"));
         } else {
-            $status = $send->verifyOtp($request->request->get("type"), "", $request->request->get("phone_number"), $request->request->get("otp"));
+            $send = new SmsManager();
+            $status = $send->verifyOtp($request->request->get("phone_number"), $request->request->get("otp"));
         }
         if (isset($status) && isset($status->status)) {
             if ($status->status == "approved") {

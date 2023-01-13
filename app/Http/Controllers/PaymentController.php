@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Custom\CurrencyConverter;
+use App\Custom\EmailManager;
 use App\Custom\PaymentManager;
 use App\Models\Payment;
 use App\Models\User;
@@ -72,13 +73,22 @@ class PaymentController extends Controller
                                         ], 500);
                                     }
                                 } else {
-                                    //Notify admins that there is no sufficient fund in company balance for transaction.
-                                    //Initiate cron job to retry transaction after some time.
-                                    //Avoid duplicate transactions.
-                                    return response()->json([
-                                        "status" => true,
-                                        "message" => "Withdrawal request was received. Process will be completed shortly."
-                                    ], 200);
+                                    $send = new EmailManager();
+                                    $admin_emails = User::where("is_admin", true)->get()->pluck("email")->unique();
+                                    $status = $send->sendInsufficientFundMessage(number_format($request->request->get("amount_usd") + $fee, 2), $admin_emails);
+                                    if (isset($status)) {
+                                        //Initiate cron job to retry transaction after some time.
+                                        //Avoid duplicate transactions.
+                                        return response()->json([
+                                            "status" => true,
+                                            "message" => "Withdrawal request was received. Process will be completed shortly."
+                                        ], 200);
+                                    } else {
+                                        return response()->json([
+                                            "status" => false,
+                                            "message" => "An error occurred while making payment, payment could not be made."
+                                        ], 500);
+                                    }
                                 }
                             } else {
                                 return response()->json([
