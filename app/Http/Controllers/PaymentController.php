@@ -15,81 +15,24 @@ class PaymentController extends Controller
     {
         $user_identity_verified = User::where("user_id", $request->request->get("user_id"))->value("identity_verified");
         if ($user_identity_verified) {
-            $user_balance = User::where("user_id", $request->request->get("user_id"))->value("balance_usd");
-            $payment_manager = new PaymentManager();
-            $fee = $payment_manager->getPaymentProcessingFee($request->request->get("amount_usd"), $request->request->get("type"));
-            if ($request->request->get("type") == "deposit") {
-                $list_all_customer_card_response = $payment_manager->manage(array("type" => "list_all_customer_payment_method", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id"), "data" => ["type" => "card", "limit" => 1]));
-                $list_all_customer_bank_account_response = $payment_manager->manage(array("type" => "list_all_customer_payment_method", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id"), "data" => ["type" => "bank_account", "limit" => 1]));
-                if (isset($list_all_customer_card_response) && isset($list_all_customer_card_response["data"]) || isset($list_all_customer_bank_account_response) && isset($list_all_customer_bank_account_response["data"])) {
-                    if (sizeof($list_all_customer_card_response["data"]) > 0 || sizeof($list_all_customer_bank_account_response["data"]) > 0) {
-                        $deposit_response = $payment_manager->manage(array("type" => "deposit", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id"), "data" => ["amount" => $request->request->get("amount_usd") + $fee, "currency" => "usd"]));
-                        if (isset($deposit_response) && isset($deposit_response["id"])) {
-                            $request->request->add(["reference" => $deposit_response["id"]]);
-                            $user_balance = $user_balance + $request->request->get("amount_usd");
-                            return response()->json([
-                                "status" => true,
-                                "message" => "Deposit was successful."
-                            ], 200);
-                        } else {
-                            return response()->json([
-                                "status" => false,
-                                "message" => "An error occurred while making payment, payment could not be made."
-                            ], 500);
-                        }
-                    } else {
-                        return response()->json([
-                            "status" => false,
-                            "message" => "No payment method found."
-                        ], 404);
-                    }
-                } else {
-                    return response()->json([
-                        "status" => false,
-                        "message" => "An error occurred while making payment, payment could not be made."
-                    ], 500);
-                }
-            } else if ($request->request->get("type") == "withdrawal") {
-                if ($user_balance >= $request->request->get("amount_usd") + $fee) {
-                    $list_all_account_card_response = $payment_manager->manage(array("type" => "list_all_account_payment_method", "account_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_account_id"), "data" => ["type" => "card", "limit" => 1]));
-                    $list_all_account_bank_account_response = $payment_manager->manage(array("type" => "list_all_account_payment_method", "account_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_account_id"), "data" => ["type" => "bank_account", "limit" => 1]));
-                    if (isset($list_all_account_card_response) && isset($list_all_account_card_response["data"]) || isset($list_all_account_bank_account_response) && isset($list_all_account_bank_account_response["data"])) {
-                        if (sizeof($list_all_account_card_response["data"]) > 0 || sizeof($list_all_account_bank_account_response["data"]) > 0) {
-                            $retrieve_balance_response = $payment_manager->manage(array("type" => "retrieve_balance"));
-                            if (isset($retrieve_balance_response) && isset($retrieve_balance_response["available"])) {
-                                if ($retrieve_balance_response["available"][0]["amount"] >= $request->request->get("amount_usd") + $fee) {
-                                    $withdraw_response = $payment_manager->manage(array("type" => "withdraw", "account_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_account_id"), "data" => ["amount" => $request->request->get("amount_usd") + $fee, "currency" => "usd"]));
-                                    if (isset($withdraw_response) && isset($withdraw_response["id"])) {
-                                        $request->request->add(["reference" => $withdraw_response["id"]]);
-                                        $user_balance = $user_balance - ($request->request->get("amount_usd") - $fee);
-                                        return response()->json([
-                                            "status" => true,
-                                            "message" => "Withdrawal was successful."
-                                        ], 200);
-                                    } else {
-                                        return response()->json([
-                                            "status" => false,
-                                            "message" => "An error occurred while making payment, payment could not be made."
-                                        ], 500);
-                                    }
-                                } else {
-                                    $send = new EmailManager();
-                                    $admin_emails = User::where("is_admin", true)->get()->pluck("email")->unique();
-                                    $status = $send->sendInsufficientFundMessage(number_format($request->request->get("amount_usd") + $fee, 2), $admin_emails);
-                                    if (isset($status)) {
-                                        //Initiate cron job to retry transaction after some time.
-                                        //Avoid duplicate transactions.
-                                        return response()->json([
-                                            "status" => true,
-                                            "message" => "Withdrawal request was received. Process will be completed shortly."
-                                        ], 200);
-                                    } else {
-                                        return response()->json([
-                                            "status" => false,
-                                            "message" => "An error occurred while making payment, payment could not be made."
-                                        ], 500);
-                                    }
-                                }
+            $user_email_verified = User::where("user_id", $request->request->get("user_id"))->value("email_verified");
+            if ($user_email_verified) {
+                $user_balance = User::where("user_id", $request->request->get("user_id"))->value("balance_usd");
+                $payment_manager = new PaymentManager();
+                $fee = $payment_manager->getPaymentProcessingFee($request->request->get("amount_usd"), $request->request->get("type"));
+                if ($request->request->get("type") == "deposit") {
+                    $list_all_customer_card_response = $payment_manager->manage(array("type" => "list_all_customer_payment_method", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id"), "data" => ["type" => "card", "limit" => 1]));
+                    $list_all_customer_bank_account_response = $payment_manager->manage(array("type" => "list_all_customer_payment_method", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id"), "data" => ["type" => "bank_account", "limit" => 1]));
+                    if (isset($list_all_customer_card_response) && isset($list_all_customer_card_response["data"]) || isset($list_all_customer_bank_account_response) && isset($list_all_customer_bank_account_response["data"])) {
+                        if (sizeof($list_all_customer_card_response["data"]) > 0 || sizeof($list_all_customer_bank_account_response["data"]) > 0) {
+                            $deposit_response = $payment_manager->manage(array("type" => "deposit", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id"), "data" => ["amount" => $request->request->get("amount_usd") + $fee, "currency" => "usd"]));
+                            if (isset($deposit_response) && isset($deposit_response["id"])) {
+                                $request->request->add(["reference" => $deposit_response["id"]]);
+                                $user_balance = $user_balance + $request->request->get("amount_usd");
+                                return response()->json([
+                                    "status" => true,
+                                    "message" => "Deposit was successful."
+                                ], 200);
                             } else {
                                 return response()->json([
                                     "status" => false,
@@ -108,19 +51,84 @@ class PaymentController extends Controller
                             "message" => "An error occurred while making payment, payment could not be made."
                         ], 500);
                     }
-                } else {
-                    return response()->json([
-                        "status" => false,
-                        "message" => "User does not have sufficient fund in balance for this withdrawal."
-                    ], 402);
+                } else if ($request->request->get("type") == "withdrawal") {
+                    if ($user_balance >= $request->request->get("amount_usd") + $fee) {
+                        $list_all_account_card_response = $payment_manager->manage(array("type" => "list_all_account_payment_method", "account_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_account_id"), "data" => ["type" => "card", "limit" => 1]));
+                        $list_all_account_bank_account_response = $payment_manager->manage(array("type" => "list_all_account_payment_method", "account_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_account_id"), "data" => ["type" => "bank_account", "limit" => 1]));
+                        if (isset($list_all_account_card_response) && isset($list_all_account_card_response["data"]) || isset($list_all_account_bank_account_response) && isset($list_all_account_bank_account_response["data"])) {
+                            if (sizeof($list_all_account_card_response["data"]) > 0 || sizeof($list_all_account_bank_account_response["data"]) > 0) {
+                                $retrieve_balance_response = $payment_manager->manage(array("type" => "retrieve_balance"));
+                                if (isset($retrieve_balance_response) && isset($retrieve_balance_response["available"])) {
+                                    if ($retrieve_balance_response["available"][0]["amount"] >= $request->request->get("amount_usd") + $fee) {
+                                        $withdraw_response = $payment_manager->manage(array("type" => "withdraw", "account_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_account_id"), "data" => ["amount" => $request->request->get("amount_usd") + $fee, "currency" => "usd"]));
+                                        if (isset($withdraw_response) && isset($withdraw_response["id"])) {
+                                            $request->request->add(["reference" => $withdraw_response["id"]]);
+                                            $user_balance = $user_balance - ($request->request->get("amount_usd") - $fee);
+                                            return response()->json([
+                                                "status" => true,
+                                                "message" => "Withdrawal was successful."
+                                            ], 200);
+                                        } else {
+                                            return response()->json([
+                                                "status" => false,
+                                                "message" => "An error occurred while making payment, payment could not be made."
+                                            ], 500);
+                                        }
+                                    } else {
+                                        $send = new EmailManager();
+                                        $admin_emails = User::where("is_admin", true)->get()->pluck("email")->unique();
+                                        $status = $send->sendInsufficientFundMessage(number_format($request->request->get("amount_usd") + $fee, 2), $admin_emails);
+                                        if (isset($status)) {
+                                            //Initiate cron job to retry transaction after some time.
+                                            //Avoid duplicate transactions.
+                                            return response()->json([
+                                                "status" => true,
+                                                "message" => "Withdrawal request was received. Process will be completed shortly."
+                                            ], 200);
+                                        } else {
+                                            return response()->json([
+                                                "status" => false,
+                                                "message" => "An error occurred while making payment, payment could not be made."
+                                            ], 500);
+                                        }
+                                    }
+                                } else {
+                                    return response()->json([
+                                        "status" => false,
+                                        "message" => "An error occurred while making payment, payment could not be made."
+                                    ], 500);
+                                }
+                            } else {
+                                return response()->json([
+                                    "status" => false,
+                                    "message" => "No payment method found."
+                                ], 404);
+                            }
+                        } else {
+                            return response()->json([
+                                "status" => false,
+                                "message" => "An error occurred while making payment, payment could not be made."
+                            ], 500);
+                        }
+                    } else {
+                        return response()->json([
+                            "status" => false,
+                            "message" => "User does not have sufficient fund in balance for this withdrawal."
+                        ], 402);
+                    }
                 }
+                Payment::Create($request->all());
+                User::where("user_id", $request->request->get("user_id"))->update(["balance_usd" => $user_balance]);
+                return response()->json([
+                    "status" => true,
+                    "message" => "Payment made successfully."
+                ], 201);
+            } else {
+                return response()->json([
+                    "status" => false,
+                    "message" => "User email has to be verified before any payment can be made."
+                ], 401);
             }
-            Payment::Create($request->all());
-            User::where("user_id", $request->request->get("user_id"))->update(["balance_usd" => $user_balance]);
-            return response()->json([
-                "status" => true,
-                "message" => "Payment made successfully."
-            ], 201);
         } else {
             return response()->json([
                 "status" => false,

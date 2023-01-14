@@ -28,7 +28,8 @@ class IncomingDataValidation
                     "type" => ["bail", "required", "in:email,sms"],
                     "email" => ["bail", "prohibited_if:type,sms", "filled", "email", "required_if:type,email"],
                     "phone_number" => ["bail", "prohibited_if:type,email", "filled", "required_if:type,sms"],
-                    "otp" => ["bail", "required"]
+                    "otp" => ["bail", "required"],
+                    "update" => ["bail", "filled", "boolean"]
                 ]);
             } else if ($request->path() == "api/v1/user/create") {
                 $request->validate([
@@ -186,10 +187,10 @@ class IncomingDataValidation
                     "is_admin" => ["bail", "prohibited"],
                     "email_verified" => ["bail", "prohibited"],
                     "identity_verified" => ["bail", "prohibited"],
-                    "phone_number" => ["bail", "filled", "not_in:null"],
+                    "phone_number" => ["bail", "prohibited"],
                     "full_name" => ["bail", "filled", "not_in:null"],
                     "dob" => ["bail", "filled", "date_format:d/m/Y"],
-                    "email" => ["bail", "filled", "email"],
+                    "email" => ["bail", "prohibited"],
                     "referral_code" => ["bail", "prohibited"],
                     "payment_customer_id" => ["bail", "prohibited"],
                     "payment_account_id" => ["bail", "prohibited"]
@@ -199,12 +200,12 @@ class IncomingDataValidation
                         "status" => false,
                         "message" => "There is nothing to update."
                     ], 400)->throwResponse();
-                } else if (!$request->request->has("phone_number") && !$request->request->has("full_name") && !$request->request->has("dob") && !$request->request->has("email") && !$request->request->has("email_verified") && !$request->request->has("identity_verified")) {
+                } else if (!$request->request->has("full_name") && !$request->request->has("dob")) {
                     return response()->json([
                         "status" => false,
                         "message" => "You provided an invalid key."
                     ], 400)->throwResponse();
-                } else if (!$request->filled("phone_number") && !$request->filled("full_name") && !$request->filled("dob") && !$request->filled("email") && !$request->filled("email_verified") && !$request->filled("identity_verified")) {
+                } else if (!$request->filled("full_name") && !$request->filled("dob")) {
                     return response()->json([
                         "status" => false,
                         "message" => "There is no data to update."
@@ -224,13 +225,6 @@ class IncomingDataValidation
                             ]);
                         }
                         $request->request->remove("full_name");
-                    }
-                    if ($request->request->has("email") && $request->filled("email")) {
-                        if ($request->request->has("email_verified")) {
-                            $request->request->set("email_verified", false);
-                        } else {
-                            $request->request->add(["email_verified" => false]);
-                        }
                     }
                 }
             } else if ($request->path() == "api/v1/user/update_default_payment_method") {
