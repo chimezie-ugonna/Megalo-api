@@ -196,7 +196,7 @@ class InvestmentController extends Controller
             return response()->json([
                 "status" => true,
                 "message" => "Investment data retrieved successfully.",
-                "data" => Investment::join("users", "users.user_id", "=", "investments;.user_id")->where("property_id", $request->get("property_id"))->get()
+                "data" => Investment::join("users", "users.user_id", "=", "investments.user_id")->where("property_id", $request->get("property_id"))->get()
             ], 200);
         } else {
             return response()->json([
