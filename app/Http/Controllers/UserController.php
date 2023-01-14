@@ -56,7 +56,7 @@ class UserController extends Controller
                 $message = "Otp was successfully verified.";
                 if ($request->request->get("type") == "email") {
                     if ($request->request->has("update") && $request->filled("update") && $request->request->get("update")) {
-                        User::where("user_id", $request->request->get("user_id"))->update(["email" => $request->request->get("email"), "email_verified" => true]);
+                        User::find($request->request->get("user_id"))->update(["email" => $request->request->get("email"), "email_verified" => true]);
                         $message = "Otp was successfully verified and email was updated successfully.";
                     }
                 } else {
@@ -67,7 +67,7 @@ class UserController extends Controller
                                 "message" => "The phone number provided has been taken.",
                             ], 400);
                         } else {
-                            User::where("user_id", $request->request->get("user_id"))->update(["phone_number" => $request->request->get("phone_number")]);
+                            User::find($request->request->get("user_id"))->update(["phone_number" => $request->request->get("phone_number")]);
                             $message = "Otp was successfully verified and phone number was updated successfully.";
                         }
                     } else {
