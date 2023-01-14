@@ -55,8 +55,10 @@ class UserController extends Controller
                 $data = [];
                 $message = "Otp was successfully verified.";
                 if ($request->request->get("type") == "email") {
-                    User::where("user_id", $request->request->get("user_id"))->update(["email" => $request->request->get("email"), "email_verified" => true]);
-                    $message = "Otp was successfully verified and email was updated successfully.";
+                    if ($request->request->has("update") && $request->filled("update") && $request->request->get("update")) {
+                        User::where("user_id", $request->request->get("user_id"))->update(["email" => $request->request->get("email"), "email_verified" => true]);
+                        $message = "Otp was successfully verified and email was updated successfully.";
+                    }
                 } else {
                     if ($request->request->has("update") && $request->filled("update") && $request->request->get("update")) {
                         if (User::where("user_id", "!=", $request->request->get("user_id"))->where("phone_number", $request->request->get("phone_number"))->exists()) {
