@@ -89,6 +89,7 @@ class TokenValidation
 
                             $admin_only_endpoints = [
                                 "api/v1/user/read_all",
+                                "api/v1/user/read_specific",
                                 "api/v1/user/read_all_earning",
                                 "api/v1/user/read_dashboard_data",
                                 "api/v1/login/read",
@@ -165,6 +166,7 @@ class TokenValidation
                         }
                     }
                     if ($request->request->has("user_id")) {
+                        $request->request->add(["specific_user_id" => $request->request->get("user_id")]);
                         $request->request->remove("user_id");
                     }
                     $request->request->add(["user_id" => $user_id]);

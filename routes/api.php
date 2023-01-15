@@ -31,6 +31,7 @@ Route::middleware([CheckHeader::class, IncomingDataValidation::class, TokenValid
         Route::post("/user/create_payment_method", "createPaymentMethod");
         Route::get("/user/read", "read");
         Route::get("/user/read_all", "readAll");
+        Route::get("/user/read_specific", "readSpecific");
         Route::get("/user/read_earning", "readEarning");
         Route::get("/user/read_all_earning", "readAllEarning");
         Route::get("/user/read_payment_method", "readPaymentMethod");

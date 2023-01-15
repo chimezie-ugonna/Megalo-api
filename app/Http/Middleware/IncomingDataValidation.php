@@ -305,6 +305,10 @@ class IncomingDataValidation
                 $request->validate([
                     "property_id" => ["bail", "required"]
                 ]);
+            } else if ($request->path() == "api/v1/user/read_specific") {
+                $request->validate([
+                    "user_id" => ["bail", "required"]
+                ]);
             } else if ($request->path() == "api/v1/user/read_payment_method") {
                 $request->validate([
                     "action" => ["bail", "required", "in:deposit,withdrawal"],
