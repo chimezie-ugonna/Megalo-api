@@ -28,8 +28,6 @@ class User extends Model
         "identity_verified"
     ];
     protected $casts = [
-        "first_name" => "encrypted",
-        "last_name" => "encrypted",
         "dob" => "encrypted",
         "email" => "encrypted",
         "is_admin" => "boolean",
