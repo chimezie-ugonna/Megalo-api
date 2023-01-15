@@ -284,11 +284,11 @@ class UserController extends Controller
 
     public function readSpecific(Request $request)
     {
-        if (User::where("user_id", $request->request->get("specific_user_id"))->exists()) {
+        if (User::where("user_id", $request->get("user_id"))->exists()) {
             return response()->json([
                 "status" => true,
                 "message" => "User data retrieved successfully.",
-                "data" => User::where("user_id", $request->request->get("specific_user_id"))->get()
+                "data" => User::where("user_id", $request->get("user_id"))->get()
             ], 200);
         } else {
             return response()->json([

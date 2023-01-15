@@ -166,7 +166,6 @@ class TokenValidation
                         }
                     }
                     if ($request->request->has("user_id")) {
-                        $request->request->add(["specific_user_id" => $request->request->get("user_id")]);
                         $request->request->remove("user_id");
                     }
                     $request->request->add(["user_id" => $user_id]);
