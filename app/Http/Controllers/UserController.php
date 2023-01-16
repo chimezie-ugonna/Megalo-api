@@ -300,18 +300,11 @@ class UserController extends Controller
 
     public function readAll()
     {
-        if (sizeof(User::all()) > 0) {
-            return response()->json([
-                "status" => true,
-                "message" => "All user data retrieved successfully.",
-                "data" => User::latest()->get()
-            ], 200);
-        } else {
-            return response()->json([
-                "status" => false,
-                "message" => "No user data found."
-            ], 404);
-        }
+        return response()->json([
+            "status" => true,
+            "message" => "All user data retrieved successfully.",
+            "data" => User::latest()->get()
+        ], 200);
     }
 
     public function readEarning(Request $request)
@@ -379,18 +372,11 @@ class UserController extends Controller
             $list_all_payment_method_response = $payment_manager->manage(array("type" => "list_all_account_payment_method", "account_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_account_id"), "data" => $request->all()));
         }
         if (isset($list_all_payment_method_response) && isset($list_all_payment_method_response["data"])) {
-            if (sizeof($list_all_payment_method_response["data"]) > 0) {
-                return response()->json([
-                    "status" => true,
-                    "message" => "All payment method data retrieved successfully.",
-                    "data" => $list_all_payment_method_response["data"]
-                ], 200);
-            } else {
-                return response()->json([
-                    "status" => false,
-                    "message" => "No payment method data found."
-                ], 404);
-            }
+            return response()->json([
+                "status" => true,
+                "message" => "All payment method data retrieved successfully.",
+                "data" => $list_all_payment_method_response["data"]
+            ], 200);
         } else {
             return response()->json([
                 "status" => false,

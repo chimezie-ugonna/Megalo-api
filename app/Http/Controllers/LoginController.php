@@ -51,18 +51,11 @@ class LoginController extends Controller
 
     public function readAll()
     {
-        if (sizeof(Login::all()) > 0) {
-            return response()->json([
-                "status" => true,
-                "message" => "All login data retrieved successfully.",
-                "data" => Login::latest()->get()
-            ], 200);
-        } else {
-            return response()->json([
-                "status" => false,
-                "message" => "No login data found."
-            ], 404);
-        }
+        return response()->json([
+            "status" => true,
+            "message" => "All login data retrieved successfully.",
+            "data" => Login::latest()->get()
+        ], 200);
     }
 
     public function delete(Request $request)

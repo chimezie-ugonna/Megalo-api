@@ -186,18 +186,11 @@ class PropertyController extends Controller
 
     public function readAll()
     {
-        if (sizeof(Property::all()) > 0) {
-            return response()->json([
-                "status" => true,
-                "message" => "All property data retrieved successfully.",
-                "data" => Property::latest()->get()
-            ], 200);
-        } else {
-            return response()->json([
-                "status" => false,
-                "message" => "No property data found."
-            ], 404);
-        }
+        return response()->json([
+            "status" => true,
+            "message" => "All property data retrieved successfully.",
+            "data" => Property::latest()->get()
+        ], 200);
     }
 
     public function readPaidDividend(Request $request)

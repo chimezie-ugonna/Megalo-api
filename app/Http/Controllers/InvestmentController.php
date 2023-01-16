@@ -144,18 +144,11 @@ class InvestmentController extends Controller
 
     public function readAll()
     {
-        if (sizeof(Investment::all()) > 0) {
-            return response()->json([
-                "status" => true,
-                "message" => "All investment data retrieved successfully.",
-                "data" => Investment::latest()->get()
-            ], 200);
-        } else {
-            return response()->json([
-                "status" => false,
-                "message" => "No investment data found."
-            ], 404);
-        }
+        return response()->json([
+            "status" => true,
+            "message" => "All investment data retrieved successfully.",
+            "data" => Investment::latest()->get()
+        ], 200);
     }
 
     public function readUserAndPropertySpecific(Request $request)
@@ -192,18 +185,11 @@ class InvestmentController extends Controller
 
     public function readPropertySpecific(Request $request)
     {
-        if (Investment::where("property_id", $request->get("property_id"))->exists()) {
-            return response()->json([
-                "status" => true,
-                "message" => "Investment data retrieved successfully.",
-                "data" => Investment::where("property_id", $request->get("property_id"))->join("users", "users.user_id", "=", "investments.user_id")->select("investments.*", "users.first_name", "users.last_name")->get()
-            ], 200);
-        } else {
-            return response()->json([
-                "status" => false,
-                "message" => "Investment data not found."
-            ], 404);
-        }
+        return response()->json([
+            "status" => true,
+            "message" => "Investment data retrieved successfully.",
+            "data" => Investment::where("property_id", $request->get("property_id"))->join("users", "users.user_id", "=", "investments.user_id")->select("investments.*", "users.first_name", "users.last_name")->get()
+        ], 200);
     }
 
     public function liquidate(Request $request)

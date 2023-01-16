@@ -54,18 +54,11 @@ class NotificationController extends Controller
 
     public function readAll()
     {
-        if (sizeof(Notification::all()) > 0) {
-            return response()->json([
-                "status" => true,
-                "message" => "All notification data retrieved successfully.",
-                "data" => Notification::latest()->get()
-            ], 200);
-        } else {
-            return response()->json([
-                "status" => false,
-                "message" => "No notification data found."
-            ], 404);
-        }
+        return response()->json([
+            "status" => true,
+            "message" => "All notification data retrieved successfully.",
+            "data" => Notification::latest()->get()
+        ], 200);
     }
 
     public function readUserSpecific(Request $request)
