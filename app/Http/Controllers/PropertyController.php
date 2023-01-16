@@ -77,6 +77,14 @@ class PropertyController extends Controller
                     if ($last_dividend_payment_year == $current_year && $last_dividend_payment_month == $current_month) {
                         $status = false;
                     }
+
+                    return response()->json([
+                        "status" => $status,
+                        "last_dividend_payment_year" => $last_dividend_payment_year,
+                        "current_year" => $current_year,
+                        "last_dividend_payment_month" => $last_dividend_payment_month,
+                        "current_month" => $current_month
+                    ], 200);
                 }
                 /*if ($status) {
                     $notification_manager = new NotificationManager();
