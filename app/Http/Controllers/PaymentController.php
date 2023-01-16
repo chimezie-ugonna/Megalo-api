@@ -155,18 +155,11 @@ class PaymentController extends Controller
 
     public function readAll()
     {
-        if (sizeof(Payment::all()) > 0) {
-            return response()->json([
-                "status" => true,
-                "message" => "All payment data retrieved successfully.",
-                "data" => Payment::latest()->get()
-            ], 200);
-        } else {
-            return response()->json([
-                "status" => false,
-                "message" => "No payment data found."
-            ], 404);
-        }
+        return response()->json([
+            "status" => true,
+            "message" => "All payment data retrieved successfully.",
+            "data" => Payment::latest()->get()
+        ], 200);
     }
 
     public function readUserSpecific(Request $request)
