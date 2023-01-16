@@ -77,16 +77,8 @@ class PropertyController extends Controller
                     if ($last_dividend_payment_year == $current_year && $last_dividend_payment_month == $current_month) {
                         $status = false;
                     }
-
-                    return response()->json([
-                        "status" => $status,
-                        "last_dividend_payment_year" => $last_dividend_payment_year,
-                        "current_year" => $current_year,
-                        "last_dividend_payment_month" => $last_dividend_payment_month,
-                        "current_month" => $current_month
-                    ], 200);
                 }
-                /*if ($status) {
+                if ($status) {
                     $notification_manager = new NotificationManager();
                     $current_property_monthly_earning = Property::where("property_id", $request->request->get("property_id"))->value("monthly_earning_usd");
                     $request->request->add(["amount_usd" => $current_property_monthly_earning]);
@@ -136,7 +128,7 @@ class PropertyController extends Controller
                         "status" => false,
                         "message" => "This property has already paid its dividend this month."
                     ], 400);
-                }*/
+                }
             } else {
                 return response()->json([
                     "status" => false,
