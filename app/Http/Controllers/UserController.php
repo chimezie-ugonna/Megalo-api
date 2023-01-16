@@ -309,34 +309,20 @@ class UserController extends Controller
 
     public function readEarning(Request $request)
     {
-        if (Earning::where("user_id", $request->request->get("user_id"))->where("property_id", $request->get("property_id"))->exists()) {
-            return response()->json([
-                "status" => true,
-                "message" => "User earning data retrieved successfully.",
-                "data" => Earning::where("user_id", $request->request->get("user_id"))->where("property_id", $request->get("property_id"))->get()
-            ], 200);
-        } else {
-            return response()->json([
-                "status" => false,
-                "message" => "User earning data not found."
-            ], 404);
-        }
+        return response()->json([
+            "status" => true,
+            "message" => "User earning data retrieved successfully.",
+            "data" => Earning::where("user_id", $request->request->get("user_id"))->where("property_id", $request->get("property_id"))->latest()->get()
+        ], 200);
     }
 
     public function readAllEarning(Request $request)
     {
-        if (Earning::where("user_id", $request->request->get("user_id"))->exists()) {
-            return response()->json([
-                "status" => true,
-                "message" => "All user earning data retrieved successfully.",
-                "data" => Earning::where("user_id", $request->request->get("user_id"))->get()
-            ], 200);
-        } else {
-            return response()->json([
-                "status" => false,
-                "message" => "No user earning data found."
-            ], 404);
-        }
+        return response()->json([
+            "status" => true,
+            "message" => "All user earning data retrieved successfully.",
+            "data" => Earning::where("user_id", $request->request->get("user_id"))->latest()->get()
+        ], 200);
     }
 
     public function readPaymentMethod(Request $request)
@@ -385,20 +371,13 @@ class UserController extends Controller
         }
     }
 
-    public function readDashboardData(Request $request)
+    public function readDashboardData()
     {
-        if (User::where("user_id", $request->request->get("user_id"))->exists()) {
-            return response()->json([
-                "status" => true,
-                "message" => "Dashboard data retrieved successfully.",
-                "data" => ["user_count" => User::count(), "property_count" => Property::count(), "all_property_value" => Property::all()->sum("value_usd")]
-            ], 200);
-        } else {
-            return response()->json([
-                "status" => false,
-                "message" => "User data not found."
-            ], 404);
-        }
+        return response()->json([
+            "status" => true,
+            "message" => "Dashboard data retrieved successfully.",
+            "data" => ["user_count" => User::count(), "property_count" => Property::count(), "all_property_value" => Property::all()->sum("value_usd")]
+        ], 200);
     }
 
     public function initiateIdentityVerification(Request $request)

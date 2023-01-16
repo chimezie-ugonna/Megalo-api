@@ -63,18 +63,11 @@ class NotificationController extends Controller
 
     public function readUserSpecific(Request $request)
     {
-        if (Notification::where("receiver_user_id", $request->request->get("user_id"))->exists()) {
-            return response()->json([
-                "status" => true,
-                "message" => "Notification data retrieved successfully.",
-                "data" => Notification::where("receiver_user_id", $request->request->get("user_id"))->get()
-            ], 200);
-        } else {
-            return response()->json([
-                "status" => false,
-                "message" => "Notification data not found."
-            ], 404);
-        }
+        return response()->json([
+            "status" => true,
+            "message" => "Notification data retrieved successfully.",
+            "data" => Notification::where("receiver_user_id", $request->request->get("user_id"))->latest()->get()
+        ], 200);
     }
 
     public function update(Request $request)

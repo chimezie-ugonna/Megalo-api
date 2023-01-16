@@ -153,34 +153,20 @@ class InvestmentController extends Controller
 
     public function readUserAndPropertySpecific(Request $request)
     {
-        if (Investment::where("property_id", $request->get("property_id"))->where("user_id", $request->request->get("user_id"))->exists()) {
-            return response()->json([
-                "status" => true,
-                "message" => "Investment data retrieved successfully.",
-                "data" => Investment::where("property_id", $request->get("property_id"))->where("user_id", $request->request->get("user_id"))->get()
-            ], 200);
-        } else {
-            return response()->json([
-                "status" => false,
-                "message" => "Investment data not found."
-            ], 404);
-        }
+        return response()->json([
+            "status" => true,
+            "message" => "Investment data retrieved successfully.",
+            "data" => Investment::where("property_id", $request->get("property_id"))->where("user_id", $request->request->get("user_id"))->latest()->get()
+        ], 200);
     }
 
     public function readUserSpecific(Request $request)
     {
-        if (Investment::where("user_id", $request->request->get("user_id"))->exists()) {
-            return response()->json([
-                "status" => true,
-                "message" => "Investment data retrieved successfully.",
-                "data" => Investment::where("user_id", $request->request->get("user_id"))->get()
-            ], 200);
-        } else {
-            return response()->json([
-                "status" => false,
-                "message" => "Investment data not found."
-            ], 404);
-        }
+        return response()->json([
+            "status" => true,
+            "message" => "Investment data retrieved successfully.",
+            "data" => Investment::where("user_id", $request->request->get("user_id"))->latest()->get()
+        ], 200);
     }
 
     public function readPropertySpecific(Request $request)
@@ -188,7 +174,7 @@ class InvestmentController extends Controller
         return response()->json([
             "status" => true,
             "message" => "Investment data retrieved successfully.",
-            "data" => Investment::where("property_id", $request->get("property_id"))->join("users", "users.user_id", "=", "investments.user_id")->select("investments.*", "users.first_name", "users.last_name")->get()
+            "data" => Investment::where("property_id", $request->get("property_id"))->join("users", "users.user_id", "=", "investments.user_id")->select("investments.*", "users.first_name", "users.last_name")->latest()->get()
         ], 200);
     }
 

@@ -164,18 +164,11 @@ class PaymentController extends Controller
 
     public function readUserSpecific(Request $request)
     {
-        if (Payment::where("user_id", $request->request->get("user_id"))->exists()) {
-            return response()->json([
-                "status" => true,
-                "message" => "Payment data retrieved successfully.",
-                "data" => Payment::where("user_id", $request->request->get("user_id"))->get()
-            ], 200);
-        } else {
-            return response()->json([
-                "status" => false,
-                "message" => "Payment data not found."
-            ], 404);
-        }
+        return response()->json([
+            "status" => true,
+            "message" => "Payment data retrieved successfully.",
+            "data" => Payment::where("user_id", $request->request->get("user_id"))->latest()->get()
+        ], 200);
     }
 
     public function readAllCurrency()

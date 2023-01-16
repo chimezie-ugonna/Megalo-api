@@ -35,18 +35,11 @@ class LoginController extends Controller
 
     public function read(Request $request)
     {
-        if (Login::where("user_id", $request->request->get("user_id"))->exists()) {
-            return response()->json([
-                "status" => true,
-                "message" => "Login data retrieved successfully.",
-                "data" => Login::where("user_id", $request->request->get("user_id"))->get()
-            ], 200);
-        } else {
-            return response()->json([
-                "status" => false,
-                "message" => "Login data not found."
-            ], 404);
-        }
+        return response()->json([
+            "status" => true,
+            "message" => "Login data retrieved successfully.",
+            "data" => Login::where("user_id", $request->request->get("user_id"))->latest()->get()
+        ], 200);
     }
 
     public function readAll()
