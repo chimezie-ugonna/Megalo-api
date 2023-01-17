@@ -31,7 +31,7 @@ class TokenValidation
                     $ip_address = $request->ip();
                     $ip_address_manager = new IpAddressManager();
                     if ($ip_address_manager->getIpAddressDetails($ip_address, "Country") == false) {
-                        $ip_address = "85.214.132.117";//$ip_address_manager->getIpAddress();
+                        $ip_address = $ip_address_manager->getIpAddress();
                     }
                     $user_id = $data["data"];
                     if ($request->path() == "api/v1/user/create" || $request->path() == "api/v1/login/create") {
