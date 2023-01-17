@@ -32,8 +32,12 @@ class EmailManager
             return $this->client->verify->v2->services($this->service_sid)
                 ->verifications
                 ->create($email, "email", [
-                    $language => true,
-                    "subject" => $subject
+                    "channelConfiguration" => [
+                        "substitutions" => [
+                            $language => true,
+                            "subject" => $subject
+                        ]
+                    ],
                 ]);
         } catch (\Exception) {
             return false;
