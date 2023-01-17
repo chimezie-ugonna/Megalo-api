@@ -79,17 +79,16 @@ class EmailManager
                     null,
                     [
                         "amount" => $amount,
-                        $language => true
+                        $language => true,
+                        "subject" => $subject
                     ]
                 );
-                $subjects[$count] = new Subject($subject);
                 $count++;
             }
 
             $email = new Mail(
                 $from,
-                $tos,
-                $subjects
+                $tos
             );
             $email->setTemplateId("d-b8a32ed233e54e06a5fd107ca80eefd5");
             try {
