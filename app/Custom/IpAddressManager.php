@@ -4,13 +4,6 @@ namespace App\Custom;
 
 class IpAddressManager
 {
-    private $api_key;
-
-    function __construct()
-    {
-        $this->api_key = getenv("EXCHANGE_RATE_DATA_API_KEY");
-    }
-
     function getIpAddress()
     {
         $ipaddress = "";

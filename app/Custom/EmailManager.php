@@ -7,7 +7,6 @@ use Twilio\Rest\Client;
 use SendGrid\Mail\From;
 use SendGrid\Mail\To;
 use SendGrid\Mail\Mail;
-use SendGrid\Mail\Subject;
 
 class EmailManager
 {
@@ -27,12 +26,15 @@ class EmailManager
         $this->from_name = "Megalo";
     }
 
-    function sendOtp($email, $country)
+    function sendOtp($email, $language, $subject)
     {
         try {
             return $this->client->verify->v2->services($this->service_sid)
                 ->verifications
-                ->create($email, "email");
+                ->create($email, "email", [
+                    $language => true,
+                    "subject" => $subject
+                ]);
         } catch (\Exception) {
             return false;
         }
@@ -58,7 +60,6 @@ class EmailManager
     {
         $from = new From($this->from_email, $this->from_name);
         $tos = [];
-        $subjects = [];
         if (count($admin_user_ids) > 0) {
             $count = 0;
             foreach ($admin_user_ids as $user_id) {

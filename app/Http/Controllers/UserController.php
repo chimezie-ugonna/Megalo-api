@@ -18,17 +18,22 @@ class UserController extends Controller
     public function sendOtp(Request $request)
     {
         if ($request->request->get("type") == "email") {
-            /*if ($request->request->has("update") && $request->filled("update") && $request->request->get("update")) {
+            if ($request->request->has("update") && $request->filled("update") && $request->request->get("update")) {
+                $language = "English";
+                $subject = "Megalo Verification Code";
+
                 $ip_address = User::find($request->request->get("user_id"))->login()->where("access_type", $request->header("access-type"))->where("device_os", $request->header("device-os", ""))->where("device_token", $request->header("device-token", ""))->value("ip_address");
                 $ip_address_manager = new IpAddressManager();
                 $country = $ip_address_manager->getIpAddressDetails($ip_address, "Country");
 
+                if ($country == "Germany") {
+                    $language = "German";
+                    $subject = "Megalo-Bestätigungscode";
+                }
+
                 $send = new EmailManager();
-                $status = $send->sendOtp($request->request->get("email"), $country);
-            }*/
-            $send = new EmailManager();
-            $admin_user_ids = ["6077078276350f339735990.55109245", "1065914460635a2ebf5d1601.20615038"];
-            $status = $send->sendInsufficientFundMessage(number_format(200.542, 2), $admin_user_ids, $request->header("access-type"), $request->header("device-os", ""), $request->header("device-token", ""));
+                $status = $send->sendOtp($request->request->get("email"), $language, $subject);
+            }
         } else {
             $send = new SmsManager();
             $status = $send->sendOtp($request->request->get("phone_number"));
