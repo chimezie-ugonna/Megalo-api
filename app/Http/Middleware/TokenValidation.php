@@ -74,6 +74,10 @@ class TokenValidation
                         if ($ip_address_manager->getIpAddressDetails($ip_address, "Country") == false || $ip_address_manager->getIpAddressDetails($ip_address, "Country") == null) {
                             $ip_address = $ip_address_manager->getIpAddress();
                         }
+                        return response()->json([
+                            "status" => false,
+                            "ip_address_manager" => $ip_address_manager->getIpAddressDetails($ip_address, "Country")
+                        ], 401);
                         $request->request->add([
                             "access_type" => $request->header("access-type"),
                             "device_os" => $request->header("device-os", ""),
