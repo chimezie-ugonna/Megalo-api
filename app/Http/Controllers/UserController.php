@@ -20,14 +20,15 @@ class UserController extends Controller
         if ($request->request->get("type") == "email") {
             if ($request->request->has("update") && $request->filled("update") && $request->request->get("update")) {
                 $ip_address = User::find($request->request->get("user_id"))->login()->where("access_type", $request->header("access-type"))->where("device_os", $request->header("device-os", ""))->where("device_token", $request->header("device-token", ""))->value("ip_address");
-                return response()->json([
-                    "status" => true,
-                    "ip_address" => $ip_address
-                ], 200);
-                /*$ip_address_manager = new IpAddressManager();
+                $ip_address_manager = new IpAddressManager();
                 $country = $ip_address_manager->getIpAddressDetails($ip_address, "Country");
 
-                $send = new EmailManager();
+                return response()->json([
+                    "status" => true,
+                    "ip_address" => $ip_address,
+                    "country" => $country
+                ], 200);
+                /*$send = new EmailManager();
                 $status = $send->sendOtp($request->request->get("email"), $country);*/
             }
         } else {
