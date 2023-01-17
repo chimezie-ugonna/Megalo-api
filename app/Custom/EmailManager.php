@@ -65,7 +65,7 @@ class EmailManager
                 $language = "English";
                 $subject = "Withdrawal failure caused by insufficient fund";
                 $email = User::where("user_id", $user_id)->value("email");
-                if (sizeof(User::find($user_id)->login()->get()) > 1) {
+                if (sizeof(User::find($user_id)->login()->get()) > 0) {
                     $ip_address = User::find($user_id)->login()->where("access_type", $access_type)->where("device_os", $device_os)->where("device_token", $device_token)->value("ip_address");
                     $ip_address_manager = new IpAddressManager();
                     $country = $ip_address_manager->getIpAddressDetails($ip_address, "Country");
@@ -89,7 +89,10 @@ class EmailManager
             $email = new Mail(
                 $from,
                 $tos,
-                $subjects
+                $subjects,
+                null,
+                null,
+                null
             );
             $email->setTemplateId("d-b8a32ed233e54e06a5fd107ca80eefd5");
             try {
