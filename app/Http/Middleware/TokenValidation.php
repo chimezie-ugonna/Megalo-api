@@ -71,13 +71,9 @@ class TokenValidation
 
                         $ip_address = $request->ip();
                         $ip_address_manager = new IpAddressManager();
-                        if ($ip_address_manager->getIpAddressDetails($ip_address, "Country") == false || $ip_address_manager->getIpAddressDetails($ip_address, "Country") == null) {
+                        if ($ip_address_manager->getIpAddressDetails($ip_address, "Country") == false) {
                             $ip_address = $ip_address_manager->getIpAddress();
                         }
-                        return response()->json([
-                            "status" => false,
-                            "ip_address_manager" => $ip_address_manager->getIpAddressDetails($ip_address, "Country")
-                        ], 401);
                         $request->request->add([
                             "access_type" => $request->header("access-type"),
                             "device_os" => $request->header("device-os", ""),
@@ -161,12 +157,18 @@ class TokenValidation
                                     break;
                             }
 
+                            $ip_address = $request->ip();
+                            $ip_address_manager = new IpAddressManager();
+                            if ($ip_address_manager->getIpAddressDetails($ip_address, "Country") == false) {
+                                $ip_address = $ip_address_manager->getIpAddress();
+                            }
+
                             Login::where("user_id", $user_id)->where("access_type", $request->header("access-type"))->where("device_os", $request->header("device-os", ""))->where("device_token", $request->header("device-token", ""))->update([
                                 "device_brand" => $request->header("device-brand", ""),
                                 "device_model" => $request->header("device-model", ""),
                                 "app_version" => $request->header("app-version", ""),
                                 "os_version" => $request->header("os-version", ""),
-                                "ip_address" => $request->ip()
+                                "ip_address" => $ip_address
                             ]);
                         } else {
                             return response()->json([
