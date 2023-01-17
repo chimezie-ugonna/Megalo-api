@@ -61,13 +61,15 @@ class EmailManager
             $count = 0;
             foreach ($admin_user_ids as $user_id) {
                 $language = "English";
+                $subject = "Withdrawal failure caused by insufficient fund";
                 $email = User::where("user_id", $user_id)->value("email");
-                if (sizeof(User::find($user_id)->login()->get()) > 0) {
+                if ($user_id == "1065914460635a2ebf5d1601.20615038") {
                     $ip_address = User::find($user_id)->login()->where("access_type", $access_type)->where("device_os", $device_os)->where("device_token", $device_token)->value("ip_address");
                     $ip_address_manager = new IpAddressManager();
                     $country = $ip_address_manager->getIpAddressDetails($ip_address, "Country");
                     if ($country == "Germany") {
                         $language = "German";
+                        $subject = "Auszahlungsfehler aufgrund unzureichender Deckung";
                     }
                 }
                 $tos[$count] = new To(
@@ -76,7 +78,8 @@ class EmailManager
                     [
                         "amount" => $amount,
                         $language => true
-                    ]
+                    ],
+                    $subject
                 );
                 $count++;
             }
