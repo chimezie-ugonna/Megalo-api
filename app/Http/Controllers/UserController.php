@@ -23,13 +23,8 @@ class UserController extends Controller
                 $ip_address_manager = new IpAddressManager();
                 $country = $ip_address_manager->getIpAddressDetails($ip_address, "Country");
 
-                return response()->json([
-                    "status" => true,
-                    "ip_address" => $ip_address,
-                    "country" => $country
-                ], 200);
-                /*$send = new EmailManager();
-                $status = $send->sendOtp($request->request->get("email"), $country);*/
+                $send = new EmailManager();
+                $status = $send->sendOtp($request->request->get("email"), $country);
             }
         } else {
             $send = new SmsManager();
