@@ -71,7 +71,7 @@ class TokenValidation
 
                         $ip_address = $request->ip();
                         $ip_address_manager = new IpAddressManager();
-                        if ($ip_address_manager->getIpAddressDetails($ip_address, "Country") == false) {
+                        if ($ip_address_manager->getIpAddressDetails($ip_address, "Country") == false || $ip_address_manager->getIpAddressDetails($ip_address, "Country") == null) {
                             $ip_address = $ip_address_manager->getIpAddress();
                         }
                         $request->request->add([
