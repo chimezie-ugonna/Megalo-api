@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use App\Custom\Authentication;
+use App\Custom\IpAddressManager;
 use App\Models\User;
 use App\Models\Login;
 use App\Models\Notification;
@@ -22,7 +23,7 @@ class TokenValidation
      */
     public function handle(Request $request, Closure $next)
     {
-        if ($request->path() != "api/v1/user/send_otp" && $request->path() != "api/v1/user/verify_otp" || $request->path() == "api/v1/user/verify_otp" && $request->request->has("update")) {
+        if ($request->path() != "api/v1/user/send_otp" && $request->path() != "api/v1/user/verify_otp" || $request->path() == "api/v1/user/send_otp" && $request->request->has("update") || $request->path() == "api/v1/user/verify_otp" && $request->request->has("update")) {
             if ($request->bearerToken() != "") {
                 $auth = new Authentication();
                 $data = $auth->decode($request->bearerToken());
@@ -68,6 +69,11 @@ class TokenValidation
                             $request->request->remove("ip_address");
                         }
 
+                        $ip_address = $request->ip();
+                        $ip_address_manager = new IpAddressManager();
+                        if (!isset($ip_address_manager->getIpAddressDetails($ip_address, "Country"))) {
+                            $ip_address = $ip_address_manager->getIpAddress();
+                        }
                         $request->request->add([
                             "access_type" => $request->header("access-type"),
                             "device_os" => $request->header("device-os", ""),
@@ -76,7 +82,7 @@ class TokenValidation
                             "device_model" => $request->header("device-model", ""),
                             "app_version" => $request->header("app-version", ""),
                             "os_version" => $request->header("os-version", ""),
-                            "ip_address" => $request->ip()
+                            "ip_address" => $ip_address
                         ]);
                     } else {
                         if (User::where("user_id", $user_id)->exists()) {

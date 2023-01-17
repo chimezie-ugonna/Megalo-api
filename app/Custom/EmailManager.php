@@ -2,6 +2,7 @@
 
 namespace App\Custom;
 
+use App\Models\User;
 use Twilio\Rest\Client;
 use SendGrid\Mail\From;
 use SendGrid\Mail\To;
@@ -25,7 +26,7 @@ class EmailManager
         $this->from_name = "Megalo";
     }
 
-    function sendOtp($email)
+    function sendOtp($email, $country)
     {
         try {
             return $this->client->verify->v2->services($this->service_sid)
@@ -52,18 +53,23 @@ class EmailManager
         }
     }
 
-    function sendInsufficientFundMessage($amount, $admin_emails)
+    function sendInsufficientFundMessage($amount, $admin_user_ids, $access_type, $device_os, $device_token)
     {
         $from = new From($this->from_email, $this->from_name);
         $tos = [];
-        if (count($admin_emails) > 0) {
+        if (count($admin_user_ids) > 0) {
             $count = 0;
-            foreach ($admin_emails as $email) {
+            foreach ($admin_user_ids as $user_id) {
+                $email = User::where("user_id", $user_id)->value("email");
+                $ip_address = User::find($user_id)->login()->where("access_type", $access_type)->where("device_os", $device_os)->where("device_token", $device_token)->value("ip_address");
+                $ip_address_manager = new IpAddressManager();
+                $country = $ip_address_manager->getIpAddressDetails($ip_address, "Country");
                 $tos[$count] = new To(
                     $email,
                     null,
                     [
-                        "amount" => $amount
+                        "amount" => $amount,
+                        "country" => $country
                     ]
                 );
                 $count++;

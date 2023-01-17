@@ -21,7 +21,8 @@ class IncomingDataValidation
                 $request->validate([
                     "type" => ["bail", "required", "in:email,sms"],
                     "email" => ["bail", "prohibited_if:type,sms", "filled", "email", "required_if:type,email"],
-                    "phone_number" => ["bail", "prohibited_if:type,email", "filled", "required_if:type,sms"]
+                    "phone_number" => ["bail", "prohibited_if:type,email", "filled", "required_if:type,sms"],
+                    "update" => ["bail", "filled", "boolean"]
                 ]);
             } else if ($request->path() == "api/v1/user/verify_otp") {
                 $request->validate([

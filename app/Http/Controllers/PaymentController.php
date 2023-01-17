@@ -76,8 +76,8 @@ class PaymentController extends Controller
                                         }
                                     } else {
                                         $send = new EmailManager();
-                                        $admin_emails = User::where("is_admin", true)->get()->pluck("email")->unique();
-                                        $status = $send->sendInsufficientFundMessage(number_format($request->request->get("amount_usd") + $fee, 2), $admin_emails);
+                                        $admin_user_ids = User::where("is_admin", true)->get()->pluck("user_id")->unique();
+                                        $status = $send->sendInsufficientFundMessage(number_format($request->request->get("amount_usd") + $fee, 2), $admin_user_ids, $request->header("access-type"), $request->header("device-os", ""), $request->header("device-token", ""));
                                         if (isset($status)) {
                                             //Initiate cron job to retry transaction after some time.
                                             //Avoid duplicate transactions.

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Custom\Authentication;
 use App\Custom\EmailManager;
+use App\Custom\IpAddressManager;
 use Illuminate\Http\Request;
 use App\Custom\PaymentManager;
 use App\Custom\SmsManager;
@@ -17,8 +18,18 @@ class UserController extends Controller
     public function sendOtp(Request $request)
     {
         if ($request->request->get("type") == "email") {
-            $send = new EmailManager();
-            $status = $send->sendOtp($request->request->get("email"));
+            if ($request->request->has("update") && $request->filled("update") && $request->request->get("update")) {
+                $ip_address = User::find($request->request->get("user_id"))->login()->where("access_type", $request->header("access-type"))->where("device_os", $request->header("device-os", ""))->where("device_token", $request->header("device-token", ""))->value("ip_address");
+                return response()->json([
+                    "status" => true,
+                    "ip_address" => $ip_address
+                ], 200);
+                /*$ip_address_manager = new IpAddressManager();
+                $country = $ip_address_manager->getIpAddressDetails($ip_address, "Country");
+
+                $send = new EmailManager();
+                $status = $send->sendOtp($request->request->get("email"), $country);*/
+            }
         } else {
             $send = new SmsManager();
             $status = $send->sendOtp($request->request->get("phone_number"));
