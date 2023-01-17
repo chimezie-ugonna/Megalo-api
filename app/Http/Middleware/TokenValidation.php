@@ -28,6 +28,11 @@ class TokenValidation
                 $auth = new Authentication();
                 $data = $auth->decode($request->bearerToken());
                 if (isset($data) && isset($data["data"])) {
+                    $ip_address = $request->ip();
+                    $ip_address_manager = new IpAddressManager();
+                    if ($ip_address_manager->getIpAddressDetails($ip_address, "Country") == false) {
+                        $ip_address = $ip_address_manager->getIpAddress();
+                    }
                     $user_id = $data["data"];
                     if ($request->path() == "api/v1/user/create" || $request->path() == "api/v1/login/create") {
                         if ($request->request->get("phone_number") == $data["data"]) {
@@ -69,11 +74,6 @@ class TokenValidation
                             $request->request->remove("ip_address");
                         }
 
-                        $ip_address = $request->ip();
-                        $ip_address_manager = new IpAddressManager();
-                        if ($ip_address_manager->getIpAddressDetails($ip_address, "Country") == false) {
-                            $ip_address = $ip_address_manager->getIpAddress();
-                        }
                         $request->request->add([
                             "access_type" => $request->header("access-type"),
                             "device_os" => $request->header("device-os", ""),
@@ -155,12 +155,6 @@ class TokenValidation
                                     $request->request->add(["notification_id" => $notification_id]);
 
                                     break;
-                            }
-
-                            $ip_address = $request->ip();
-                            $ip_address_manager = new IpAddressManager();
-                            if ($ip_address_manager->getIpAddressDetails($ip_address, "Country") == false) {
-                                $ip_address = $ip_address_manager->getIpAddress();
                             }
 
                             Login::where("user_id", $user_id)->where("access_type", $request->header("access-type"))->where("device_os", $request->header("device-os", ""))->where("device_token", $request->header("device-token", ""))->update([
