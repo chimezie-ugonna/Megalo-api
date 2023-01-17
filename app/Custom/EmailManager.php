@@ -60,14 +60,15 @@ class EmailManager
         if (count($admin_user_ids) > 0) {
             $count = 0;
             foreach ($admin_user_ids as $user_id) {
+                $language = "English";
                 $email = User::where("user_id", $user_id)->value("email");
-                $ip_address = User::find($user_id)->login()->where("access_type", $access_type)->where("device_os", $device_os)->where("device_token", $device_token)->value("ip_address");
-                $ip_address_manager = new IpAddressManager();
-                $country = $ip_address_manager->getIpAddressDetails($ip_address, "Country");
-                if ($country == "Germany") {
-                    $language = "German";
-                } else {
-                    $language = "English";
+                if (sizeof(User::find($user_id)->login()->get()) > 0) {
+                    $ip_address = User::find($user_id)->login()->where("access_type", $access_type)->where("device_os", $device_os)->where("device_token", $device_token)->value("ip_address");
+                    $ip_address_manager = new IpAddressManager();
+                    $country = $ip_address_manager->getIpAddressDetails($ip_address, "Country");
+                    if ($country == "Germany") {
+                        $language = "German";
+                    }
                 }
                 $tos[$count] = new To(
                     $email,
