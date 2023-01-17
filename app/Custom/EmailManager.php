@@ -64,12 +64,17 @@ class EmailManager
                 $ip_address = User::find($user_id)->login()->where("access_type", $access_type)->where("device_os", $device_os)->where("device_token", $device_token)->value("ip_address");
                 $ip_address_manager = new IpAddressManager();
                 $country = $ip_address_manager->getIpAddressDetails($ip_address, "Country");
+                if ($country == "Germany") {
+                    $language = "German";
+                } else {
+                    $language = "English";
+                }
                 $tos[$count] = new To(
                     $email,
                     null,
                     [
                         "amount" => $amount,
-                        "country" => $country
+                        $language => true
                     ]
                 );
                 $count++;
