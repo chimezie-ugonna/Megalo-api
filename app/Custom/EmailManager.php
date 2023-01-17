@@ -86,13 +86,11 @@ class EmailManager
                 $count++;
             }
 
+            $subject = new Subject("Testing the subject");
             $email = new Mail(
                 $from,
                 $tos,
-                $subjects,
-                null,
-                null,
-                null
+                $subject
             );
             $email->setTemplateId("d-b8a32ed233e54e06a5fd107ca80eefd5");
             try {
