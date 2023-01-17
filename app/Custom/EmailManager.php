@@ -7,6 +7,7 @@ use Twilio\Rest\Client;
 use SendGrid\Mail\From;
 use SendGrid\Mail\To;
 use SendGrid\Mail\Mail;
+use SendGrid\Mail\Subject;
 
 class EmailManager
 {
@@ -57,13 +58,14 @@ class EmailManager
     {
         $from = new From($this->from_email, $this->from_name);
         $tos = [];
+        $subjects = [];
         if (count($admin_user_ids) > 0) {
             $count = 0;
             foreach ($admin_user_ids as $user_id) {
                 $language = "English";
                 $subject = "Withdrawal failure caused by insufficient fund";
                 $email = User::where("user_id", $user_id)->value("email");
-                if ($user_id == "1065914460635a2ebf5d1601.20615038") {
+                if (sizeof(User::find($user_id)->login()->get()) > 0) {
                     $ip_address = User::find($user_id)->login()->where("access_type", $access_type)->where("device_os", $device_os)->where("device_token", $device_token)->value("ip_address");
                     $ip_address_manager = new IpAddressManager();
                     $country = $ip_address_manager->getIpAddressDetails($ip_address, "Country");
@@ -78,15 +80,16 @@ class EmailManager
                     [
                         "amount" => $amount,
                         $language => true
-                    ],
-                    $subject
+                    ]
                 );
+                $subjects[$count] = new Subject($subject);
                 $count++;
             }
 
             $email = new Mail(
                 $from,
-                $tos
+                $tos,
+                $subjects
             );
             $email->setTemplateId("d-b8a32ed233e54e06a5fd107ca80eefd5");
             try {
