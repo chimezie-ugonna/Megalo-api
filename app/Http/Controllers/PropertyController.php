@@ -254,6 +254,9 @@ class PropertyController extends Controller
                         Property::find($request->request->get("property_id"))->propertyValueHistory()->create(["property_id" => $request->request->get("property_id"), "value_usd" => $request->request->get("value_usd"), "value_annual_change_percentage" => $value_annual_change_percentage]);
                         $request->request->add(["value_average_annual_change_percentage" => (Property::find($request->request->get("property_id"))->propertyValueHistory()->sum("value_annual_change_percentage")) / Property::find($request->request->get("property_id"))->propertyValueHistory()->count()]);
                     }
+                    if ($request->request->has("sold") && $request->filled("sold") && $request->request->get("sold")) {
+                        $request->request->add(["value_usd" => 0, "percentage_available" => 0, "monthly_earning_usd" => 0, "value_average_annual_change_percentage" => 0, "company_percentage" => 0]);
+                    }
                     Property::where("property_id", $request->request->get("property_id"))->update($request->except(["user_id"]));
                     $investor_user_ids = Investment::where("property_id", $request->request->get("property_id"))->get()->pluck("user_id")->unique();
                     $notification_manager = new NotificationManager();
@@ -305,7 +308,7 @@ class PropertyController extends Controller
                                     User::where("user_id", $user_id)->update(["balance_usd" => $new_user_balance]);
                                     $earning = $user_percentage_of_property_value - $user_amount_invested;
                                     if ($earning > 0) {
-                                        Earning::create(["property_id" => $request->request->get("property_id"), "user_id" => $user_id, "amount_usd" => $user_percentage_of_property_value]);
+                                        Earning::create(["property_id" => $request->request->get("property_id"), "user_id" => $user_id, "amount_usd" => $earning]);
                                     }
                                     $notification_manager->sendNotification(array(
                                         "receiver_user_id" => $user_id,
