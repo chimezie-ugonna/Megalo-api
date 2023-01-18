@@ -157,13 +157,13 @@ class IncomingDataValidation
                     "property_id" => ["bail", "required"],
                     "company_percentage" => ["bail", "prohibited"],
                     "percentage_available" => ["bail", "prohibited"],
+                    "value_average_annual_change_percentage" => ["bail", "prohibited"],
                     "value_usd" => ["bail", "filled", "numeric"],
                     "address" => ["bail", "filled", "not_in:null"],
                     "image_urls" => ["bail", "filled", "not_in:null"],
                     "description" => ["bail", "filled", "not_in:null"],
                     "size_sf" => ["bail", "filled", "numeric"],
                     "monthly_earning_usd" => ["bail", "filled", "numeric"],
-                    "value_average_annual_change_percentage" => ["bail", "prohibited"],
                     "sold" => ["bail", "filled", "boolean"]
                 ]);
                 if (sizeof($request->all()) <= 1) {
@@ -171,12 +171,12 @@ class IncomingDataValidation
                         "status" => false,
                         "message" => "There is nothing to update."
                     ], 400)->throwResponse();
-                } else if (!$request->request->has("address") && !$request->request->has("value_usd") && !$request->request->has("image_urls") && !$request->request->has("description") && !$request->request->has("size_sf") && !$request->request->has("monthly_earning_usd")) {
+                } else if (!$request->request->has("address") && !$request->request->has("value_usd") && !$request->request->has("image_urls") && !$request->request->has("description") && !$request->request->has("size_sf") && !$request->request->has("monthly_earning_usd") && !$request->request->has("sold")) {
                     return response()->json([
                         "status" => false,
                         "message" => "You provided an invalid key."
                     ], 400)->throwResponse();
-                } else if (!$request->filled("address") && !$request->filled("value_usd") && !$request->filled("image_urls") && !$request->filled("description") && !$request->filled("size_sf") && !$request->filled("monthly_earning_usd")) {
+                } else if (!$request->filled("address") && !$request->filled("value_usd") && !$request->filled("image_urls") && !$request->filled("description") && !$request->filled("size_sf") && !$request->filled("monthly_earning_usd") && !$request->filled("sold")) {
                     return response()->json([
                         "status" => false,
                         "message" => "There is no data to update."
