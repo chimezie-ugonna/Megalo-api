@@ -297,12 +297,16 @@ class PropertyController extends Controller
                         if (count($investor_user_ids) > 0) {
                             foreach ($investor_user_ids as $user_id) {
                                 if (User::where("user_id", $user_id)->exists()) {
+                                    $user_amount_invested = Investment::where("property_id", $request->request->get("property_id"))->where("user_id", $user_id)->value("amount_invested_usd");
                                     $user_percentage = Investment::where("property_id", $request->request->get("property_id"))->where("user_id", $user_id)->value("percentage");
                                     $user_percentage_of_property_value = $current_property_value * ($user_percentage / 100);
                                     $user_balance = User::where("user_id", $user_id)->value("balance_usd");
                                     $new_user_balance = $user_balance + $user_percentage_of_property_value;
                                     User::where("user_id", $user_id)->update(["balance_usd" => $new_user_balance]);
-                                    Earning::create(["property_id" => $request->request->get("property_id"), "user_id" => $user_id, "amount_usd" => $user_percentage_of_property_value]);
+                                    $earning = $user_percentage_of_property_value - $user_amount_invested;
+                                    if ($earning > 0) {
+                                        Earning::create(["property_id" => $request->request->get("property_id"), "user_id" => $user_id, "amount_usd" => $user_percentage_of_property_value]);
+                                    }
                                     $notification_manager->sendNotification(array(
                                         "receiver_user_id" => $user_id,
                                         "title" => "Property sale payment!!!",
