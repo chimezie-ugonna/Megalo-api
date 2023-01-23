@@ -482,6 +482,7 @@ class UserController extends Controller
             User::find($request->request->get("user_id"))->notificationReceiver()->delete();
             User::find($request->request->get("user_id"))->payment()->delete();
             User::find($request->request->get("user_id"))->earning()->delete();
+            User::find($request->request->get("user_id"))->failedWithdrawal()->delete();
             User::destroy($request->request->get("user_id"));
             return response()->json([
                 "status" => true,

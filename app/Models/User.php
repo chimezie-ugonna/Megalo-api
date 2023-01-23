@@ -64,4 +64,9 @@ class User extends Model
     {
         return $this->hasMany(Earning::class, "user_id");
     }
+
+    public function failedWithdrawal()
+    {
+        return $this->hasMany(FailedWithdrawal::class, "user_id");
+    }
 }
