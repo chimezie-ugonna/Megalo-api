@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use App\Custom\Authentication;
 use App\Custom\IpAddressManager;
+use App\Models\FailedWithdrawal;
 use App\Models\User;
 use App\Models\Login;
 use App\Models\Notification;
@@ -140,7 +141,7 @@ class TokenValidation
 
                                     do {
                                         $payment_id = uniqid(rand(), true);
-                                    } while (Payment::where("payment_id", $payment_id)->exists());
+                                    } while (Payment::where("payment_id", $payment_id)->exists() || FailedWithdrawal::where("payment_id", $payment_id)->exists());
                                     $request->request->add(["payment_id" => $payment_id]);
 
                                     break;

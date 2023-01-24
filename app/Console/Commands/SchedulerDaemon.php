@@ -14,14 +14,14 @@ class SchedulerDaemon extends Command
      *
      * @var string
      */
-    protected $signature = 'schedule:daemon {--sleep=60}';
+    protected $signature = "schedule:daemon {--sleep=60}";
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Call the scheduler every minute.';
+    protected $description = "Call the scheduler every minute.";
 
     /**
      * Execute the console command.
@@ -31,11 +31,11 @@ class SchedulerDaemon extends Command
     public function handle()
     {
         while (true) {
-            $this->info('Calling scheduler');
+            $this->info("Calling scheduler");
 
-            $this->call('schedule:run');
+            $this->call("schedule:run");
 
-            sleep($this->option('sleep'));
+            sleep($this->option("sleep"));
         }
     }
 }

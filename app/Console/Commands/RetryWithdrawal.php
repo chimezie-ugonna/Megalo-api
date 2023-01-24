@@ -2,6 +2,8 @@
 
 namespace App\Console\Commands;
 
+use App\Custom\PerformWithdrawal;
+use App\Models\FailedWithdrawal;
 use Illuminate\Console\Command;
 
 class RetryWithdrawal extends Command
@@ -27,6 +29,8 @@ class RetryWithdrawal extends Command
      */
     public function handle()
     {
-        return Command::SUCCESS;
+        if (FailedWithdrawal::count() > 0) {
+            new PerformWithdrawal(FailedWithdrawal::oldest()->first()->user_id, FailedWithdrawal::oldest()->first()->payment_id, FailedWithdrawal::oldest()->first()->amount_usd, "withdrawal", "", "", "", true);
+        }
     }
 }
