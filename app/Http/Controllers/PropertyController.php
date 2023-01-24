@@ -83,7 +83,12 @@ class PropertyController extends Controller
                     $current_property_monthly_earning = Property::where("property_id", $request->request->get("property_id"))->value("monthly_earning_usd");
                     $request->request->add(["amount_usd" => $current_property_monthly_earning]);
                     $investor_user_ids = Investment::where("property_id", $request->request->get("property_id"))->get()->pluck("user_id")->unique();
-                    $request->request->add(["investor_count" => count($investor_user_ids)]);
+                    $investor_count = $investor_user_ids;
+                    $company_percentage = Property::where("property_id", $request->request->get("property_id"))->value("company_percentage");
+                    if ($company_percentage > 0) {
+                        $investor_count += 1;
+                    }
+                    $request->request->add(["investor_count" => count($investor_count)]);
                     if (count($investor_user_ids) > 0) {
                         $count = 0;
                         foreach ($investor_user_ids as $user_id) {
