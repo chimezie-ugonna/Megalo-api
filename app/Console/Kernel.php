@@ -15,7 +15,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command("retry:withdrawal")->everyMinute()->withoutOverlapping()->runInBackground();
+        $schedule->command("retry:withdrawal")->everyThirtyMinutes()->withoutOverlapping()->runInBackground();
     }
 
     /**
