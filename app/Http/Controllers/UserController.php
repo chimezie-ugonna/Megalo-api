@@ -87,7 +87,7 @@ class UserController extends Controller
                         }
                     } else {
                         $auth = new Authentication();
-                        $data = array("token" => $auth->encode($request->request->get("phone_number")));
+                        $data["token"] = $auth->encode($request->request->get("phone_number"));
                         if (User::where("phone_number", $request->request->get("phone_number"))->exists()) {
                             $data["user_exists"] = true;
                             $data["is_admin"] = User::where("phone_number", $request->request->get("phone_number"))->value("is_admin");
@@ -151,9 +151,11 @@ class UserController extends Controller
     public function create(Request $request)
     {
         $auth = new Authentication();
-        $expirable = false;
+        $data = ["token" => $auth->encode($request->request->get("user_id"))];
         if ($request->header("access-type") != "mobile") {
-            $expirable = true;
+            $ttl = 1800;
+            $data["token"] = $auth->encode($request->request->get("user_id"), true, $ttl);
+            $data["ttl_seconds"] = $ttl;
         }
         if (!User::where("user_id", $request->request->get("user_id"))->exists()) {
             $status = true;
@@ -206,9 +208,7 @@ class UserController extends Controller
                 return response()->json([
                     "status" => true,
                     "message" => "User registered successfully.",
-                    "data" => [
-                        "token" => $auth->encode($request->request->get("user_id"), $expirable)
-                    ]
+                    "data" => $data
                 ], 201);
             } else {
                 return response()->json([
@@ -220,9 +220,7 @@ class UserController extends Controller
             return response()->json([
                 "status" => true,
                 "message" => "User already registered successfully.",
-                "data" => [
-                    "token" => $auth->encode($request->request->get("user_id"), $expirable)
-                ]
+                "data" => $data
             ], 200);
         }
     }

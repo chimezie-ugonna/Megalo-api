@@ -14,14 +14,14 @@ class Authentication
         $this->token_key = getenv("APP_KEY");
     }
 
-    function encode($data, $expirable = false, $exp = 1800)
+    function encode($data, $expirable = false, $ttl = 1800)
     {
         $payload = [
             "iat" => time(),
             "data" => $data
         ];
         if ($expirable) {
-            $payload["exp"] = time() + $exp;
+            $payload["exp"] = time() + $ttl;
         }
         return JWT::encode($payload, $this->token_key, "HS512");
     }
