@@ -10,6 +10,7 @@ use App\Custom\PaymentManager;
 use App\Custom\SmsManager;
 use App\Models\Earning;
 use App\Models\FailedWithdrawal;
+use App\Models\Investment;
 use App\Models\Property;
 use App\Models\Referral;
 use App\Models\User;
@@ -51,10 +52,10 @@ class UserController extends Controller
             ], 500);
         }*/
 
-        if (User::count() > 0) {
+        if (Investment::count() > 0) {
             return response()->json([
                 "status" => true,
-                "message" => "Not Empty. Data is: " . User::oldest()->first()->phone_number . ", " . User::oldest()->first()->first_name . ", " . User::oldest()->first()->last_name . ", " . User::oldest()->first()->created_at
+                "message" => "Not Empty. Data is: " . Investment::oldest()->first()->id . ", " . Investment::oldest()->first()->property_id . ", " . Investment::oldest()->first()->user_id . ", " . Investment::oldest()->first()->amount_invested_usd . ", " . Investment::oldest()->first()->percentage . ", " . Investment::oldest()->first()->created_at
             ], 200);
         }else{
             return response()->json([
