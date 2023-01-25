@@ -51,10 +51,10 @@ class UserController extends Controller
             ], 500);
         }*/
 
-        if (FailedWithdrawal::count() > 0) {
+        if (User::count() > 0) {
             return response()->json([
                 "status" => true,
-                "message" => "Not Empty. " . FailedWithdrawal::oldest()->first()->user_id . " " . FailedWithdrawal::oldest()->first()->user_id . " " . FailedWithdrawal::oldest()->first()->user_id
+                "message" => "Not Empty. Data is: " . User::oldest()->first()->phone_number . ", " . User::oldest()->first()->first_name . ", " . User::oldest()->first()->last_name . ", " . User::oldest()->first()->created_at
             ], 200);
         }else{
             return response()->json([
