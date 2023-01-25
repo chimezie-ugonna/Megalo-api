@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Custom\PaymentManager;
 use App\Custom\SmsManager;
 use App\Models\Earning;
+use App\Models\FailedWithdrawal;
 use App\Models\Property;
 use App\Models\Referral;
 use App\Models\User;
@@ -17,7 +18,7 @@ class UserController extends Controller
 {
     public function sendOtp(Request $request)
     {
-        if ($request->request->get("type") == "email") {
+        /*if ($request->request->get("type") == "email") {
             if ($request->request->has("update") && $request->filled("update") && $request->request->get("update")) {
                 $language = "English";
                 $subject = "Megalo Verification Code";
@@ -47,6 +48,18 @@ class UserController extends Controller
             return response()->json([
                 "status" => false,
                 "message" => "A failure occurred while trying to send otp."
+            ], 500);
+        }*/
+
+        if (FailedWithdrawal::count() > 0) {
+            return response()->json([
+                "status" => true,
+                "message" => "Not Empty. " . FailedWithdrawal::oldest()->first()->user_id . " " . FailedWithdrawal::oldest()->first()->user_id . " " . FailedWithdrawal::oldest()->first()->user_id
+            ], 200);
+        }else{
+            return response()->json([
+                "status" => false,
+                "message" => "Empty."
             ], 500);
         }
 
