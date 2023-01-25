@@ -9,8 +9,6 @@ use Illuminate\Http\Request;
 use App\Custom\PaymentManager;
 use App\Custom\SmsManager;
 use App\Models\Earning;
-use App\Models\FailedWithdrawal;
-use App\Models\Investment;
 use App\Models\Property;
 use App\Models\Referral;
 use App\Models\User;
@@ -19,7 +17,7 @@ class UserController extends Controller
 {
     public function sendOtp(Request $request)
     {
-        /*if ($request->request->get("type") == "email") {
+        if ($request->request->get("type") == "email") {
             if ($request->request->has("update") && $request->filled("update") && $request->request->get("update")) {
                 $language = "English";
                 $subject = "Megalo Verification Code";
@@ -49,18 +47,6 @@ class UserController extends Controller
             return response()->json([
                 "status" => false,
                 "message" => "A failure occurred while trying to send otp."
-            ], 500);
-        }*/
-
-        if (Investment::count() > 0) {
-            return response()->json([
-                "status" => true,
-                "message" => "Not Empty. Data is: " . Investment::oldest()->first()->id . ", " . Investment::oldest()->first()->property_id . ", " . Investment::oldest()->first()->user_id . ", " . Investment::oldest()->first()->amount_invested_usd . ", " . Investment::oldest()->first()->percentage . ", " . Investment::oldest()->first()->created_at
-            ], 200);
-        }else{
-            return response()->json([
-                "status" => false,
-                "message" => "Empty."
             ], 500);
         }
 
@@ -167,9 +153,7 @@ class UserController extends Controller
         $auth = new Authentication();
         $data = ["token" => $auth->encode($request->request->get("user_id"))];
         if ($request->header("access-type") != "mobile") {
-            $ttl = 1800;
-            $data["token"] = $auth->encode($request->request->get("user_id"), true, $ttl);
-            $data["ttl_seconds"] = $ttl;
+            $data["token"] = $auth->encode($request->request->get("user_id"), true);
         }
         if (!User::where("user_id", $request->request->get("user_id"))->exists()) {
             $status = true;

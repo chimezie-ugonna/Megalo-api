@@ -16,9 +16,7 @@ class LoginController extends Controller
             $auth = new Authentication();
             $data = ["token" => $auth->encode($request->request->get("user_id"))];
             if ($request->header("access-type") != "mobile") {
-                $ttl = 1800;
-                $data["token"] = $auth->encode($request->request->get("user_id"), true, $ttl);
-                $data["ttl_seconds"] = $ttl;
+                $data["token"] = $auth->encode($request->request->get("user_id"), true);
             }
             return response()->json([
                 "status" => true,
