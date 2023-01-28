@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Custom\Authentication;
 use App\Custom\EmailManager;
+use App\Custom\IdentityVerifier;
 use App\Custom\IpAddressManager;
 use Illuminate\Http\Request;
 use App\Custom\PaymentManager;
@@ -393,15 +394,16 @@ class UserController extends Controller
 
     public function initiateIdentityVerification(Request $request)
     {
-        $payment_manager = new PaymentManager();
-        $create_verification_session_response = $payment_manager->manage(array("type" => "create_verification_session", "data" => ["user_id" => $request->request->get("user_id")]));
-        if (isset($create_verification_session_response) && isset($create_verification_session_response["id"])) {
-            $create_ephemeral_key_response = $payment_manager->manage(array("type" => "create_ephemeral_key", "data" => ["verification_session_id" => $create_verification_session_response["id"]]));
-            if (isset($create_ephemeral_key_response) && isset($create_ephemeral_key_response["secret"])) {
+        $identity_verifier = new IdentityVerifier();
+        $create_applicant_response = $identity_verifier->createApplicant(User::where("user_id", $request->request->get("user_id"))->value("first_name"), User::where("user_id", $request->request->get("user_id"))->value("last_name"), User::where("user_id", $request->request->get("user_id"))->value("dob"));
+        if (isset($create_applicant_response) && isset($create_applicant_response->getId())) {
+            $applicant_id = $create_applicant_response->getId();
+            $create_sdk_token_response = $identity_verifier->generateSdkToken($applicant_id, $request->get("application_id"));
+            if (isset($create_sdk_token_response)) {
                 return response()->json([
                     "status" => true,
                     "message" => "Identity verification initiated successfully.",
-                    "data" => ["verification_session_id" => $create_verification_session_response["id"], "ephemeral_key_secret" => $create_ephemeral_key_response["secret"]]
+                    "data" => ["sdk_token" => $create_sdk_token_response]
                 ], 200);
             } else {
                 return response()->json([

@@ -7,6 +7,7 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\CheckHeader;
+use App\Http\Middleware\EnsureSecureUrl;
 use App\Http\Middleware\IncomingDataValidation;
 use App\Http\Middleware\TokenValidation;
 use Illuminate\Support\Facades\Route;
@@ -22,7 +23,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware([CheckHeader::class, IncomingDataValidation::class, TokenValidation::class])->prefix("v1")->group(function () {
+Route::middleware([EnsureSecureUrl::class, CheckHeader::class, IncomingDataValidation::class, TokenValidation::class])->prefix("v1")->group(function () {
     //All user endpoints.
     Route::controller(UserController::class)->group(function () {
         Route::post("/user/send_otp", "sendOtp");

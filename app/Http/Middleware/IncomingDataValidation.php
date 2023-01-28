@@ -320,6 +320,10 @@ class IncomingDataValidation
                     "action" => ["bail", "required", "in:deposit,withdrawal"],
                     "type" => ["bail", "required", "in:card,bank_account"]
                 ]);
+            } else if ($request->path() == "api/v1/user/initiate_identity_verification") {
+                $request->validate([
+                    "application_id" => ["bail", "required"]
+                ]);
             }
         } else if ($request->isMethod("delete")) {
             if ($request->path() == "api/v1/investment/delete") {

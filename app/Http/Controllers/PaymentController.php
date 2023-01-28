@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Custom\CurrencyConverter;
-use App\Custom\EmailManager;
 use App\Custom\PaymentManager;
 use App\Custom\PerformWithdrawal;
 use App\Models\Payment;

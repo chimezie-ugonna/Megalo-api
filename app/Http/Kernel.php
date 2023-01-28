@@ -65,6 +65,7 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'check.header' => \Illuminate\Auth\Middleware\CheckHeader::class,
         'token.validation' => \Illuminate\Auth\Middleware\TokenValidation::class,
-        'incoming.data.validation' => \Illuminate\Auth\Middleware\IncomingDataValidation::class
+        'incoming.data.validation' => \Illuminate\Auth\Middleware\IncomingDataValidation::class,
+        'ensure.secure.url' => \Illuminate\Auth\Middleware\EnsureSecureUrl::class
     ];
 }
