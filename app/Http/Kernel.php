@@ -63,9 +63,9 @@ class Kernel extends HttpKernel
         'signed' => \App\Http\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+        'ensure.secure.url' => \Illuminate\Auth\Middleware\EnsureSecureUrl::class,
         'check.header' => \Illuminate\Auth\Middleware\CheckHeader::class,
         'token.validation' => \Illuminate\Auth\Middleware\TokenValidation::class,
-        'incoming.data.validation' => \Illuminate\Auth\Middleware\IncomingDataValidation::class,
-        'ensure.secure.url' => \Illuminate\Auth\Middleware\EnsureSecureUrl::class
+        'incoming.data.validation' => \Illuminate\Auth\Middleware\IncomingDataValidation::class
     ];
 }
