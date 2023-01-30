@@ -320,9 +320,11 @@ class IncomingDataValidation
                     "action" => ["bail", "required", "in:deposit,withdrawal"],
                     "type" => ["bail", "required", "in:card,bank_account"]
                 ]);
-            } else if ($request->path() == "api/v1/user/initiate_identity_verification") {
+            } else if ($request->path() == "api/v1/user/verify_identity") {
                 $request->validate([
-                    "application_id" => ["bail", "required"]
+                    "type" => ["bail", "required", "in:initialize,regenerate_token,check"],
+                    "application_id" => ["bail", "prohibited_if:type,check", "filled", "not_in:null", "required_if:type,initialize,regenerate_token"],
+                    "applicant_id" => ["bail", "prohibited_if:type,initialize", "filled", "not_in:null", "required_if:type,regenerate_token,check"]
                 ]);
             }
         } else if ($request->isMethod("delete")) {

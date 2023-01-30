@@ -392,30 +392,47 @@ class UserController extends Controller
         ], 200);
     }
 
-    public function initiateIdentityVerification(Request $request)
+    public function verifyIdentity(Request $request)
     {
         $identity_verifier = new IdentityVerifier();
-        $create_applicant_response = $identity_verifier->createApplicant(User::where("user_id", $request->request->get("user_id"))->value("first_name"), User::where("user_id", $request->request->get("user_id"))->value("last_name"), User::where("user_id", $request->request->get("user_id"))->value("dob"));
-        if (isset($create_applicant_response) && isset($create_applicant_response->getId())) {
-            $applicant_id = $create_applicant_response->getId();
+        if ($request->get("type") == "check") {
+            $create_check_response = $identity_verifier->createCheck($request->get("applicant_id"));
+            if (isset($create_check_response) && isset($create_check_response->getId())) {
+                $check_id = $create_check_response->getId();
+                //create webhook
+            } else {
+                return response()->json([
+                    "status" => false,
+                    "message" => "An error occurred while performing identity verification, identity verification failed."
+                ], 500);
+            }
+        } else {
+            if ($request->get("type") == "regenerate_token") {
+                $applicant_id = $request->get("applicant_id");
+            } else if ($request->get("type") == "initialize") {
+                $create_applicant_response = $identity_verifier->createApplicant(User::where("user_id", $request->request->get("user_id"))->value("first_name"), User::where("user_id", $request->request->get("user_id"))->value("last_name"), User::where("user_id", $request->request->get("user_id"))->value("dob"));
+                if (isset($create_applicant_response) && isset($create_applicant_response->getId())) {
+                    $applicant_id = $create_applicant_response->getId();
+                } else {
+                    return response()->json([
+                        "status" => false,
+                        "message" => "An error occurred while performing identity verification, identity verification failed."
+                    ], 500);
+                }
+            }
             $create_sdk_token_response = $identity_verifier->generateSdkToken($applicant_id, $request->get("application_id"));
             if (isset($create_sdk_token_response)) {
                 return response()->json([
                     "status" => true,
-                    "message" => "Identity verification initiated successfully.",
-                    "data" => ["sdk_token" => $create_sdk_token_response]
+                    "message" => "Identity verification process successful.",
+                    "data" => ["sdk_token" => $create_sdk_token_response, "applicant_id" => $applicant_id]
                 ], 200);
             } else {
                 return response()->json([
                     "status" => false,
-                    "message" => "An error occurred while initiating identity verification, identity verification could not be initiated."
+                    "message" => "An error occurred while performing identity verification, identity verification failed."
                 ], 500);
             }
-        } else {
-            return response()->json([
-                "status" => false,
-                "message" => "An error occurred while initiating identity verification, identity verification could not be initiated."
-            ], 500);
         }
     }
 
