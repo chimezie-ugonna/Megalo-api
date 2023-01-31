@@ -411,7 +411,7 @@ class UserController extends Controller
                 $applicant_id = $request->get("applicant_id");
             } else if ($request->get("type") == "initialize") {
                 $create_applicant_response = $identity_verifier->createApplicant(User::where("user_id", $request->request->get("user_id"))->value("first_name"), User::where("user_id", $request->request->get("user_id"))->value("last_name"), User::where("user_id", $request->request->get("user_id"))->value("dob"));
-                if (isset($create_applicant_response) && isset($create_applicant_response->getId())) {
+                if (isset($create_applicant_response) && $create_applicant_response->getId() != null) {
                     $applicant_id = $create_applicant_response->getId();
                 } else {
                     return response()->json([
