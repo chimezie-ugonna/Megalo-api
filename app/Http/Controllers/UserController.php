@@ -18,7 +18,11 @@ class UserController extends Controller
 {
     public function sendOtp(Request $request)
     {
-        if ($request->request->get("type") == "email") {
+        return response()->json([
+            "status" => false,
+            "message" => "A failure occurred while trying to send otp."
+        ], 400);
+        /*if ($request->request->get("type") == "email") {
             if ($request->request->has("update") && $request->filled("update") && $request->request->get("update")) {
                 $language = "English";
                 $subject = "Megalo Verification Code";
@@ -49,7 +53,7 @@ class UserController extends Controller
                 "status" => false,
                 "message" => "A failure occurred while trying to send otp."
             ], 500);
-        }
+        }*/
 
         /*return response()->json([
             "status" => true,
@@ -126,7 +130,7 @@ class UserController extends Controller
                     return response()->json([
                         "status" => false,
                         "message" => "The phone number provided has been taken.",
-                    ], 400);
+                    ], 409);
                 } else {
                     User::where("user_id", $request->request->get("user_id"))->update(["phone_number" => $request->request->get("phone_number")]);
                     $message = "The otp was not verified because our twilio credit is exhausted. But for testing purposes, this response is successful and phone number was updated successfully.";
