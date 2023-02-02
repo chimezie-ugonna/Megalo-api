@@ -21,7 +21,7 @@ class UserController extends Controller
         return response()->json([
             "status" => false,
             "message" => "A failure occurred while trying to send otp."
-        ], 400);
+        ], 500);
         /*if ($request->request->get("type") == "email") {
             if ($request->request->has("update") && $request->filled("update") && $request->request->get("update")) {
                 $language = "English";
