@@ -81,7 +81,7 @@ class UserController extends Controller
                             return response()->json([
                                 "status" => false,
                                 "message" => "The phone number provided has been taken.",
-                            ], 400);
+                            ], 409);
                         } else {
                             User::find($request->request->get("user_id"))->update(["phone_number" => $request->request->get("phone_number")]);
                             $message = "Otp was successfully verified and phone number was updated successfully.";
