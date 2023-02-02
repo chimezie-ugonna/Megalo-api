@@ -18,11 +18,7 @@ class UserController extends Controller
 {
     public function sendOtp(Request $request)
     {
-        return response()->json([
-            "status" => false,
-            "message" => "A failure occurred while trying to send otp."
-        ], 500);
-        /*if ($request->request->get("type") == "email") {
+        if ($request->request->get("type") == "email") {
             if ($request->request->has("update") && $request->filled("update") && $request->request->get("update")) {
                 $language = "English";
                 $subject = "Megalo Verification Code";
@@ -53,7 +49,7 @@ class UserController extends Controller
                 "status" => false,
                 "message" => "A failure occurred while trying to send otp."
             ], 500);
-        }*/
+        }
 
         /*return response()->json([
             "status" => true,
