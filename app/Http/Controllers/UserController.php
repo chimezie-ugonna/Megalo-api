@@ -157,10 +157,36 @@ class UserController extends Controller
             $data["token"] = $auth->encode($request->request->get("user_id"), true);
         }
         if (!User::where("user_id", $request->request->get("user_id"))->exists()) {
+            $has_referral = false;
+            if ($request->request->has("referral_code") && $request->filled("referral_code")) {
+                if (User::where("referral_code", $request->request->get("referral_code"))->exists()) {
+                    $referrer_phone_number = User::where("referral_code", $request->request->get("referral_code"))->value("phone_number");
+                    $referrer_user_id = User::where("referral_code", $request->request->get("referral_code"))->value("user_id");
+                    $referree_phone_number = $request->request->get("phone_number");
+                    $referree_user_id = $request->request->get("user_id");
+                    if (!Referral::where("referree_phone_number", $referree_phone_number)->exists() && !Referral::where("referrer_phone_number", $referree_phone_number)->exists()) {
+                        $has_referral = true;
+                    }
+                    $request->request->remove("referral_code");
+                } else {
+                    return response()->json([
+                        "status" => false,
+                        "message" => "Invalid referral code."
+                    ], 404);
+                }
+            }
+
             $status = true;
             date_default_timezone_set("UTC");
+
+            $ip_address = $request->ip();
+            $ip_address_manager = new IpAddressManager();
+            if ($ip_address_manager->getIpAddressDetails($ip_address, "Country") == false) {
+                $ip_address = $ip_address_manager->getIpAddress();
+            }
+
             $payment_manager = new PaymentManager();
-            $account_response = $payment_manager->manage(array("type" => "create_account", "data" => ["time_stamp" => strtotime(date("Y-m-d H:i:s")), "ip_address" => $request->ip()]));
+            $account_response = $payment_manager->manage(array("type" => "create_account", "data" => ["time_stamp" => strtotime(date("Y-m-d H:i:s")), "ip_address" => $ip_address]));
             if (!isset($account_response) || !isset($account_response["id"])) {
                 $status = false;
             } else {
@@ -173,24 +199,6 @@ class UserController extends Controller
             if ($status) {
                 $request->request->add(["payment_customer_id" => $customer_response["id"]]);
                 $request->request->add(["payment_account_id" => $account_response["id"]]);
-                $has_referral = false;
-                if ($request->request->has("referral_code") && $request->filled("referral_code")) {
-                    if (User::where("referral_code", $request->request->get("referral_code"))->exists()) {
-                        $referrer_phone_number = User::where("referral_code", $request->request->get("referral_code"))->value("phone_number");
-                        $referrer_user_id = User::where("referral_code", $request->request->get("referral_code"))->value("user_id");
-                        $referree_phone_number = $request->request->get("phone_number");
-                        $referree_user_id = $request->request->get("user_id");
-                        if (!Referral::where("referree_phone_number", $referree_phone_number)->exists() && !Referral::where("referrer_phone_number", $referree_phone_number)->exists()) {
-                            $has_referral = true;
-                        }
-                        $request->request->remove("referral_code");
-                    } else {
-                        return response()->json([
-                            "status" => false,
-                            "message" => "Invalid referral code."
-                        ], 404);
-                    }
-                }
                 do {
                     $alphabets = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
                     $referral_code = "";
