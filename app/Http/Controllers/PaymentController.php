@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Custom\CurrencyConverter;
+use App\Custom\GeoPlugin;
 use App\Custom\PaymentManager;
 use App\Custom\PerformWithdrawal;
 use App\Models\Payment;
@@ -237,8 +238,8 @@ class PaymentController extends Controller
 
     public function convertCurrency(Request $request)
     {
-        $currency_converter = new CurrencyConverter();
-        $response = $currency_converter->convert($request->get("amount"), $request->get("from"), $request->get("to"));
+        $geo_plugin = new GeoPlugin();
+        $response = $geo_plugin->convertCurrency($request->get("from"), $request->get("to"), $request->get("amount"));
         if (isset($response)) {
             return response()->json([
                 "status" => true,

@@ -5,7 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use App\Custom\Authentication;
-use App\Custom\IpAddressManager;
+use App\Custom\GeoPlugin;
 use App\Models\FailedWithdrawal;
 use App\Models\User;
 use App\Models\Login;
@@ -29,8 +29,8 @@ class TokenValidation
                 $auth = new Authentication();
                 $data = $auth->decode($request->bearerToken());
                 if (isset($data) && isset($data["data"])) {
-                    $ip_address_manager = new IpAddressManager();
-                    $ip_address = $ip_address_manager->getIpAddress();
+                    $geo_plugin = new GeoPlugin();
+                    $ip_address = $geo_plugin->getIpAddress();
 
                     $user_id = $data["data"];
                     if ($request->path() == "api/v1/user/create" || $request->path() == "api/v1/login/create") {
