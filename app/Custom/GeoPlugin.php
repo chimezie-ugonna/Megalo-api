@@ -73,7 +73,7 @@ class GeoPlugin
         ));
 
         if (isset($ip_detail)) {
-            return $ip_detail;
+            return $ip_detail->to_amount;
         } else {
             return false;
         }
