@@ -152,10 +152,6 @@ class UserController extends Controller
     public function create(Request $request)
     {
         $auth = new Authentication();
-        $data = ["token" => $auth->encode($request->request->get("user_id"))];
-        if ($request->header("access-type") != "mobile") {
-            $data["token"] = $auth->encode($request->request->get("user_id"), true);
-        }
         if (!User::where("user_id", $request->request->get("user_id"))->exists()) {
             $has_referral = false;
             if ($request->request->has("referral_code") && $request->filled("referral_code")) {
@@ -215,7 +211,7 @@ class UserController extends Controller
                 return response()->json([
                     "status" => true,
                     "message" => "User registered successfully.",
-                    "data" => $data
+                    "data" => ["token" => $auth->encode($request->request->get("user_id"))]
                 ], 201);
             } else {
                 return response()->json([
@@ -227,7 +223,7 @@ class UserController extends Controller
             return response()->json([
                 "status" => true,
                 "message" => "User already registered successfully.",
-                "data" => $data
+                "data" => ["token" => $auth->encode($request->request->get("user_id"))]
             ], 200);
         }
     }

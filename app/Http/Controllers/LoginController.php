@@ -14,14 +14,10 @@ class LoginController extends Controller
         if (User::where("user_id", $request->request->get("user_id"))->exists()) {
             Login::updateOrCreate(["user_id" => $request->request->get("user_id"), "access_type" => $request->request->get("access_type"), "device_os" => $request->request->get("device_os"), "device_token" => $request->request->get("device_token")], $request->all());
             $auth = new Authentication();
-            $data = ["token" => $auth->encode($request->request->get("user_id"))];
-            if ($request->header("access-type") != "mobile") {
-                $data["token"] = $auth->encode($request->request->get("user_id"), true);
-            }
             return response()->json([
                 "status" => true,
                 "message" => "User logged in successfully.",
-                "data" => $data
+                "data" => ["token" => $auth->encode($request->request->get("user_id"))]
             ], 201);
         } else {
             return response()->json([
