@@ -69,7 +69,7 @@ class GeoPlugin
     function convertCurrency($from, $to, $amount)
     {
         $ip_detail = json_decode(file_get_contents(
-            "http://www.geoplugin.net/currency/json.gp?from=" . $from . "&to=" . $to . "&amount=" . $amount
+            "http://www.geoplugin.net/currency/php.gp?from=" . $from . "&to=" . $to . "&amount=" . $amount
         ));
 
         if (isset($ip_detail)) {
