@@ -238,13 +238,13 @@ class PaymentController extends Controller
 
     public function convertCurrency(Request $request)
     {
-        $geo_plugin = new GeoPlugin();
-        $response = $geo_plugin->convertCurrency($request->get("from"), $request->get("to"), $request->get("amount"));
+        $currency_converter = new CurrencyConverter();
+        $response = $currency_converter->convert($request->get("amount"), $request->get("from"), $request->get("to"));
         if (isset($response)) {
             return response()->json([
                 "status" => true,
                 "message" => "Currency converted successfully.",
-                "data" => $response
+                "data" => json_decode($response)
             ], 200);
         } else {
             return response()->json([

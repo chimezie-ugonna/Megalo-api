@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Custom\Authentication;
 use App\Custom\EmailManager;
 use App\Custom\IdentityVerifier;
-use App\Custom\GeoPlugin;
+use App\Custom\IpAddressManager;
 use Illuminate\Http\Request;
 use App\Custom\PaymentManager;
 use App\Custom\SmsManager;
@@ -24,8 +24,8 @@ class UserController extends Controller
                 $subject = "Megalo Verification Code";
 
                 $ip_address = User::find($request->request->get("user_id"))->login()->where("access_type", $request->header("access-type"))->where("device_os", $request->header("device-os", ""))->where("device_token", $request->header("device-token", ""))->value("ip_address");
-                $geo_plugin = new GeoPlugin();
-                $country = $geo_plugin->getIpAddressDetails($ip_address, "Country");
+                $ip_address_manager = new IpAddressManager();
+                $country = $ip_address_manager->getIpAddressDetails($ip_address, "Country");
 
                 if ($country == "Germany") {
                     $language = "German";
@@ -175,8 +175,8 @@ class UserController extends Controller
             $status = true;
             date_default_timezone_set("UTC");
 
-            $geo_plugin = new GeoPlugin();
-            $ip_address = $geo_plugin->getIpAddress();
+            $ip_address_manager = new IpAddressManager();
+            $ip_address = $ip_address_manager->getIpAddress();
 
             $payment_manager = new PaymentManager();
             $account_response = $payment_manager->manage(array("type" => "create_account", "data" => ["time_stamp" => strtotime(date("Y-m-d H:i:s")), "ip_address" => $ip_address]));

@@ -72,8 +72,8 @@ class EmailManager
                 $email = User::where("user_id", $user_id)->value("email");
                 if (sizeof(User::find($user_id)->login()->get()) > 0) {
                     $ip_address = User::find($user_id)->login()->where("access_type", $access_type)->where("device_os", $device_os)->where("device_token", $device_token)->value("ip_address");
-                    $geo_plugin = new GeoPlugin();
-                    $country = $geo_plugin->getIpAddressDetails($ip_address, "Country");
+                    $ip_address_manager = new IpAddressManager();
+                    $country = $ip_address_manager->getIpAddressDetails($ip_address, "Country");
                     if ($country == "Germany") {
                         $language = "German";
                         $subject = "Auszahlungsfehler aufgrund unzureichender Deckung";

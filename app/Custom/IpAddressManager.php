@@ -2,7 +2,7 @@
 
 namespace App\Custom;
 
-class GeoPlugin
+class IpAddressManager
 {
     function getIpAddress()
     {
@@ -61,19 +61,6 @@ class GeoPlugin
                     return false;
                     break;
             }
-        } else {
-            return false;
-        }
-    }
-
-    function convertCurrency($from, $to, $amount)
-    {
-        $ip_detail = json_decode(file_get_contents(
-            "http://www.geoplugin.net/currency/json.gp?from=" . $from . "&to=" . $to . "&amount=" . $amount
-        ));
-
-        if (isset($ip_detail)) {
-            return $ip_detail->to_amount;
         } else {
             return false;
         }
