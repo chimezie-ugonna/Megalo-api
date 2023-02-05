@@ -175,11 +175,8 @@ class UserController extends Controller
             $status = true;
             date_default_timezone_set("UTC");
 
-            $ip_address = $request->ip();
             $ip_address_manager = new IpAddressManager();
-            if ($ip_address_manager->getIpAddressDetails($ip_address, "Country") == false) {
-                $ip_address = $ip_address_manager->getIpAddress();
-            }
+            $ip_address = $ip_address_manager->getIpAddress();
 
             $payment_manager = new PaymentManager();
             $account_response = $payment_manager->manage(array("type" => "create_account", "data" => ["time_stamp" => strtotime(date("Y-m-d H:i:s")), "ip_address" => $ip_address]));

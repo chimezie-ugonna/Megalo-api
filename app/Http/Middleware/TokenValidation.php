@@ -29,11 +29,9 @@ class TokenValidation
                 $auth = new Authentication();
                 $data = $auth->decode($request->bearerToken());
                 if (isset($data) && isset($data["data"])) {
-                    $ip_address = $request->ip();
                     $ip_address_manager = new IpAddressManager();
-                    if ($ip_address_manager->getIpAddressDetails($ip_address, "Country") == false) {
-                        $ip_address = $ip_address_manager->getIpAddress();
-                    }
+                    $ip_address = $ip_address_manager->getIpAddress();
+
                     $user_id = $data["data"];
                     if ($request->path() == "api/v1/user/create" || $request->path() == "api/v1/login/create") {
                         if ($request->request->get("phone_number") == $data["data"]) {
