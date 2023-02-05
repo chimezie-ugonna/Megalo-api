@@ -239,7 +239,7 @@ class PaymentController extends Controller
     public function convertCurrency(Request $request)
     {
         $currency_converter = new CurrencyConverter();
-        $response = json_decode($currency_converter->convert($request->get("amount"), $request->get("from"), $request->get("to")));
+        $response = json_decode($currency_converter->convert($request->get("amount"), $request->get("from"), $request->get("to")), true);
         if (isset($response) && isset($response["success"]) && $response["success"]) {
             return response()->json([
                 "status" => true,
