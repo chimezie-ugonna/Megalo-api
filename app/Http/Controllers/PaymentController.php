@@ -149,7 +149,7 @@ class PaymentController extends Controller
             "EUR" => "Euro Member Countries",
             "FKP" => "Falkland Islands (Malvinas) Pound",
             "FJD" => "Fiji Dollar",
-            "GHC" => "Ghana Cedis",
+            "GHS" => "Ghana Cedis",
             "GIP" => "Gibraltar Pound",
             "GTQ" => "Guatemala Quetzal",
             "GGP" => "Guernsey Pound",
@@ -239,12 +239,12 @@ class PaymentController extends Controller
     public function convertCurrency(Request $request)
     {
         $currency_converter = new CurrencyConverter();
-        $response = $currency_converter->convert($request->get("amount"), $request->get("from"), $request->get("to"));
-        if (isset($response)) {
+        $response = json_decode($currency_converter->convert($request->get("amount"), $request->get("from"), $request->get("to")));
+        if (isset($response) && isset($response["success"]) && $response["success"]) {
             return response()->json([
                 "status" => true,
                 "message" => "Currency converted successfully.",
-                "data" => json_decode($response)
+                "data" => $response
             ], 200);
         } else {
             return response()->json([
