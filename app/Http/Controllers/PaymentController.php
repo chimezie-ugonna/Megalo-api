@@ -244,7 +244,7 @@ class PaymentController extends Controller
             return response()->json([
                 "status" => true,
                 "message" => "Currency converted successfully.",
-                "data" => json_decode($response)
+                "data" => $response
             ], 200);
         } else {
             return response()->json([
