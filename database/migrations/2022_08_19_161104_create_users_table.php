@@ -21,12 +21,13 @@ return new class extends Migration
             $table->text("dob");
             $table->text("email");
             $table->text("referral_code");
-            $table->text("payment_account_id");
-            $table->text("payment_customer_id");
+            $table->text("payment_account_id")->default("");
+            $table->text("payment_customer_id")->default("");
             $table->decimal("balance_usd", 11, 2)->default(0);
             $table->boolean("is_admin")->default(false);
             $table->boolean("email_verified")->default(false);
             $table->boolean("identity_verified")->default(false);
+            $table->text("identity_verification_id")->default("");
             $table->timestampTz("created_at");
             $table->timestampTz("updated_at");
         });

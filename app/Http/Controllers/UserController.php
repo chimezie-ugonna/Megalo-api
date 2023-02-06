@@ -172,107 +172,30 @@ class UserController extends Controller
                 }
             }
 
-            $status = true;
-            date_default_timezone_set("UTC");
-
-            $payment_manager = new PaymentManager();
-            $account_response = $payment_manager->manage(array("type" => "create_account", "data" => ["time_stamp" => strtotime(date("Y-m-d H:i:s")), "ip_address" => $request->request->get("ip_address")]));
-            if (!isset($account_response) || !isset($account_response["id"])) {
-                $status = false;
-            } else {
-                $customer_response = $payment_manager->manage(array("type" => "create_customer"));
-                if (!isset($customer_response) || !isset($customer_response["id"])) {
-                    $status = false;
+            do {
+                $alphabets = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
+                $referral_code = "";
+                for ($i = 0; $i < 3; $i++) {
+                    $referral_code .= $alphabets[rand(0, 25)] . rand(0, 9);
                 }
+            } while (User::where("referral_code", $referral_code)->exists());
+            $request->request->add(["referral_code" => $referral_code]);
+            User::create($request->all());
+            User::find($request->request->get("user_id"))->login()->updateOrCreate(["user_id" => $request->request->get("user_id"), "access_type" => $request->request->get("access_type"), "device_os" => $request->request->get("device_os"), "device_token" => $request->request->get("device_token")], $request->all());
+            if ($has_referral) {
+                Referral::create(["referrer_phone_number" => $referrer_phone_number, "referrer_user_id" => $referrer_user_id, "referree_phone_number" => $referree_phone_number, "referree_user_id" => $referree_user_id]);
             }
-
-            if ($status) {
-                $request->request->add(["payment_customer_id" => $customer_response["id"]]);
-                $request->request->add(["payment_account_id" => $account_response["id"]]);
-                do {
-                    $alphabets = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
-                    $referral_code = "";
-                    for ($i = 0; $i < 3; $i++) {
-                        $referral_code .= $alphabets[rand(0, 25)] . rand(0, 9);
-                    }
-                } while (User::where("referral_code", $referral_code)->exists());
-                $request->request->add(["referral_code" => $referral_code]);
-                User::create($request->all());
-                User::find($request->request->get("user_id"))->login()->updateOrCreate(["user_id" => $request->request->get("user_id"), "access_type" => $request->request->get("access_type"), "device_os" => $request->request->get("device_os"), "device_token" => $request->request->get("device_token")], $request->all());
-                if ($has_referral) {
-                    Referral::create(["referrer_phone_number" => $referrer_phone_number, "referrer_user_id" => $referrer_user_id, "referree_phone_number" => $referree_phone_number, "referree_user_id" => $referree_user_id]);
-                }
-                return response()->json([
-                    "status" => true,
-                    "message" => "User registered successfully.",
-                    "data" => ["token" => $auth->encode($request->request->get("user_id"))]
-                ], 201);
-            } else {
-                return response()->json([
-                    "status" => false,
-                    "message" => "An error occurred while registering user, user could not be registered."
-                ], 500);
-            }
+            return response()->json([
+                "status" => true,
+                "message" => "User registered successfully.",
+                "data" => ["token" => $auth->encode($request->request->get("user_id"))]
+            ], 201);
         } else {
             return response()->json([
                 "status" => true,
                 "message" => "User already registered successfully.",
                 "data" => ["token" => $auth->encode($request->request->get("user_id"))]
             ], 200);
-        }
-    }
-
-    public function createPaymentMethod(Request $request)
-    {
-        $payment_manager = new PaymentManager();
-        $create_token_response = $payment_manager->manage(array("type" => "create_token", "data" => $request->all()));
-        if (isset($create_token_response) && isset($create_token_response["id"])) {
-            $token = $create_token_response["id"];
-            $add_payment_method_response = null;
-            if ($request->request->get("action") == "deposit") {
-                $add_payment_method_response = $payment_manager->manage(array("type" => "add_customer_payment_method", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id"), "data" => ["token" => $token]));
-            } else if ($request->request->get("action") == "withdrawal") {
-                $add_payment_method_response = $payment_manager->manage(array("type" => "add_account_payment_method", "account_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_account_id"), "data" => ["token" => $token]));
-            }
-            if (isset($add_payment_method_response) && isset($add_payment_method_response["id"])) {
-                if ($request->request->get("action") == "deposit" && $request->request->get("type") == "bank_account") {
-                    $verify_customer_bank_account_response = $payment_manager->manage(array("type" => "verify_customer_bank_account", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id"), "data" => ["id" => $add_payment_method_response["id"]]));
-                    if (isset($verify_customer_bank_account_response) && isset($verify_customer_bank_account_response["status"]) && $verify_customer_bank_account_response["status"] == "verified") {
-                        return response()->json([
-                            "status" => true,
-                            "message" => "Payment method added successfully."
-                        ], 201);
-                    } else {
-                        $delete_customer_payment_method_response = $payment_manager->manage(array("type" => "delete_customer_payment_method", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id"), "data" => ["id" => $add_payment_method_response["id"]]));
-                        if (isset($delete_customer_payment_method_response) && isset($delete_customer_payment_method_response["deleted"]) && $delete_customer_payment_method_response["deleted"]) {
-                            return response()->json([
-                                "status" => false,
-                                "message" => "An error occurred while verifying payment method, payment method could not be added."
-                            ], 500);
-                        } else {
-                            return response()->json([
-                                "status" => false,
-                                "message" => "An error occurred while verifying payment method and while attempting to delete payment method."
-                            ], 500);
-                        }
-                    }
-                } else {
-                    return response()->json([
-                        "status" => true,
-                        "message" => "Payment method added successfully."
-                    ], 201);
-                }
-            } else {
-                return response()->json([
-                    "status" => false,
-                    "message" => "An error occurred while adding payment method, payment method could not be added."
-                ], 500);
-            }
-        } else {
-            return response()->json([
-                "status" => false,
-                "message" => "An error occurred while adding payment method, payment method could not be added."
-            ], 500);
         }
     }
 
@@ -335,52 +258,6 @@ class UserController extends Controller
         ], 200);
     }
 
-    public function readPaymentMethod(Request $request)
-    {
-        $payment_manager = new PaymentManager();
-        $retrieve_payment_method_response = null;
-        if ($request->get("action") == "deposit") {
-            $retrieve_payment_method_response = $payment_manager->manage(array("type" => "retrieve_customer_payment_method", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id"), "data" => ["id" => $request->get("id")]));
-        } else if ($request->get("action") == "withdrawal") {
-            $retrieve_payment_method_response = $payment_manager->manage(array("type" => "retrieve_account_payment_method", "account_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_account_id"), "data" => ["id" => $request->get("id")]));
-        }
-        if (isset($retrieve_payment_method_response) && isset($retrieve_payment_method_response["id"])) {
-            return response()->json([
-                "status" => true,
-                "message" => "Payment method data retrieved successfully.",
-                "data" => $retrieve_payment_method_response
-            ], 200);
-        } else {
-            return response()->json([
-                "status" => false,
-                "message" => "An error occurred while retrieving payment method, payment method could not be retrieved."
-            ], 500);
-        }
-    }
-
-    public function readAllPaymentMethod(Request $request)
-    {
-        $payment_manager = new PaymentManager();
-        $list_all_payment_method_response = null;
-        if ($request->get("action") == "deposit") {
-            $list_all_payment_method_response = $payment_manager->manage(array("type" => "list_all_customer_payment_method", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id"), "data" => $request->all()));
-        } else if ($request->get("action") == "withdrawal") {
-            $list_all_payment_method_response = $payment_manager->manage(array("type" => "list_all_account_payment_method", "account_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_account_id"), "data" => $request->all()));
-        }
-        if (isset($list_all_payment_method_response) && isset($list_all_payment_method_response["data"])) {
-            return response()->json([
-                "status" => true,
-                "message" => "All payment method data retrieved successfully.",
-                "data" => $list_all_payment_method_response["data"]
-            ], 200);
-        } else {
-            return response()->json([
-                "status" => false,
-                "message" => "An error occurred while retrieving all payment methods, all payment methods could not be retrieved."
-            ], 500);
-        }
-    }
-
     public function readDashboardData()
     {
         return response()->json([
@@ -393,8 +270,23 @@ class UserController extends Controller
     public function verifyIdentity(Request $request)
     {
         $identity_verifier = new IdentityVerifier();
-        if ($request->get("type") == "check") {
-            $create_check_response = $identity_verifier->createCheck($request->get("applicant_id"));
+        if (User::where("user_id", $request->request->get("user_id"))->value("identity_verification_id") != "") {
+            $applicant_id = User::where("user_id", $request->request->get("user_id"))->value("identity_verification_id");
+        } else {
+            $create_applicant_response = $identity_verifier->createApplicant(User::where("user_id", $request->request->get("user_id"))->value("first_name"), User::where("user_id", $request->request->get("user_id"))->value("last_name"), User::where("user_id", $request->request->get("user_id"))->value("dob"));
+            if (isset($create_applicant_response) && $create_applicant_response->getId() != null) {
+                User::find($request->request->get("user_id"))->update(["identity_verification_id" => $create_applicant_response->getId()]);
+                $applicant_id = User::where("user_id", $request->request->get("user_id"))->value("identity_verification_id");
+            } else {
+                return response()->json([
+                    "status" => false,
+                    "message" => "An error occurred while performing identity verification, identity verification failed."
+                ], 500);
+            }
+        }
+
+        if ($request->get("check")) {
+            $create_check_response = $identity_verifier->createCheck($applicant_id);
             if (isset($create_check_response) && $create_check_response->getId() != null) {
                 $check_id = $create_check_response->getId();
                 //create webhook
@@ -405,19 +297,6 @@ class UserController extends Controller
                 ], 500);
             }
         } else {
-            if ($request->get("type") == "regenerate_token") {
-                $applicant_id = $request->get("applicant_id");
-            } else if ($request->get("type") == "initialize") {
-                $create_applicant_response = $identity_verifier->createApplicant(User::where("user_id", $request->request->get("user_id"))->value("first_name"), User::where("user_id", $request->request->get("user_id"))->value("last_name"), User::where("user_id", $request->request->get("user_id"))->value("dob"));
-                if (isset($create_applicant_response) && $create_applicant_response->getId() != null) {
-                    $applicant_id = $create_applicant_response->getId();
-                } else {
-                    return response()->json([
-                        "status" => false,
-                        "message" => "An error occurred while performing identity verification, identity verification failed."
-                    ], 500);
-                }
-            }
             $create_sdk_token_response = $identity_verifier->generateSdkToken($applicant_id, $request->get("application_id"));
             if (isset($create_sdk_token_response)) {
                 return response()->json([
@@ -452,38 +331,51 @@ class UserController extends Controller
         ], 200);
     }
 
-    public function updateDefaultPaymentMethod(Request $request)
-    {
-        $payment_manager = new PaymentManager();
-        $update_default_payment_method_response = null;
-        if ($request->request->get("action") == "deposit") {
-            $update_default_payment_method_response = $payment_manager->manage(array("type" => "update_default_customer_payment_method", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id"), "data" => ["id" => $request->request->get("id")]));
-        } else if ($request->request->get("action") == "withdrawal") {
-            $update_default_payment_method_response = $payment_manager->manage(array("type" => "update_default_account_payment_method", "account_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_account_id"), "data" => ["id" => $request->request->get("id")]));
-        }
-        if (isset($update_default_payment_method_response) && isset($update_default_payment_method_response["id"])) {
-            return response()->json([
-                "status" => true,
-                "message" => "Default payment method updated successfully."
-            ], 200);
-        } else {
-            return response()->json([
-                "status" => false,
-                "message" => "An error occurred while updating default payment method, default payment method could not be updated."
-            ], 500);
-        }
-    }
-
     public function delete(Request $request)
     {
-        $status = true;
         $payment_manager = new PaymentManager();
-        $account_response = $payment_manager->manage(array("type" => "delete_account", "account_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_account_id")));
-        if (!isset($account_response) || !isset($account_response["deleted"]) || !$account_response["deleted"]) {
-            $status = false;
-        } else {
+        $payment_manager->manage(array("type" => "delete_customer", "customer_id" => ""));
+        $payment_manager->manage(array("type" => "delete_customer", "customer_id" => ""));
+        $payment_manager->manage(array("type" => "delete_customer", "customer_id" => ""));
+        $payment_manager->manage(array("type" => "delete_customer", "customer_id" => ""));
+        $payment_manager->manage(array("type" => "delete_customer", "customer_id" => ""));
+        $payment_manager->manage(array("type" => "delete_customer", "customer_id" => ""));
+
+        $payment_manager->manage(array("type" => "delete_account", "account_id" => ""));
+        $payment_manager->manage(array("type" => "delete_account", "account_id" => ""));
+        $payment_manager->manage(array("type" => "delete_account", "account_id" => ""));
+        $payment_manager->manage(array("type" => "delete_account", "account_id" => ""));
+        $payment_manager->manage(array("type" => "delete_account", "account_id" => ""));
+        $payment_manager->manage(array("type" => "delete_account", "account_id" => ""));
+
+        return response()->json([
+            "status" => true,
+            "message" => "Deleted successfully."
+        ], 200);
+        /*$status = true;
+        $payment_manager = new PaymentManager();
+        if (User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id") != "") {
             $customer_response = $payment_manager->manage(array("type" => "delete_customer", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id")));
-            if (!isset($customer_response) || !isset($customer_response["deleted"]) || !$customer_response["deleted"]) {
+            if (isset($customer_response) && isset($customer_response["deleted"]) && $customer_response["deleted"]) {
+                User::find($request->request->get("user_id"))->update(["payment_customer_id" => ""]);
+            } else {
+                $status = false;
+            }
+        }
+        if ($status && User::where("user_id", $request->request->get("user_id"))->value("payment_account_id") != "") {
+            $account_response = $payment_manager->manage(array("type" => "delete_account", "account_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_account_id")));
+            if (isset($account_response) && isset($account_response["deleted"]) && $account_response["deleted"]) {
+                User::find($request->request->get("user_id"))->update(["payment_account_id" => ""]);
+            } else {
+                $status = false;
+            }
+        }
+        if ($status && User::where("user_id", $request->request->get("user_id"))->value("identity_verification_id") != "") {
+            $identity_verifier = new IdentityVerifier();
+            $delete_applicant_response = $identity_verifier->deleteApplicant(User::where("user_id", $request->request->get("user_id"))->value("identity_verification_id"));
+            if (isset($delete_applicant_response)) {
+                User::find($request->request->get("user_id"))->update(["identity_verification_id" => ""]);
+            } else {
                 $status = false;
             }
         }
@@ -506,6 +398,199 @@ class UserController extends Controller
                 "status" => false,
                 "message" => "An error occurred while deleting user, user could not be deleted."
             ], 500);
+        }*/
+    }
+
+    public function createPaymentMethod(Request $request)
+    {
+        $payment_manager = new PaymentManager();
+        $create_token_response = $payment_manager->manage(array("type" => "create_token", "data" => $request->all()));
+        if (isset($create_token_response) && isset($create_token_response["id"])) {
+            $token = $create_token_response["id"];
+            $add_payment_method_response = null;
+            if ($request->request->get("action") == "deposit") {
+                if (User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id") != "") {
+                    $add_payment_method_response = $payment_manager->manage(array("type" => "add_customer_payment_method", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id"), "data" => ["token" => $token]));
+                } else {
+                    $customer_response = $payment_manager->manage(array("type" => "create_customer"));
+                    if (isset($customer_response) && isset($customer_response["id"])) {
+                        User::find($request->request->get("user_id"))->update(["payment_customer_id" => $customer_response["id"]]);
+                        $add_payment_method_response = $payment_manager->manage(array("type" => "add_customer_payment_method", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id"), "data" => ["token" => $token]));
+                    } else {
+                        return response()->json([
+                            "status" => false,
+                            "message" => "An error occurred while adding payment method, payment method could not be added."
+                        ], 500);
+                    }
+                }
+            } else if ($request->request->get("action") == "withdrawal") {
+                if (User::where("user_id", $request->request->get("user_id"))->value("payment_account_id") != "") {
+                    $add_payment_method_response = $payment_manager->manage(array("type" => "add_account_payment_method", "account_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_account_id"), "data" => ["token" => $token]));
+                } else {
+                    date_default_timezone_set("UTC");
+                    $account_response = $payment_manager->manage(array("type" => "create_account", "data" => ["time_stamp" => strtotime(date("Y-m-d H:i:s")), "ip_address" => User::find($request->request->get("user_id"))->login()->where("access_type", $request->header("access-type"))->where("device_os", $request->header("device-os", ""))->where("device_token", $request->header("device-token", ""))->value("ip_address")]));
+                    if (isset($account_response) && isset($account_response["id"])) {
+                        User::find($request->request->get("user_id"))->update(["payment_account_id" => $account_response["id"]]);
+                        $add_payment_method_response = $payment_manager->manage(array("type" => "add_account_payment_method", "account_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_account_id"), "data" => ["token" => $token]));
+                    } else {
+                        return response()->json([
+                            "status" => false,
+                            "message" => "An error occurred while adding payment method, payment method could not be added."
+                        ], 500);
+                    }
+                }
+            }
+            if (isset($add_payment_method_response) && isset($add_payment_method_response["id"])) {
+                if ($request->request->get("action") == "deposit" && $request->request->get("type") == "bank_account") {
+                    $verify_customer_bank_account_response = $payment_manager->manage(array("type" => "verify_customer_bank_account", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id"), "data" => ["id" => $add_payment_method_response["id"]]));
+                    if (isset($verify_customer_bank_account_response) && isset($verify_customer_bank_account_response["status"]) && $verify_customer_bank_account_response["status"] == "verified") {
+                        return response()->json([
+                            "status" => true,
+                            "message" => "Payment method added successfully."
+                        ], 201);
+                    } else {
+                        $delete_customer_payment_method_response = $payment_manager->manage(array("type" => "delete_customer_payment_method", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id"), "data" => ["id" => $add_payment_method_response["id"]]));
+                        if (isset($delete_customer_payment_method_response) && isset($delete_customer_payment_method_response["deleted"]) && $delete_customer_payment_method_response["deleted"]) {
+                            return response()->json([
+                                "status" => false,
+                                "message" => "An error occurred while verifying payment method, payment method could not be added."
+                            ], 500);
+                        } else {
+                            return response()->json([
+                                "status" => false,
+                                "message" => "An error occurred while verifying payment method and while attempting to delete payment method."
+                            ], 500);
+                        }
+                    }
+                } else {
+                    return response()->json([
+                        "status" => true,
+                        "message" => "Payment method added successfully."
+                    ], 201);
+                }
+            } else {
+                return response()->json([
+                    "status" => false,
+                    "message" => "An error occurred while adding payment method, payment method could not be added."
+                ], 500);
+            }
+        } else {
+            return response()->json([
+                "status" => false,
+                "message" => "An error occurred while adding payment method, payment method could not be added."
+            ], 500);
+        }
+    }
+
+    public function readPaymentMethod(Request $request)
+    {
+        $payment_manager = new PaymentManager();
+        $retrieve_payment_method_response = null;
+        if ($request->get("action") == "deposit") {
+            if (User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id") != "") {
+                $retrieve_payment_method_response = $payment_manager->manage(array("type" => "retrieve_customer_payment_method", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id"), "data" => ["id" => $request->get("id")]));
+            } else {
+                return response()->json([
+                    "status" => false,
+                    "message" => "User payment data not found."
+                ], 404);
+            }
+        } else if ($request->get("action") == "withdrawal") {
+            if (User::where("user_id", $request->request->get("user_id"))->value("payment_account_id") != "") {
+                $retrieve_payment_method_response = $payment_manager->manage(array("type" => "retrieve_account_payment_method", "account_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_account_id"), "data" => ["id" => $request->get("id")]));
+            } else {
+                return response()->json([
+                    "status" => false,
+                    "message" => "User payment data not found."
+                ], 404);
+            }
+        }
+        if (isset($retrieve_payment_method_response) && isset($retrieve_payment_method_response["id"])) {
+            return response()->json([
+                "status" => true,
+                "message" => "Payment method data retrieved successfully.",
+                "data" => $retrieve_payment_method_response
+            ], 200);
+        } else {
+            return response()->json([
+                "status" => false,
+                "message" => "An error occurred while retrieving payment method, payment method could not be retrieved."
+            ], 500);
+        }
+    }
+
+    public function readAllPaymentMethod(Request $request)
+    {
+        $payment_manager = new PaymentManager();
+        $list_all_payment_method_response = [];
+        if ($request->get("action") == "deposit") {
+            if (User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id") != "") {
+                $list_all_payment_method_response = $payment_manager->manage(array("type" => "list_all_customer_payment_method", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id"), "data" => $request->all()));
+            } else {
+                return response()->json([
+                    "status" => true,
+                    "message" => "All payment method data retrieved successfully.",
+                    "data" => $list_all_payment_method_response
+                ], 200);
+            }
+        } else if ($request->get("action") == "withdrawal") {
+            if (User::where("user_id", $request->request->get("user_id"))->value("payment_account_id") != "") {
+                $list_all_payment_method_response = $payment_manager->manage(array("type" => "list_all_account_payment_method", "account_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_account_id"), "data" => $request->all()));
+            } else {
+                return response()->json([
+                    "status" => true,
+                    "message" => "All payment method data retrieved successfully.",
+                    "data" => $list_all_payment_method_response
+                ], 200);
+            }
+        }
+        if (isset($list_all_payment_method_response) && isset($list_all_payment_method_response["data"])) {
+            return response()->json([
+                "status" => true,
+                "message" => "All payment method data retrieved successfully.",
+                "data" => $list_all_payment_method_response["data"]
+            ], 200);
+        } else {
+            return response()->json([
+                "status" => false,
+                "message" => "An error occurred while retrieving all payment methods, all payment methods could not be retrieved."
+            ], 500);
+        }
+    }
+
+    public function updateDefaultPaymentMethod(Request $request)
+    {
+        $payment_manager = new PaymentManager();
+        $update_default_payment_method_response = null;
+        if ($request->request->get("action") == "deposit") {
+            if (User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id") != "") {
+                $update_default_payment_method_response = $payment_manager->manage(array("type" => "update_default_customer_payment_method", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id"), "data" => ["id" => $request->request->get("id")]));
+            } else {
+                return response()->json([
+                    "status" => false,
+                    "message" => "User payment data not found."
+                ], 404);
+            }
+        } else if ($request->request->get("action") == "withdrawal") {
+            if (User::where("user_id", $request->request->get("user_id"))->value("payment_account_id") != "") {
+                $update_default_payment_method_response = $payment_manager->manage(array("type" => "update_default_account_payment_method", "account_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_account_id"), "data" => ["id" => $request->request->get("id")]));
+            } else {
+                return response()->json([
+                    "status" => false,
+                    "message" => "User payment data not found."
+                ], 404);
+            }
+        }
+        if (isset($update_default_payment_method_response) && isset($update_default_payment_method_response["id"])) {
+            return response()->json([
+                "status" => true,
+                "message" => "Default payment method updated successfully."
+            ], 200);
+        } else {
+            return response()->json([
+                "status" => false,
+                "message" => "An error occurred while updating default payment method, default payment method could not be updated."
+            ], 500);
         }
     }
 
@@ -514,9 +599,23 @@ class UserController extends Controller
         $payment_manager = new PaymentManager();
         $delete_payment_method_response = null;
         if ($request->request->get("action") == "deposit") {
-            $delete_payment_method_response = $payment_manager->manage(array("type" => "delete_customer_payment_method", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id"), "data" => ["id" => $request->request->get("id")]));
+            if (User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id") != "") {
+                $delete_payment_method_response = $payment_manager->manage(array("type" => "delete_customer_payment_method", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id"), "data" => ["id" => $request->request->get("id")]));
+            } else {
+                return response()->json([
+                    "status" => false,
+                    "message" => "User payment data not found."
+                ], 404);
+            }
         } else if ($request->request->get("action") == "withdrawal") {
-            $delete_payment_method_response = $payment_manager->manage(array("type" => "delete_account_payment_method", "account_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_account_id"), "data" => ["id" => $request->request->get("id")]));
+            if (User::where("user_id", $request->request->get("user_id"))->value("payment_account_id") != "") {
+                $delete_payment_method_response = $payment_manager->manage(array("type" => "delete_account_payment_method", "account_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_account_id"), "data" => ["id" => $request->request->get("id")]));
+            } else {
+                return response()->json([
+                    "status" => false,
+                    "message" => "User payment data not found."
+                ], 404);
+            }
         }
         if (isset($delete_payment_method_response) && isset($delete_payment_method_response["deleted"]) && $delete_payment_method_response["deleted"]) {
             return response()->json([

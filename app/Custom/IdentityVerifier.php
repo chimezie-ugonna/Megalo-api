@@ -34,8 +34,16 @@ class IdentityVerifier
             $new_dob = $date_obj->format("Y-m-d");
             $applicant_details->setDob($new_dob);
 
-            $this->api_instance->destroyApplicant("27dd5d20-b86e-4df0-95ea-c870e00120aa");
             return $this->api_instance->createApplicant($applicant_details);
+        } catch (\Exception) {
+            return false;
+        }
+    }
+
+    function deleteApplicant($applicant_id)
+    {
+        try {
+            return $this->api_instance->destroyApplicant($applicant_id);
         } catch (\Exception) {
             return false;
         }
