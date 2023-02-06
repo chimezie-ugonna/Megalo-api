@@ -333,30 +333,7 @@ class UserController extends Controller
 
     public function delete(Request $request)
     {
-        $payment_manager = new PaymentManager();
-        $payment_manager->manage(array("type" => "delete_customer", "customer_id" => "cus_NIcicHWACQ6JU3"));
-        $payment_manager->manage(array("type" => "delete_customer", "customer_id" => "cus_NIcRH22WYTSFhC"));
-        $payment_manager->manage(array("type" => "delete_customer", "customer_id" => "cus_NAstBYMIgAyjUf"));
-        $payment_manager->manage(array("type" => "delete_customer", "customer_id" => "cus_Mtg3VNQfv9Ya2Q"));
-        $payment_manager->manage(array("type" => "delete_customer", "customer_id" => "cus_MgnppY2F3z5KdP"));
-        $payment_manager->manage(array("type" => "delete_customer", "customer_id" => "cus_MeytDUUc9S1YGz"));
-        $payment_manager->manage(array("type" => "delete_customer", "customer_id" => "cus_MeBBmoF6Lz91LI"));
-        $payment_manager->manage(array("type" => "delete_customer", "customer_id" => "cus_MdZV6Ucz3LIqLn"));
-
-        $payment_manager->manage(array("type" => "delete_account", "account_id" => "acct_1MY1TORFWxp1T5bn"));
-        $payment_manager->manage(array("type" => "delete_account", "account_id" => "acct_1MY1CsIwTEkqgq2q"));
-        $payment_manager->manage(array("type" => "delete_account", "account_id" => "acct_1MQX7nRKobeAdKo8"));
-        $payment_manager->manage(array("type" => "delete_account", "account_id" => "acct_1M9shDIciVst9yxl"));
-        $payment_manager->manage(array("type" => "delete_account", "account_id" => "acct_1LxQDrIEaE2iNVSY"));
-        $payment_manager->manage(array("type" => "delete_account", "account_id" => "acct_1LvevPIpetqC3g1M"));
-        $payment_manager->manage(array("type" => "delete_account", "account_id" => "acct_1LusonRLEJdajKfx"));
-        $payment_manager->manage(array("type" => "delete_account", "account_id" => "acct_1LuIMCIypOEzCsDy"));
-
-        return response()->json([
-            "status" => true,
-            "message" => "Deleted successfully."
-        ], 200);
-        /*$status = true;
+        $status = true;
         $payment_manager = new PaymentManager();
         if (User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id") != "") {
             $customer_response = $payment_manager->manage(array("type" => "delete_customer", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id")));
@@ -402,7 +379,7 @@ class UserController extends Controller
                 "status" => false,
                 "message" => "An error occurred while deleting user, user could not be deleted."
             ], 500);
-        }*/
+        }
     }
 
     public function createPaymentMethod(Request $request)
