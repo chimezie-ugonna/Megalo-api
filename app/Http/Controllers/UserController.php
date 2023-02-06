@@ -175,11 +175,8 @@ class UserController extends Controller
             $status = true;
             date_default_timezone_set("UTC");
 
-            $ip_address_manager = new IpAddressManager();
-            $ip_address = $ip_address_manager->getIpAddress();
-
             $payment_manager = new PaymentManager();
-            $account_response = $payment_manager->manage(array("type" => "create_account", "data" => ["time_stamp" => strtotime(date("Y-m-d H:i:s")), "ip_address" => $ip_address]));
+            $account_response = $payment_manager->manage(array("type" => "create_account", "data" => ["time_stamp" => strtotime(date("Y-m-d H:i:s")), "ip_address" => $request->request->get("ip_address")]));
             if (!isset($account_response) || !isset($account_response["id"])) {
                 $status = false;
             } else {
@@ -201,7 +198,7 @@ class UserController extends Controller
                 } while (User::where("referral_code", $referral_code)->exists());
                 $request->request->add(["referral_code" => $referral_code]);
                 User::create($request->all());
-                User::find($request->request->get("user_id"))->login()->updateOrCreate(["user_id" => $request->request->get("user_id"), "access_type" => $request->request->get("access_type"), "device_token" => $request->request->get("device_token")], $request->all());
+                User::find($request->request->get("user_id"))->login()->updateOrCreate(["user_id" => $request->request->get("user_id"), "access_type" => $request->request->get("access_type"), "device_os" => $request->request->get("device_os"), "device_token" => $request->request->get("device_token")], $request->all());
                 if ($has_referral) {
                     Referral::create(["referrer_phone_number" => $referrer_phone_number, "referrer_user_id" => $referrer_user_id, "referree_phone_number" => $referree_phone_number, "referree_user_id" => $referree_user_id]);
                 }
@@ -411,7 +408,7 @@ class UserController extends Controller
             if ($request->get("type") == "regenerate_token") {
                 $applicant_id = $request->get("applicant_id");
             } else if ($request->get("type") == "initialize") {
-                $create_applicant_response = $identity_verifier->createApplicant(User::where("user_id", $request->request->get("user_id"))->value("first_name"), User::where("user_id", $request->request->get("user_id"))->value("last_name"), User::where("user_id", $request->request->get("user_id"))->value("dob"));
+                $create_applicant_response = $identity_verifier->createApplicant(User::where("user_id", $request->request->get("user_id"))->value("first_name"), User::where("user_id", $request->request->get("user_id"))->value("last_name"), User::where("user_id", $request->request->get("user_id"))->value("dob"), User::find($request->request->get("user_id"))->login()->where("access_type", $request->header("access-type"))->where("device_os", $request->header("device-os", ""))->where("device_token", $request->header("device-token", ""))->value("ip_address"));
                 if (isset($create_applicant_response) && $create_applicant_response->getId() != null) {
                     $applicant_id = $create_applicant_response->getId();
                 } else {

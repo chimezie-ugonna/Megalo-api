@@ -23,13 +23,14 @@ class IdentityVerifier
         $this->api_instance = new DefaultApi(null, $config);
     }
 
-    function createApplicant($first_name, $last_name, $dob)
+    function createApplicant($first_name, $last_name, $dob, $ip_address)
     {
         try {
             $applicant_details = new ApplicantRequest();
             $applicant_details->setFirstName($first_name);
             $applicant_details->setLastName($last_name);
-            
+            $applicant_details->setLocation(["ip_address" => $ip_address]);
+
             $date_obj = DateTime::createFromFormat("d/m/Y", $dob);
             $new_dob = $date_obj->format("Y-m-d");
             $applicant_details->setDob($new_dob);
