@@ -18,7 +18,7 @@ class UserController extends Controller
 {
     public function sendOtp(Request $request)
     {
-        if ($request->request->get("type") == "email") {
+        /*if ($request->request->get("type") == "email") {
             if ($request->request->has("update") && $request->filled("update") && $request->request->get("update")) {
                 $language = "English";
                 $subject = "Megalo Verification Code";
@@ -49,17 +49,17 @@ class UserController extends Controller
                 "status" => false,
                 "message" => "A failure occurred while trying to send otp."
             ], 500);
-        }
+        }*/
 
-        /*return response()->json([
+        return response()->json([
             "status" => true,
             "message" => "The otp was not sent because our twilio credit is exhausted. But for testing purposes, this response is successful."
-        ], 200);*/
+        ], 200);
     }
 
     public function verifyOtp(Request $request)
     {
-        if ($request->request->get("type") == "email") {
+        /*if ($request->request->get("type") == "email") {
             $send = new EmailManager();
             $status = $send->verifyOtp($request->request->get("email"), $request->request->get("otp"));
         } else {
@@ -113,9 +113,9 @@ class UserController extends Controller
                 "status" => false,
                 "message" => "A failure occurred while trying to verify otp."
             ], 500);
-        }
+        }*/
 
-        /*$data = [];
+        $data = [];
         $message = "The otp was not verified because our twilio credit is exhausted. But for testing purposes, this response is successful.";
         if ($request->request->get("type") == "email") {
             User::where("user_id", $request->request->get("user_id"))->update(["email" => $request->request->get("email"), "email_verified" => true]);
@@ -146,7 +146,7 @@ class UserController extends Controller
             "status" => true,
             "message" => $message,
             "data" => $data
-        ], 200);*/
+        ], 200);
     }
 
     public function create(Request $request)
