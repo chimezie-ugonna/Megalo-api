@@ -26,14 +26,8 @@ class IdentityVerifier
             CURLOPT_HTTPAUTH => CURLAUTH_BASIC,
             CURLOPT_USERPWD => $this->api_key . ":" . $this->secret_key,
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_POSTFIELDS => ["clientId" => $user_id, "firstName" => $first_name, "lastName" => $last_name],
-            CURLOPT_ENCODING => "",
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => "POST",
-            CURLOPT_POST => true
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => json_encode(["clientId" => $user_id, "firstName" => $first_name, "lastName" => $last_name])
         ));
 
         $response = curl_exec($curl);
