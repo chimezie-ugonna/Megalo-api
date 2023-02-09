@@ -271,12 +271,7 @@ class UserController extends Controller
     {
         $identity_verifier = new IdentityVerifier();
         $response = json_decode($identity_verifier->generateToken($request->request->get("user_id")), true);
-        return response()->json([
-            "status" => true,
-            "message" => "Identity verification process initiated.",
-            "data" => $response
-        ], 200);
-        /*if (isset($response) && isset($response["authToken"])) {
+        if (isset($response) && isset($response["authToken"])) {
             return response()->json([
                 "status" => true,
                 "message" => "Identity verification process initiated.",
@@ -287,7 +282,7 @@ class UserController extends Controller
                 "status" => false,
                 "message" => "An error occurred while initiating identity verification, identity verification initiation failed."
             ], 500);
-        }*/
+        }
     }
 
     public function update(Request $request)
