@@ -270,46 +270,18 @@ class UserController extends Controller
     public function verifyIdentity(Request $request)
     {
         $identity_verifier = new IdentityVerifier();
-        if (User::where("user_id", $request->request->get("user_id"))->value("identity_verification_id") != "") {
-            $applicant_id = User::where("user_id", $request->request->get("user_id"))->value("identity_verification_id");
+        $response = json_decode($identity_verifier->generateToken($request->request->get("user_id")));
+        if (isset($response) && isset($response["authToken"])) {
+            return response()->json([
+                "status" => true,
+                "message" => "Identity verification process initiated.",
+                "data" => ["auth_token" => $response["authToken"]]
+            ], 200);
         } else {
-            $create_applicant_response = $identity_verifier->createApplicant(User::where("user_id", $request->request->get("user_id"))->value("first_name"), User::where("user_id", $request->request->get("user_id"))->value("last_name"), User::where("user_id", $request->request->get("user_id"))->value("dob"));
-            if (isset($create_applicant_response) && $create_applicant_response->getId() != null) {
-                User::find($request->request->get("user_id"))->update(["identity_verification_id" => $create_applicant_response->getId()]);
-                $applicant_id = User::where("user_id", $request->request->get("user_id"))->value("identity_verification_id");
-            } else {
-                return response()->json([
-                    "status" => false,
-                    "message" => "An error occurred while performing identity verification, identity verification failed."
-                ], 500);
-            }
-        }
-
-        if ($request->get("check")) {
-            $create_check_response = $identity_verifier->createCheck($applicant_id);
-            if (isset($create_check_response) && $create_check_response->getId() != null) {
-                $check_id = $create_check_response->getId();
-                //create webhook
-            } else {
-                return response()->json([
-                    "status" => false,
-                    "message" => "An error occurred while performing identity verification, identity verification failed."
-                ], 500);
-            }
-        } else {
-            $create_sdk_token_response = $identity_verifier->generateSdkToken($applicant_id, $request->get("application_id"));
-            if (isset($create_sdk_token_response)) {
-                return response()->json([
-                    "status" => true,
-                    "message" => "Identity verification process successful.",
-                    "data" => ["sdk_token" => $create_sdk_token_response, "applicant_id" => $applicant_id]
-                ], 200);
-            } else {
-                return response()->json([
-                    "status" => false,
-                    "message" => "An error occurred while performing identity verification, identity verification failed."
-                ], 500);
-            }
+            return response()->json([
+                "status" => false,
+                "message" => "An error occurred while initiating identity verification, identity verification initiation failed."
+            ], 500);
         }
     }
 
@@ -347,15 +319,6 @@ class UserController extends Controller
             $account_response = $payment_manager->manage(array("type" => "delete_account", "account_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_account_id")));
             if (isset($account_response) && isset($account_response["deleted"]) && $account_response["deleted"]) {
                 User::find($request->request->get("user_id"))->update(["payment_account_id" => ""]);
-            } else {
-                $status = false;
-            }
-        }
-        if ($status && User::where("user_id", $request->request->get("user_id"))->value("identity_verification_id") != "") {
-            $identity_verifier = new IdentityVerifier();
-            $delete_applicant_response = $identity_verifier->deleteApplicant(User::where("user_id", $request->request->get("user_id"))->value("identity_verification_id"));
-            if (isset($delete_applicant_response)) {
-                User::find($request->request->get("user_id"))->update(["identity_verification_id" => ""]);
             } else {
                 $status = false;
             }

@@ -27,7 +27,6 @@ return new class extends Migration
             $table->boolean("is_admin")->default(false);
             $table->boolean("email_verified")->default(false);
             $table->boolean("identity_verified")->default(false);
-            $table->text("identity_verification_id")->default("");
             $table->timestampTz("created_at");
             $table->timestampTz("updated_at");
         });

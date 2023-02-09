@@ -44,8 +44,7 @@ class IncomingDataValidation
                     "identity_verified" => ["bail", "prohibited"],
                     "referral_code" => ["bail", "filled", "not_in:null"],
                     "payment_customer_id" => ["bail", "prohibited"],
-                    "payment_account_id" => ["bail", "prohibited"],
-                    "identity_verification_id" => ["bail", "prohibited"]
+                    "payment_account_id" => ["bail", "prohibited"]
                 ]);
                 if ($request->request->has("full_name") && $request->filled("full_name")) {
                     $full_name_split = explode(" ", $request->request->get("full_name"), 2);
@@ -195,8 +194,7 @@ class IncomingDataValidation
                     "email" => ["bail", "prohibited"],
                     "referral_code" => ["bail", "prohibited"],
                     "payment_customer_id" => ["bail", "prohibited"],
-                    "payment_account_id" => ["bail", "prohibited"],
-                    "identity_verification_id" => ["bail", "prohibited"]
+                    "payment_account_id" => ["bail", "prohibited"]
                 ]);
                 if (sizeof($request->all()) == 0) {
                     return response()->json([
@@ -321,11 +319,6 @@ class IncomingDataValidation
                 $request->validate([
                     "action" => ["bail", "required", "in:deposit,withdrawal"],
                     "type" => ["bail", "required", "in:card,bank_account"]
-                ]);
-            } else if ($request->path() == "api/v1/user/verify_identity") {
-                $request->validate([
-                    "check" => ["bail", "required", "boolean"],
-                    "application_id" => ["bail", "prohibited_if:check,true,1", "filled", "not_in:null", "required_if:check,false,0"]
                 ]);
             }
         } else if ($request->isMethod("delete")) {

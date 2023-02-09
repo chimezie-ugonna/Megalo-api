@@ -2,76 +2,43 @@
 
 namespace App\Custom;
 
-use DateTime;
-use Onfido\Api\DefaultApi;
-use Onfido\Configuration;
-use Onfido\Model\ApplicantRequest;
-use Onfido\Model\CheckRequest;
-use Onfido\Model\SdkTokenRequest;
+use App\Models\User;
 
 class IdentityVerifier
 {
-    private $token;
-    private $api_instance;
+    private $api_key;
+    private $secret_key;
 
     function __construct()
     {
-        $this->token = getenv("ONFIDO_TOKEN");
-        $config = Configuration::getDefaultConfiguration();
-        $config->setApiKey("Authorization", "token=" . $this->token);
-        $config->setApiKeyPrefix("Authorization", "Token");
-        $this->api_instance = new DefaultApi(null, $config);
+        $this->api_key = getenv("IDENFY_API_KEY");
+        $this->secret_key = getenv("IDENFY_SECRET_KEY");
     }
 
-    function createApplicant($first_name, $last_name, $dob)
+    function generateToken($user_id)
     {
-        try {
-            $applicant_details = new ApplicantRequest();
-            $applicant_details->setFirstName($first_name);
-            $applicant_details->setLastName($last_name);
+        $first_name = User::where("user_id", $user_id)->value("first_name");
+        $last_name = User::where("user_id", $user_id)->value("last_name");
+        $curl = curl_init();
 
-            $date_obj = DateTime::createFromFormat("d/m/Y", $dob);
-            $new_dob = $date_obj->format("Y-m-d");
-            $applicant_details->setDob($new_dob);
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => "https://ivs.idenfy.com/api/v2/token",
+            CURLOPT_HTTPAUTH => CURLAUTH_BASIC,
+            CURLOPT_USERPWD => $this->api_key . ":" . $this->secret_key,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POSTFIELDS => ["clientId" => $user_id, "firstName" => $first_name, "lastName" => $last_name],
+            CURLOPT_ENCODING => "",
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => "POST",
+            CURLOPT_POST => true
+        ));
 
-            return $this->api_instance->createApplicant($applicant_details);
-        } catch (\Exception) {
-            return false;
-        }
-    }
+        $response = curl_exec($curl);
 
-    function deleteApplicant($applicant_id)
-    {
-        try {
-            return $this->api_instance->destroyApplicant($applicant_id);
-        } catch (\Exception) {
-            return false;
-        }
-    }
-
-    function generateSdkToken($applicant_id, $app_id_or_app_bundle_id)
-    {
-        try {
-            $sdk_token_request = new SdkTokenRequest();
-            $sdk_token_request->setApplicantId($applicant_id);
-            $sdk_token_request->setApplicationID($app_id_or_app_bundle_id);
-
-            return $this->api_instance->generateSdkToken($sdk_token_request);
-        } catch (\Exception) {
-            return false;
-        }
-    }
-
-    function createCheck($applicant_id)
-    {
-        try {
-            $check_data = new CheckRequest();
-            $check_data->setApplicantId($applicant_id);
-            $check_data->setReportNames(array("document", "facial_similarity_photo"));
-
-            return $this->api_instance->createCheck($check_data);
-        } catch (\Exception) {
-            return false;
-        }
+        curl_close($curl);
+        return $response;
     }
 }
