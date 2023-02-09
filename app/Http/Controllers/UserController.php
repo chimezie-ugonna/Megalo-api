@@ -270,7 +270,7 @@ class UserController extends Controller
     public function verifyIdentity(Request $request)
     {
         $identity_verifier = new IdentityVerifier();
-        $response = json_decode($identity_verifier->generateToken($request->request->get("user_id")));
+        $response = json_decode($identity_verifier->generateToken($request->request->get("user_id")), true);
         if (isset($response) && isset($response["authToken"])) {
             return response()->json([
                 "status" => true,
