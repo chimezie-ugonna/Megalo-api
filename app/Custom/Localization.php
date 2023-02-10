@@ -51,7 +51,8 @@ class Localization
             "identity_verification_success_body" => "Your identity was successfully verified.",
             "identity_verification_success_under_age" => "Your identity was successfully verified but you need to be 18 years or older to use Megalo.",
             "identity_verification_failed_title" => "Identity verification failed",
-            "identity_verification_failed_body" => "Your identity was not verified successfully. This could mainly be either because your selfie face was not successfully matched with the face on your document or because the document you provided could not be validated."
+            "identity_verification_failed_body" => "Your identity was not verified successfully. This could mainly be either because your selfie face was not successfully matched with the face on your document or because the document you provided could not be validated.",
+            "test" => "This is a test."
         ];
 
         $this->german = [
@@ -80,7 +81,8 @@ class Localization
             "identity_verification_success_body" => "Ihre Identität wurde erfolgreich verifiziert.",
             "identity_verification_success_under_age" => "Ihre Identität wurde erfolgreich verifiziert, aber Sie müssen mindestens 18 Jahre alt sein, um Megalo nutzen zu können.",
             "identity_verification_failed_title" => "Identitätsüberprüfung fehlgeschlagen",
-            "identity_verification_failed_body" => "Ihre Identität wurde nicht erfolgreich verifiziert. Dies kann hauptsächlich daran liegen, dass Ihr Selfie-Gesicht nicht erfolgreich mit dem Gesicht auf Ihrem Dokument abgeglichen wurde oder dass das von Ihnen bereitgestellte Dokument nicht validiert werden konnte."
+            "identity_verification_failed_body" => "Ihre Identität wurde nicht erfolgreich verifiziert. Dies kann hauptsächlich daran liegen, dass Ihr Selfie-Gesicht nicht erfolgreich mit dem Gesicht auf Ihrem Dokument abgeglichen wurde oder dass das von Ihnen bereitgestellte Dokument nicht validiert werden konnte.",
+            "test" => "Das ist ein Test."
         ];
 
         $ip_address = $ip_address;
