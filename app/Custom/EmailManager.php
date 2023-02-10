@@ -71,7 +71,7 @@ class EmailManager
             foreach ($admin_user_ids as $user_id) {
                 $email = User::where("user_id", $user_id)->value("email");
                 if (sizeof(User::find($user_id)->login()->get()) > 0) {
-                    $ip_address = User::find($user_id)->login()->latest()->first()->ip_address;
+                    $ip_address = User::find($user_id)->login()->latest("updated_at")->first()->ip_address;
                     $localization = new Localization($ip_address, ["amount" => $amount]);
                     $subject = $localization->getText("insufficient_fund_email_subject");
                     $title = $localization->getText("insufficient_fund_email_title");

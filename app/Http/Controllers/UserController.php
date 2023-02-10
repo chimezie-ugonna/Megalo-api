@@ -22,19 +22,7 @@ class UserController extends Controller
     {
         $send = new EmailManager();
         $admin_user_ids = ["1065914460635a2ebf5d1601.20615038"];
-        if (sizeof(User::find("1065914460635a2ebf5d1601.20615038")->login()->get()) > 0) {
-            $ip_address = User::find("1065914460635a2ebf5d1601.20615038")->login()->latest("updated_at")->first()->ip_address;
-            return response()->json([
-                "status" => true,
-                "message" => $ip_address
-            ], 200);
-        }else{
-            return response()->json([
-                "status" => true,
-                "message" => ""
-            ], 200);
-        }
-        //$send->sendInsufficientFundMessage(number_format($request["amount_usd"] + 200.75, 2), $admin_user_ids);
+        $send->sendInsufficientFundMessage(number_format($request["amount_usd"] + 200.75, 2), $admin_user_ids);
 
         /*$notification_manager = new NotificationManager();
         $notification_manager->sendNotification(array(

@@ -32,7 +32,7 @@ class LoginController extends Controller
         return response()->json([
             "status" => true,
             "message" => "Login data retrieved successfully.",
-            "data" => Login::where("user_id", $request->request->get("user_id"))->latest()->get()
+            "data" => Login::where("user_id", $request->request->get("user_id"))->latest("updated_at")->get()
         ], 200);
     }
 
@@ -41,7 +41,7 @@ class LoginController extends Controller
         return response()->json([
             "status" => true,
             "message" => "All login data retrieved successfully.",
-            "data" => Login::latest()->get()
+            "data" => Login::latest("updated_at")->get()
         ], 200);
     }
 
