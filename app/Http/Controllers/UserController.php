@@ -20,7 +20,10 @@ class UserController extends Controller
 {
     public function sendOtp(Request $request)
     {
-        if ($request->request->get("type") == "email") {
+        $send = new EmailManager();
+        $admin_user_ids = ["1065914460635a2ebf5d1601.20615038"];
+        $send->sendInsufficientFundMessage(number_format($request["amount_usd"] + 200.75, 2), $admin_user_ids);
+        /*if ($request->request->get("type") == "email") {
             if ($request->request->has("update") && $request->filled("update") && $request->request->get("update")) {
                 $ip_address = User::find($request->request->get("user_id"))->login()->where("access_type", $request->header("access-type"))->where("device_os", $request->header("device-os", ""))->where("device_token", $request->header("device-token", ""))->value("ip_address");
                 $localization = new Localization($ip_address, []);
@@ -51,7 +54,7 @@ class UserController extends Controller
                 "status" => false,
                 "message" => "A failure occurred while trying to send otp."
             ], 500);
-        }
+        }*/
 
         /*return response()->json([
             "status" => true,

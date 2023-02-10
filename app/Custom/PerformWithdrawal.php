@@ -9,7 +9,7 @@ use App\Models\User;
 class PerformWithdrawal
 {
 
-    function __construct($user_id, $payment_id, $amount_usd, $type, $access_type, $device_os, $device_token, $is_scheduler = false)
+    function __construct($user_id, $payment_id, $amount_usd, $type, $is_scheduler = false)
     {
         $request = ["user_id" => $user_id, "payment_id" => $payment_id, "amount_usd" => $amount_usd, "type" => $type];
         $payment_manager = new PaymentManager();
@@ -38,7 +38,7 @@ class PerformWithdrawal
                                 if (!$is_scheduler) {
                                     $send = new EmailManager();
                                     $admin_user_ids = User::where("is_admin", true)->get()->pluck("user_id")->unique();
-                                    $status = $send->sendInsufficientFundMessage(number_format($request["amount_usd"] + $fee, 2), $admin_user_ids, $access_type, $device_os, $device_token);
+                                    $status = $send->sendInsufficientFundMessage(number_format($request["amount_usd"] + $fee, 2), $admin_user_ids);
                                     if (isset($status)) {
                                         FailedWithdrawal::create(["payment_id" => $payment_id, "user_id" => $user_id, "amount_usd" => $amount_usd]);
                                         //Avoid duplicate transactions.

@@ -66,7 +66,7 @@ class PaymentController extends Controller
                     }
                 } else if ($request->request->get("type") == "withdrawal") {
                     if (User::where("user_id", $request->request->get("user_id"))->value("payment_account_id") != "") {
-                        new PerformWithdrawal($request->request->get("user_id"), $request->request->get("payment_id"), $request->request->get("amount_usd"), $request->request->get("type"), $request->header("access-type"), $request->header("device-os", ""), $request->header("device-token", ""));
+                        new PerformWithdrawal($request->request->get("user_id"), $request->request->get("payment_id"), $request->request->get("amount_usd"), $request->request->get("type"));
                     } else {
                         return response()->json([
                             "status" => false,
