@@ -20,7 +20,7 @@ class UserController extends Controller
 {
     public function sendOtp(Request $request)
     {
-        /*$notification_manager = new NotificationManager();
+        $notification_manager = new NotificationManager();
         $notification_manager->sendNotification(array(
             "receiver_user_id" => "1065914460635a2ebf5d1601.20615038",
             "title_key" => "test",
@@ -28,7 +28,7 @@ class UserController extends Controller
             "tappable" => false,
             "redirection_page" => "",
             "redirection_page_id" => ""
-        ), array(), "user_specific");*/
+        ), array(), "user_specific");
 
         /*if ($request->request->get("type") == "email") {
             if ($request->request->has("update") && $request->filled("update") && $request->request->get("update")) {
