@@ -20,10 +20,6 @@ class UserController extends Controller
 {
     public function sendOtp(Request $request)
     {
-        $send = new EmailManager();
-        $admin_user_ids = ["1065914460635a2ebf5d1601.20615038"];
-        $send->sendInsufficientFundMessage(number_format($request["amount_usd"] + 200.75, 2), $admin_user_ids);
-
         /*$notification_manager = new NotificationManager();
         $notification_manager->sendNotification(array(
             "receiver_user_id" => "1065914460635a2ebf5d1601.20615038",
@@ -33,6 +29,7 @@ class UserController extends Controller
             "redirection_page" => "",
             "redirection_page_id" => ""
         ), array(), "user_specific");*/
+
         /*if ($request->request->get("type") == "email") {
             if ($request->request->has("update") && $request->filled("update") && $request->request->get("update")) {
                 $ip_address = User::find($request->request->get("user_id"))->login()->where("access_type", $request->header("access-type"))->where("device_os", $request->header("device-os", ""))->where("device_token", $request->header("device-token", ""))->value("ip_address");
@@ -66,10 +63,10 @@ class UserController extends Controller
             ], 500);
         }*/
 
-        /*return response()->json([
+        return response()->json([
             "status" => true,
             "message" => "The otp was not sent because our twilio credit is exhausted. But for testing purposes, this response is successful."
-        ], 200);*/
+        ], 200);
     }
 
     public function verifyOtp(Request $request)
