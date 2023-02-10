@@ -10,19 +10,19 @@ class Localization
     function __construct($ip_address, $data)
     {
         $referral_payment_usd = 0;
-        if (!array_key_exists("referral_payment_usd", $data)) {
+        if (array_key_exists("referral_payment_usd", $data)) {
             $referral_payment_usd = $data["referral_payment_usd"];
         }
         $user_percentage_of_property_monthly_earning = 0;
-        if (!array_key_exists("user_percentage_of_property_monthly_earning", $data)) {
+        if (array_key_exists("user_percentage_of_property_monthly_earning", $data)) {
             $user_percentage_of_property_monthly_earning = $data["user_percentage_of_property_monthly_earning"];
         }
         $user_percentage_of_property_value = 0;
-        if (!array_key_exists("user_percentage_of_property_value", $data)) {
+        if (array_key_exists("user_percentage_of_property_value", $data)) {
             $user_percentage_of_property_value = $data["user_percentage_of_property_value"];
         }
         $amount = 0;
-        if (!array_key_exists("amount", $data)) {
+        if (array_key_exists("amount", $data)) {
             $amount = $data["amount"];
         }
         $this->english = [
