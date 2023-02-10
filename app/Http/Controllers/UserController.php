@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use App\Custom\Authentication;
 use App\Custom\EmailManager;
 use App\Custom\IdentityVerifier;
-use App\Custom\IpAddressManager;
+use App\Custom\Localization;
+use App\Custom\NotificationManager;
 use Illuminate\Http\Request;
 use App\Custom\PaymentManager;
 use App\Custom\SmsManager;
@@ -13,27 +14,28 @@ use App\Models\Earning;
 use App\Models\Property;
 use App\Models\Referral;
 use App\Models\User;
+use DateTime;
 
 class UserController extends Controller
 {
     public function sendOtp(Request $request)
     {
-        /*if ($request->request->get("type") == "email") {
+        if ($request->request->get("type") == "email") {
             if ($request->request->has("update") && $request->filled("update") && $request->request->get("update")) {
-                $language = "English";
-                $subject = "Megalo Verification Code";
-
                 $ip_address = User::find($request->request->get("user_id"))->login()->where("access_type", $request->header("access-type"))->where("device_os", $request->header("device-os", ""))->where("device_token", $request->header("device-token", ""))->value("ip_address");
-                $ip_address_manager = new IpAddressManager();
-                $country = $ip_address_manager->getIpAddressDetails($ip_address, "Country");
-
-                if ($country == "Germany") {
-                    $language = "German";
-                    $subject = "Megalo-Bestätigungscode";
-                }
+                $localization = new Localization($ip_address, []);
+                $subject = $localization->getText("verification_email_subject");
+                $title = $localization->getText("verification_email_title");
+                $body = $localization->getText("verification_email_body");
+                $footer = $localization->getText("verification_email_footer");
 
                 $send = new EmailManager();
-                $status = $send->sendOtp($request->request->get("email"), $language, $subject);
+                $status = $send->sendOtp($request->request->get("email"), [
+                    "subject" => $subject,
+                    "title" => $title,
+                    "body" => $body,
+                    "footer" => $footer
+                ]);
             }
         } else {
             $send = new SmsManager();
@@ -49,12 +51,12 @@ class UserController extends Controller
                 "status" => false,
                 "message" => "A failure occurred while trying to send otp."
             ], 500);
-        }*/
+        }
 
-        return response()->json([
+        /*return response()->json([
             "status" => true,
             "message" => "The otp was not sent because our twilio credit is exhausted. But for testing purposes, this response is successful."
-        ], 200);
+        ], 200);*/
     }
 
     public function verifyOtp(Request $request)
@@ -283,6 +285,63 @@ class UserController extends Controller
                 "message" => "An error occurred while initiating identity verification, identity verification initiation failed."
             ], 500);
         }
+    }
+
+    public function verifyIdentityWebhook(Request $request)
+    {
+        $data = $request()->json()->all();
+        if (User::where("user_id", $data["clientId"])->exists()) {
+            if ($data["status"]["overall"] == "APPROVED" || $data["status"]["overall"] == "DENIED" || $data["status"]["overall"] == "SUSPECTED") {
+                $status = true;
+                $body_key = "identity_verification_success_body";
+                if ($data["status"]["overall"] == "APPROVED") {
+                    $today = new DateTime(date("Y-m-d"));
+                    $bday = new DateTime($data["data"]["docDob"]);
+                    $interval = $today->diff($bday);
+                    if (intval($interval->y) < 18) {
+                        $body_key = "identity_verification_success_under_age";
+                    } else {
+                        User::find($data["clientId"])->update(["identity_verified" => true]);
+                    }
+                } else if ($data["status"]["overall"] == "SUSPECTED") {
+                    if ($data["status"]["autoDocument"] == "DOC_VALIDATED" && $data["status"]["manualDocument"] == "DOC_VALIDATED" && $data["status"]["autoFace"] == "FACE_MATCH" && $data["status"]["manualFace"] == "FACE_MATCH") {
+                        $today = new DateTime(date("Y-m-d"));
+                        $bday = new DateTime($data["data"]["docDob"]);
+                        $interval = $today->diff($bday);
+                        if (intval($interval->y) < 18) {
+                            $body_key = "identity_verification_success_under_age";
+                        } else {
+                            User::find($data["clientId"])->update(["identity_verified" => true]);
+                        }
+                    } else {
+                        $status = false;
+                        $body_key = "identity_verification_failed_body";
+                    }
+                } else if ($data["status"]["overall"] == "DENIED") {
+                    $status = false;
+                    $body_key = "identity_verification_failed_body";
+                }
+
+                $notification_manager = new NotificationManager();
+                if ($status) {
+                    $title_key = "identity_verification_success_title";
+                } else {
+                    $title_key = "identity_verification_failed_title";
+                }
+                $notification_manager->sendNotification(array(
+                    "receiver_user_id" => $data["clientId"],
+                    "title_key" => $title_key,
+                    "body_key" => $body_key,
+                    "tappable" => false,
+                    "redirection_page" => "",
+                    "redirection_page_id" => ""
+                ), array(), "user_specific");
+            }
+        }
+        return response()->json([
+            "status" => true,
+            "message" => "Callback received successfully."
+        ], 200);
     }
 
     public function update(Request $request)

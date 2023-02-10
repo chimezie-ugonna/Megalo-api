@@ -135,8 +135,10 @@ class IncomingDataValidation
                     "redirection_page_id" => ["bail", "prohibited_if:tappable,false,0", "filled", "not_in:null", "required_if:tappable,true,1"],
                     "sender_user_id" => ["bail", "prohibited"],
                     "receiver_user_id" => ["bail", "required"],
-                    "title" => ["bail", "required"],
-                    "body" => ["bail", "required"]
+                    "title_key" => ["bail", "required"],
+                    "body_key" => ["bail", "required"],
+                    "title" => ["bail", "prohibited"],
+                    "body" => ["bail", "prohibited"]
                 ]);
             } else if ($request->path() == "api/v1/notification/create_all") {
                 $request->validate([
@@ -147,8 +149,10 @@ class IncomingDataValidation
                     "redirection_page_id" => ["bail", "prohibited_if:tappable,false,0", "filled", "not_in:null", "required_if:tappable,true,1"],
                     "sender_user_id" => ["bail", "prohibited"],
                     "receiver_user_id" => ["bail", "prohibited"],
-                    "title" => ["bail", "required"],
-                    "body" => ["bail", "required"]
+                    "title_key" => ["bail", "required"],
+                    "body_key" => ["bail", "required"],
+                    "title" => ["bail", "prohibited"],
+                    "body" => ["bail", "prohibited"]
                 ]);
             }
         } else if ($request->isMethod("put") || $request->isMethod("patch")) {

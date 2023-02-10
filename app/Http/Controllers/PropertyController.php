@@ -44,8 +44,8 @@ class PropertyController extends Controller
             Property::find($property->property_id)->propertyValueHistory()->create(["property_id" => $property->property_id, "value_usd" => $property->value_usd, "value_annual_change_percentage" => $property->value_average_annual_change_percentage]);
             $notification_manager = new NotificationManager();
             $notification_manager->sendNotification(array(
-                "title" => "New property available!!!",
-                "body" => "We just listed a new property, be among the first to invest in it and reap the benefits.",
+                "title_key" => "new_property_available_title",
+                "body_key" => "new_property_available_body",
                 "tappable" => true,
                 "redirection_page" => "property",
                 "redirection_page_id" => $property->property_id
@@ -101,12 +101,12 @@ class PropertyController extends Controller
                                 Earning::create(["property_id" => $request->request->get("property_id"), "user_id" => $user_id, "amount_usd" => $user_percentage_of_property_monthly_earning]);
                                 $notification_manager->sendNotification(array(
                                     "receiver_user_id" => $user_id,
-                                    "title" => "Property dividend payment!!!",
-                                    "body" => "You just received $" . number_format($user_percentage_of_property_monthly_earning, 2) . " in your balance as dividend from a property you invested in.",
+                                    "title_key" => "property_dividend_payment_title",
+                                    "body_key" => "property_dividend_payment_body",
                                     "tappable" => true,
                                     "redirection_page" => "earning",
                                     "redirection_page_id" => $request->request->get("property_id")
-                                ), array(), "user_specific");
+                                ), array("user_percentage_of_property_monthly_earning" => number_format($user_percentage_of_property_monthly_earning, 2)), "user_specific");
                                 $count++;
                             }
                         }
@@ -271,8 +271,8 @@ class PropertyController extends Controller
                                 if (User::where("user_id", $user_id)->exists()) {
                                     $notification_manager->sendNotification(array(
                                         "receiver_user_id" => $user_id,
-                                        "title" => "Property value increase!!!",
-                                        "body" => "A property that you invested in has increased in value.",
+                                        "title_key" => "property_value_increase_title",
+                                        "body_key" => "property_value_increase_body",
                                         "tappable" => true,
                                         "redirection_page" => "property",
                                         "redirection_page_id" => $request->request->get("property_id")
@@ -288,8 +288,8 @@ class PropertyController extends Controller
                                 if (User::where("user_id", $user_id)->exists()) {
                                     $notification_manager->sendNotification(array(
                                         "receiver_user_id" => $user_id,
-                                        "title" => "Property earnings increase!!!",
-                                        "body" => "A property that you invested in has increased its earnings.",
+                                        "title_key" => "property_earnings_increase_title",
+                                        "body_key" => "property_earnings_increase_body",
                                         "tappable" => true,
                                         "redirection_page" => "property",
                                         "redirection_page_id" => $request->request->get("property_id")
@@ -317,12 +317,12 @@ class PropertyController extends Controller
                                     }
                                     $notification_manager->sendNotification(array(
                                         "receiver_user_id" => $user_id,
-                                        "title" => "Property sale payment!!!",
-                                        "body" => "You just received $" . number_format($user_percentage_of_property_value, 2) . " in your balance as payment from the sale of a property you invested in.",
+                                        "title_key" => "property_sale_payment_title",
+                                        "body_key" => "property_sale_payment_body",
                                         "tappable" => true,
                                         "redirection_page" => "earning",
                                         "redirection_page_id" => $request->request->get("property_id")
-                                    ), array(), "user_specific");
+                                    ), array("user_percentage_of_property_value" => number_format($user_percentage_of_property_value, 2)), "user_specific");
                                 }
                             }
                         }

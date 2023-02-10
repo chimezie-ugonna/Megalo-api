@@ -30,6 +30,7 @@ Route::middleware([EnsureSecureUrl::class, CheckHeader::class, IncomingDataValid
         Route::post("/user/verify_otp", "verifyOtp");
         Route::post("/user/create", "create");
         Route::post("/user/create_payment_method", "createPaymentMethod");
+        Route::post("/user/verify_identity_webhook", "verifyIdentityWebhook");
         Route::get("/user/read", "read");
         Route::get("/user/read_all", "readAll");
         Route::get("/user/read_specific", "readSpecific");

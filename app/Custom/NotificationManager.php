@@ -26,87 +26,54 @@ class NotificationManager
   {
     $response = true;
     if ($type == "general") {
-      $message = new Message();
-      $message->setNotification(new Notification($array["title"], $array["body"]));
-      $message->setData($data);
-      $message->setPriority("10");
-      $ios_device_tokens = Login::where("device_os", "ios")->get()->pluck("device_token");
-      $count = 0;
-
-      if (count($ios_device_tokens) > 0) {
-        foreach ($ios_device_tokens as $device_token) {
-          if ($device_token != "") {
-            $message->addRecipient(new Device($device_token));
-            $count++;
-          }
-        }
-      }
-
-      if ($count > 0) {
-        $response = $this->client->send($message);
-      }
-
-      if (isset($response)) {
-        $message = new Message();
-        $message->setNotification(new Notification($array["title"], $array["body"]));
-        $message->setData($data);
-        $message->setPriority("high");
-        $android_device_tokens = Login::where("device_os", "android")->get()->pluck("device_token");
-        $count = 0;
-
-        if (count($android_device_tokens) > 0) {
-          foreach ($android_device_tokens as $device_token) {
-            if ($device_token != "") {
-              $message->addRecipient(new Device($device_token));
-              $count++;
-            }
-          }
-        }
-
-        if ($count > 0) {
-          $response = $this->client->send($message);
-        }
-      }
+      $device_tokens = Login::all()->pluck("device_token");
     } else {
-      $message = new Message();
-      $message->setNotification(new Notification($array["title"], $array["body"]));
-      $message->setData($data);
-      $message->setPriority("10");
-      $ios_device_tokens = Login::where("user_id", $array["receiver_user_id"])->where("device_os", "ios")->get()->pluck("device_token");
-      $count = 0;
-
-      if (count($ios_device_tokens) > 0) {
-        foreach ($ios_device_tokens as $device_token) {
-          if ($device_token != "") {
-            $message->addRecipient(new Device($device_token));
-            $count++;
+      $device_tokens = Login::where("user_id", $array["receiver_user_id"])->get()->pluck("device_token");
+    }
+    if (count($device_tokens) > 0) {
+      foreach ($device_tokens as $device_token) {
+        $device_os = Login::where("device_token", $device_token)->value("device_os");
+        if ($device_token != "" && $device_os == "android" || $device_token != "" && $device_os == "ios") {
+          $user_id = Login::where("device_token", $device_token)->value("user_id");
+          if (!array_key_exists("notification_id", $array)) {
+            $array["notification_id"] = uniqid(rand(), true);
           }
-        }
-      }
-
-      if ($count > 0) {
-        $response = $this->client->send($message);
-      }
-
-      if (isset($response)) {
-        $message = new Message();
-        $message->setNotification(new Notification($array["title"], $array["body"]));
-        $message->setData($data);
-        $message->setPriority("high");
-        $android_device_tokens = Login::where("user_id", $array["receiver_user_id"])->where("device_os", "android")->get()->pluck("device_token");
-        $count = 0;
-
-        if (count($android_device_tokens) > 0) {
-          foreach ($android_device_tokens as $device_token) {
-            if ($device_token != "") {
-              $message->addRecipient(new Device($device_token));
-              $count++;
-            }
+          if (!array_key_exists("receiver_user_id", $array)) {
+            $array["receiver_user_id"] = $user_id;
           }
-        }
 
-        if ($count > 0) {
+          $ip_address = Login::where("device_token", $device_token)->value("ip_address");
+          if (array_key_exists("title", $array)) {
+            unset($array["title"]);
+          }
+          if (array_key_exists("body", $array)) {
+            unset($array["body"]);
+          }
+          $localization = new Localization($ip_address, $data);
+          $array["title"] = $localization->getText($array["title_key"]);
+          $array["body"] = $localization->getText($array["body_key"]);
+
+          $message = new Message();
+          $message->setNotification(new Notification($array["title"], $array["body"]));
+          $message->setData($data);
+          if ($device_os == "android") {
+            $message->setPriority("high");
+          } else if ($device_os == "ios") {
+            $message->setPriority("10");
+          }
+          $message->addRecipient(new Device($device_token));
           $response = $this->client->send($message);
+
+          if (!isset($response)) {
+            return response()->json([
+              "status" => false,
+              "message" => "A failure occurred while trying to send notification."
+            ], 500);
+          } else {
+            ModelsNotification::Create($array);
+            unset($array["notification_id"]);
+            unset($array["receiver_user_id"]);
+          }
         }
       }
     }
@@ -118,32 +85,5 @@ class NotificationManager
         deleteUserFcmToken($recipients[$i]);
       }
     }*/
-
-    if (!isset($response)) {
-      return response()->json([
-        "status" => false,
-        "message" => "A failure occurred while trying to send notification."
-      ], 500);
-    } else {
-      if (!array_key_exists("notification_id", $array)) {
-        $array["notification_id"] = uniqid(rand(), true);
-      }
-      if ($type == "general") {
-        $user_ids = Login::all()->pluck("user_id")->unique();
-        foreach ($user_ids as $user_id) {
-          if (!array_key_exists("notification_id", $array)) {
-            $array["notification_id"] = uniqid(rand(), true);
-          }
-          $array["receiver_user_id"] = $user_id;
-
-          ModelsNotification::Create($array);
-
-          unset($array["notification_id"]);
-          unset($array["receiver_user_id"]);
-        }
-      } else {
-        ModelsNotification::Create($array);
-      }
-    }
   }
 }

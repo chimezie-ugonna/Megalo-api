@@ -67,12 +67,12 @@ class InvestmentController extends Controller
                                                     $notification_manager = new NotificationManager();
                                                     $notification_manager->sendNotification(array(
                                                         "receiver_user_id" => $referrer_user_id,
-                                                        "title" => "Referral bonus received!!!",
-                                                        "body" => "You have just received $" . $referral_payment_usd . " in your balance because someone you referred with your referral code has invested $100 or more on Megalo. Keep referring people to earn more!",
+                                                        "title_key" => "referral_bonus_received_title",
+                                                        "body_key" => "referral_bonus_received_body_referrer",
                                                         "tappable" => true,
                                                         "redirection_page" => "balance",
                                                         "redirection_page_id" => ""
-                                                    ), array(), "user_specific");
+                                                    ), array("referral_payment_usd" => $referral_payment_usd), "user_specific");
                                                 }
 
                                                 if (User::where("user_id", $referree_user_id)->exists()) {
@@ -82,12 +82,12 @@ class InvestmentController extends Controller
                                                     $notification_manager = new NotificationManager();
                                                     $notification_manager->sendNotification(array(
                                                         "receiver_user_id" => $referree_user_id,
-                                                        "title" => "Referral bonus received!!!",
-                                                        "body" => "You have just received $" . $referral_payment_usd . " in your balance because you joined Megalo with someone's referral code and have invested $100 or more on Megalo. You can earn more if you refer someone too.",
+                                                        "title_key" => "referral_bonus_received_title",
+                                                        "body_key" => "referral_bonus_received_body_referree",
                                                         "tappable" => true,
                                                         "redirection_page" => "balance",
                                                         "redirection_page_id" => ""
-                                                    ), array(), "user_specific");
+                                                    ), array("referral_payment_usd" => $referral_payment_usd), "user_specific");
                                                 }
 
                                                 Referral::where("referrer_user_id", $referrer_user_id)->where("referree_user_id", $referree_user_id)->update(["rewarded" => true]);

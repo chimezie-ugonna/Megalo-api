@@ -26,7 +26,7 @@ class EmailManager
         $this->from_name = "Megalo";
     }
 
-    function sendOtp($email, $language, $subject)
+    function sendOtp($email, $data)
     {
         try {
             return $this->client->verify->v2->services($this->service_sid)
@@ -34,8 +34,10 @@ class EmailManager
                 ->create($email, "email", [
                     "channelConfiguration" => [
                         "substitutions" => [
-                            $language => true,
-                            "subject" => $subject
+                            "subject" => $data["subject"],
+                            "title" => $data["title"],
+                            "body" => $data["body"],
+                            "footer" => $data["footer"]
                         ]
                     ],
                 ]);
@@ -67,25 +69,29 @@ class EmailManager
         if (count($admin_user_ids) > 0) {
             $count = 0;
             foreach ($admin_user_ids as $user_id) {
-                $language = "English";
-                $subject = "Withdrawal failure caused by insufficient fund";
                 $email = User::where("user_id", $user_id)->value("email");
                 if (sizeof(User::find($user_id)->login()->get()) > 0) {
                     $ip_address = User::find($user_id)->login()->where("access_type", $access_type)->where("device_os", $device_os)->where("device_token", $device_token)->value("ip_address");
-                    $ip_address_manager = new IpAddressManager();
-                    $country = $ip_address_manager->getIpAddressDetails($ip_address, "Country");
-                    if ($country == "Germany") {
-                        $language = "German";
-                        $subject = "Auszahlungsfehler aufgrund unzureichender Deckung";
-                    }
+                    $localization = new Localization($ip_address, ["amount" => $amount]);
+                    $subject = $localization->getText("insufficient_fund_email_subject");
+                    $title = $localization->getText("insufficient_fund_email_title");
+                    $body = $localization->getText("insufficient_fund_email_body");
+                    $footer = $localization->getText("insufficient_fund_email_footer");
+                } else {
+                    $localization = new Localization("", ["amount" => $amount]);
+                    $subject = $localization->getText("insufficient_fund_email_subject");
+                    $title = $localization->getText("insufficient_fund_email_title");
+                    $body = $localization->getText("insufficient_fund_email_body");
+                    $footer = $localization->getText("insufficient_fund_email_footer");
                 }
                 $tos[$count] = new To(
                     $email,
                     null,
                     [
-                        "amount" => $amount,
-                        $language => true,
-                        "subject" => $subject
+                        "subject" => $subject,
+                        "title" => $title,
+                        "body" => $body,
+                        "footer" => $footer
                     ]
                 );
                 $count++;

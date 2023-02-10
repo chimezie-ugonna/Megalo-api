@@ -3,6 +3,7 @@
 namespace App\Custom;
 
 use App\Models\User;
+use DateTime;
 
 class IdentityVerifier
 {
@@ -19,6 +20,8 @@ class IdentityVerifier
     {
         $first_name = User::where("user_id", $user_id)->value("first_name");
         $last_name = User::where("user_id", $user_id)->value("last_name");
+        $date_obj = DateTime::createFromFormat("d/m/Y", User::where("user_id", $user_id)->value("dob"));
+        $dob = $date_obj->format("Y-m-d");
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
@@ -27,7 +30,7 @@ class IdentityVerifier
             CURLOPT_USERPWD => $this->api_key . ":" . $this->secret_key,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_POST => true,
-            CURLOPT_POSTFIELDS => json_encode(["clientId" => $user_id, "firstName" => $first_name, "lastName" => $last_name])
+            CURLOPT_POSTFIELDS => json_encode(["clientId" => $user_id, "firstName" => $first_name, "lastName" => $last_name, "dateOfBirth" => $dob])
         ));
 
         $response = curl_exec($curl);

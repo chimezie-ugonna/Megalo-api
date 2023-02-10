@@ -24,7 +24,7 @@ class TokenValidation
      */
     public function handle(Request $request, Closure $next)
     {
-        if ($request->path() != "api/v1/user/send_otp" && $request->path() != "api/v1/user/verify_otp" || $request->path() == "api/v1/user/send_otp" && $request->request->has("update") && $request->filled("update") && $request->request->get("update") || $request->path() == "api/v1/user/verify_otp" && $request->request->has("update") && $request->filled("update") && $request->request->get("update")) {
+        if ($request->path() != "api/v1/user/send_otp" && $request->path() != "api/v1/user/verify_otp" && $request->path() != "api/v1/user/verify_identity_webhook" || $request->path() == "api/v1/user/send_otp" && $request->request->has("update") && $request->filled("update") && $request->request->get("update") || $request->path() == "api/v1/user/verify_otp" && $request->request->has("update") && $request->filled("update") && $request->request->get("update")) {
             if ($request->bearerToken() != "") {
                 $auth = new Authentication();
                 $data = $auth->decode($request->bearerToken());
