@@ -82,6 +82,6 @@ class NotificationManager
       }
     }*/
 
-    return json_encode($response);
+    return json_decode($response, true);
   }
 }
