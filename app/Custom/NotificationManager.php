@@ -32,44 +32,46 @@ class NotificationManager
     }
     if (count($device_tokens) > 0) {
       foreach ($device_tokens as $device_token) {
-        $device_os = Login::where("device_token", $device_token)->value("device_os");
-        if ($device_token != "" && $device_os == "android" || $device_token != "" && $device_os == "ios") {
-          $user_id = Login::where("device_token", $device_token)->value("user_id");
-          if (!array_key_exists("notification_id", $array)) {
-            $array["notification_id"] = uniqid(rand(), true);
-          }
-          if (!array_key_exists("receiver_user_id", $array)) {
-            $array["receiver_user_id"] = $user_id;
-          }
+        if ($device_token != "") {
+          $device_os = Login::where("device_token", $device_token)->value("device_os");
+          if ($device_os == "android" || $device_os == "ios") {
+            $user_id = Login::where("device_token", $device_token)->value("user_id");
+            if (!array_key_exists("notification_id", $array)) {
+              $array["notification_id"] = uniqid(rand(), true);
+            }
+            if (!array_key_exists("receiver_user_id", $array)) {
+              $array["receiver_user_id"] = $user_id;
+            }
 
-          $ip_address = Login::where("device_token", $device_token)->value("ip_address");
-          if (array_key_exists("title", $array)) {
-            unset($array["title"]);
-          }
-          if (array_key_exists("body", $array)) {
-            unset($array["body"]);
-          }
-          $localization = new Localization($ip_address, $data);
-          $array["title"] = $localization->getText($array["title_key"]);
-          $array["body"] = $localization->getText($array["body_key"]);
+            $ip_address = Login::where("device_token", $device_token)->value("ip_address");
+            if (array_key_exists("title", $array)) {
+              unset($array["title"]);
+            }
+            if (array_key_exists("body", $array)) {
+              unset($array["body"]);
+            }
+            $localization = new Localization($ip_address, $data);
+            $array["title"] = $localization->getText($array["title_key"]);
+            $array["body"] = $localization->getText($array["body_key"]);
 
-          $message = new Message();
-          $notification = new Notification($array["title"], $array["body"]);
-          //$notification->setSound("notifications");
-          //$notification->setIcon("notification_icon");
-          $message->setNotification($notification);
-          $message->setData($data);
-          if ($device_os == "android") {
-            $message->setPriority("high");
-          } else if ($device_os == "ios") {
-            $message->setPriority("10");
-          }
-          $message->addRecipient(new Device($device_token));
-          $response = $this->client->send($message);
+            $message = new Message();
+            $notification = new Notification($array["title"], $array["body"]);
+            $notification->setSound("notifications");
+            $notification->setIcon("notification_icon");
+            $message->setNotification($notification);
+            $message->setData($data);
+            if ($device_os == "android") {
+              $message->setPriority("high");
+            } else if ($device_os == "ios") {
+              $message->setPriority("10");
+            }
+            $message->addRecipient(new Device($device_token));
+            $response = $this->client->send($message);
 
-          ModelsNotification::Create($array);
-          unset($array["notification_id"]);
-          unset($array["receiver_user_id"]);
+            ModelsNotification::Create($array);
+            unset($array["notification_id"]);
+            unset($array["receiver_user_id"]);
+          }
         }
       }
     }
