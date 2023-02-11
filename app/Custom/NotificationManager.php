@@ -54,7 +54,10 @@ class NotificationManager
           $array["body"] = $localization->getText($array["body_key"]);
 
           $message = new Message();
-          $message->setNotification(new Notification($array["title"], $array["body"]));
+          $notification = new Notification($array["title"], $array["body"]);
+          $notification->setSound("notifications");
+          $notification->setIcon("notification_icon");
+          $message->setNotification($notification);
           $message->setData($data);
           if ($device_os == "android") {
             $message->setPriority("high");
@@ -64,21 +67,9 @@ class NotificationManager
           $message->addRecipient(new Device($device_token));
           $response = $this->client->send($message);
 
-          if (!isset($response)) {
-            return response()->json([
-              "status" => false,
-              "message" => "A failure occurred while trying to send notification."
-            ], 500);
-          } else {
-            ModelsNotification::Create($array);
-            unset($array["notification_id"]);
-            unset($array["receiver_user_id"]);
-
-            return response()->json([
-              "status" => false,
-              "response" => $response
-            ], 200);
-          }
+          ModelsNotification::Create($array);
+          unset($array["notification_id"]);
+          unset($array["receiver_user_id"]);
         }
       }
     }
@@ -90,5 +81,7 @@ class NotificationManager
         deleteUserFcmToken($recipients[$i]);
       }
     }*/
+
+    return json_encode($response);
   }
 }
