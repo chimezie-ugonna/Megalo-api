@@ -3,27 +3,14 @@
 namespace App\Custom;
 
 use App\Models\Login;
-use App\Models\Notification as ModelsNotification;
-use GuzzleHttp\Client as GuzzleHttpClient;
-use sngrl\PhpFirebaseCloudMessaging\Client;
-use sngrl\PhpFirebaseCloudMessaging\Message;
-use sngrl\PhpFirebaseCloudMessaging\Notification;
-use sngrl\PhpFirebaseCloudMessaging\Recipient\Device;
+use App\Models\Notification;
 
 class NotificationManager
 {
 
-  private $client;
-
-  function __construct()
-  {
-    $this->client = new Client();
-    $this->client->setApiKey(getenv("FCM_SERVER_KEY"));
-    $this->client->injectGuzzleHttpClient(new GuzzleHttpClient());
-  }
-
   function sendNotification($array, $data, $type)
   {
+
     $response = true;
     if ($type == "general") {
       $device_tokens = Login::all()->pluck("device_token");
@@ -53,35 +40,46 @@ class NotificationManager
           $array["title"] = $localization->getText($array["title_key"]);
           $array["body"] = $localization->getText($array["body_key"]);
 
-          $message = new Message();
-          $notification = new Notification($array["title"], $array["body"]);
-          $notification->setSound("notifications.mp3");
-          $notification->setIcon("notification_icon");
-          $message->setNotification($notification);
-          $message->setData($data);
           if ($device_os == "android") {
-            $message->setPriority("high");
-          } else if ($device_os == "ios") {
-            $message->setPriority("10");
+            $priority = "high";
+          } else {
+            $priority = "10";
           }
-          $message->addRecipient(new Device($device_token));
-          $response = $this->client->send($message);
 
-          ModelsNotification::Create($array);
+          $notification = ["title" => $array["title"], "body" => $array["body"], "sound" => "notifications.mp3", "icon" => "notification_icon", "android_channel_id" => "megalo_general_channel_id"];
+          $json = json_encode(["to" => $device_token, "notification" => $notification, "data" => $data, "priority" => $priority]);
+          $curl = curl_init();
+
+          curl_setopt_array($curl, array(
+            CURLOPT_URL => "https://fcm.googleapis.com/fcm/send",
+            CURLOPT_HTTPHEADER => array(
+              "Content-Type: application/json",
+              "Authorization: key=" . getenv("FCM_SERVER_KEY")
+            ),
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => $json,
+            CURLOPT_CUSTOMREQUEST => "POST"
+          ));
+
+          $response = curl_exec($curl);
+
+
+          /*$responseData = $response->json();
+            foreach ($responseData["results"] as $i => $result) {
+              if (isset($result["error"])) {
+                deleteUserFcmToken($recipients[$i]);
+              }
+            }*/
+
+          Notification::Create($array);
           unset($array["notification_id"]);
           unset($array["receiver_user_id"]);
+
+          curl_close($curl);
+          return $response;
         }
       }
     }
-
-    /*$responseData = $response->json();
-
-    foreach ($responseData["results"] as $i => $result) {
-      if (isset($result["error"])) {
-        deleteUserFcmToken($recipients[$i]);
-      }
-    }*/
-
-    return $response;
   }
 }

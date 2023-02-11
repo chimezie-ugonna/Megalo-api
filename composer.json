@@ -16,7 +16,6 @@
         "laravel/framework": "^9.19",
         "laravel/tinker": "^2.7",
         "sendgrid/sendgrid": "^8.0",
-        "sngrl/php-firebase-cloud-messaging": "dev-master",
         "stripe/stripe-php": "^9.6",
         "twilio/sdk": "^6.40",
         "onfido/api-php-client": "^6.6.0"
