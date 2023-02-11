@@ -55,8 +55,8 @@ class NotificationManager
 
           $message = new Message();
           $notification = new Notification($array["title"], $array["body"]);
-          $notification->setSound("notifications");
-          $notification->setIcon("notification_icon");
+          //$notification->setSound("notifications");
+          //$notification->setIcon("notification_icon");
           $message->setNotification($notification);
           $message->setData($data);
           if ($device_os == "android") {
