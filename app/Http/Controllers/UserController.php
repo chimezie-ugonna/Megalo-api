@@ -63,10 +63,10 @@ class UserController extends Controller
             ], 500);
         }*/
 
-        return response()->json([
+        /*return response()->json([
             "status" => true,
             "message" => "The otp was not sent because our twilio credit is exhausted. But for testing purposes, this response is successful."
-        ], 200);
+        ], 200);*/
     }
 
     public function verifyOtp(Request $request)
