@@ -55,7 +55,7 @@ class NotificationManager
 
           $message = new Message();
           $notification = new Notification($array["title"], $array["body"]);
-          $notification->setSound("notifications");
+          $notification->setSound("notifications.mp3");
           $notification->setIcon("notification_icon");
           $message->setNotification($notification);
           $message->setData($data);
