@@ -73,6 +73,11 @@ class NotificationManager
             ModelsNotification::Create($array);
             unset($array["notification_id"]);
             unset($array["receiver_user_id"]);
+
+            return response()->json([
+              "status" => false,
+              "response" => $response
+            ], 200);
           }
         }
       }
