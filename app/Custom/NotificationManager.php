@@ -10,8 +10,6 @@ class NotificationManager
 
   function sendNotification($array, $data, $type)
   {
-
-    $response = true;
     if ($type == "general") {
       $device_tokens = Login::all()->pluck("device_token");
     } else {
@@ -47,7 +45,7 @@ class NotificationManager
           }
 
           $notification = ["title" => $array["title"], "body" => $array["body"], "sound" => "notifications.mp3", "icon" => "notification_icon", "android_channel_id" => "megalo_general_channel_id"];
-          $json = json_encode(["to" => $device_token, "notification" => $notification, "data" => $data, "priority" => $priority]);
+          $json = json_encode(["to" => $device_token, "notification" => $notification, "data" => [], "priority" => $priority]);
           $curl = curl_init();
 
           curl_setopt_array($curl, array(
