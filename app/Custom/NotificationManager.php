@@ -45,7 +45,7 @@ class NotificationManager
           }
 
           $notification = ["title" => $array["title"], "body" => $array["body"], "sound" => "notifications.mp3", "icon" => "notification_icon", "android_channel_id" => "megalo_general_channel_id"];
-          $json = json_encode(["to" => $device_token, "notification" => $notification, "data" => $notification, "priority" => $priority]);
+          $json = json_encode(["to" => "xnmcmnxcnmcmnbc", "notification" => $notification, "data" => array_merge($data, $notification), "priority" => $priority]);
           $curl = curl_init();
 
           curl_setopt_array($curl, array(
