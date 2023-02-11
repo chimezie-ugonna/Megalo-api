@@ -16,7 +16,7 @@ class NotificationController extends Controller
             $response = $notification_manager->sendNotification($request->all(), array(), "user_specific");
             return response()->json([
                 "status" => true,
-                "message" => $response
+                "message" => json_decode($response)
             ], 201);
         } else {
             return response()->json([
