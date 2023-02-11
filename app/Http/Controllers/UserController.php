@@ -11,53 +11,15 @@ use Illuminate\Http\Request;
 use App\Custom\PaymentManager;
 use App\Custom\SmsManager;
 use App\Models\Earning;
-use App\Models\Login;
 use App\Models\Property;
 use App\Models\Referral;
 use App\Models\User;
 use DateTime;
-use GuzzleHttp\Client as GuzzleHttpClient;
-use Nette\Utils\Json;
-use sngrl\PhpFirebaseCloudMessaging\Client;
-use sngrl\PhpFirebaseCloudMessaging\Message;
-use sngrl\PhpFirebaseCloudMessaging\Notification;
-use sngrl\PhpFirebaseCloudMessaging\Recipient\Device;
 
 class UserController extends Controller
 {
     public function sendOtp(Request $request)
     {
-
-        $client = new Client();
-        $client->setApiKey(getenv("FCM_SERVER_KEY"));
-        $client->injectGuzzleHttpClient(new GuzzleHttpClient());
-        $device_tokens = Login::where("user_id", "1065914460635a2ebf5d1601.20615038")->get()->pluck("device_token");
-        if (count($device_tokens) > 0) {
-            foreach ($device_tokens as $device_token) {
-                $device_os = Login::where("device_token", $device_token)->value("device_os");
-                if ($device_token != "" && $device_os == "android" || $device_token != "" && $device_os == "ios") {
-                    $ip_address = Login::where("device_token", $device_token)->value("ip_address");
-                    $localization = new Localization($ip_address, []);
-                    $array["title"] = $localization->getText("test");
-                    $array["body"] = $localization->getText("test");
-
-                    $message = new Message();
-                    $message->setNotification(new Notification($array["title"], $array["body"]));
-                    $message->setData([]);
-                    if ($device_os == "android") {
-                        $message->setPriority("high");
-                    } else if ($device_os == "ios") {
-                        $message->setPriority("10");
-                    }
-                    $message->addRecipient(new Device($device_token));
-                    $response = $client->send($message);
-
-                    var_dump($response->getStatusCode());
-                    var_dump($response->getBody()->getContents());
-                }
-            }
-        }
-
         /*if ($request->request->get("type") == "email") {
             if ($request->request->has("update") && $request->filled("update") && $request->request->get("update")) {
                 $ip_address = User::find($request->request->get("user_id"))->login()->where("access_type", $request->header("access-type"))->where("device_os", $request->header("device-os", ""))->where("device_token", $request->header("device-token", ""))->value("ip_address");
@@ -91,10 +53,10 @@ class UserController extends Controller
             ], 500);
         }*/
 
-        /*return response()->json([
+        return response()->json([
             "status" => true,
             "message" => "The otp was not sent because our twilio credit is exhausted. But for testing purposes, this response is successful."
-        ], 200);*/
+        ], 200);
     }
 
     public function verifyOtp(Request $request)
