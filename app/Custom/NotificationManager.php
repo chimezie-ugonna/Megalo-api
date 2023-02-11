@@ -70,16 +70,17 @@ class NotificationManager
               "message" => "A failure occurred while trying to send notification."
             ], 500);
           } else {
-            /*ModelsNotification::Create($array);
+            ModelsNotification::Create($array);
             unset($array["notification_id"]);
-            unset($array["receiver_user_id"]);*/
+            unset($array["receiver_user_id"]);
+
+            return response()->json([
+              "status" => false,
+              "response" => $response
+            ], 200);
           }
         }
       }
-      return response()->json([
-        "status" => false,
-        "response" => $response
-      ], 200);
     }
 
     /*$responseData = $response->json();

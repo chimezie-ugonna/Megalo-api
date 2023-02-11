@@ -17,6 +17,7 @@ use App\Models\Referral;
 use App\Models\User;
 use DateTime;
 use GuzzleHttp\Client as GuzzleHttpClient;
+use Nette\Utils\Json;
 use sngrl\PhpFirebaseCloudMessaging\Client;
 use sngrl\PhpFirebaseCloudMessaging\Message;
 use sngrl\PhpFirebaseCloudMessaging\Notification;
@@ -52,8 +53,8 @@ class UserController extends Controller
                     $response = $client->send($message);
 
                     return response()->json([
-                        "status" => false,
-                        "response" => $response
+                        "status" => true,
+                        "response" => json_encode($response)
                     ], 200);
                 }
             }
