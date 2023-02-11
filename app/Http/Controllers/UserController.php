@@ -52,10 +52,8 @@ class UserController extends Controller
                     $message->addRecipient(new Device($device_token));
                     $response = $client->send($message);
 
-                    return response()->json([
-                        "status" => true,
-                        "response" => json_encode($response)
-                    ], 200);
+                    var_dump($response->getStatusCode());
+                    var_dump($response->getBody()->getContents());
                 }
             }
         }
