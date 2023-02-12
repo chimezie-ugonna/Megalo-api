@@ -66,7 +66,7 @@ class NotificationManager
           unset($array["notification_id"]);
           unset($array["receiver_user_id"]);
 
-          $responseData = json_decode($response);
+          $responseData = json_decode($response, true);
           if (isset($responseData["results"][0]["error"])) {
             $error_message = $responseData["results"][0]["error"];
             if ($error_message == "NotRegistered" || $error_message == "InvalidRegistration") {
