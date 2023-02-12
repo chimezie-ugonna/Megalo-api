@@ -13,11 +13,18 @@ class NotificationController extends Controller
     {
         if (User::where("user_id", $request->request->get("receiver_user_id"))->exists()) {
             $notification_manager = new NotificationManager();
-            $notification_manager->sendNotification($request->all(), array(), "user_specific");
-            return response()->json([
-                "status" => true,
-                "message" => "Notification sent successfully."
-            ], 201);
+            $responseData = $notification_manager->sendNotification($request->all(), array(), "user_specific");
+            if (isset($responseData["results"][0]["error"])) {
+                return response()->json([
+                    "status" => false,
+                    "message" => "Notification not sent."
+                ], 500);
+            } else {
+                return response()->json([
+                    "status" => true,
+                    "message" => "Notification sent successfully."
+                ], 201);
+            }
         } else {
             return response()->json([
                 "status" => false,

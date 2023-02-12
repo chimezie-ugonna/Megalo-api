@@ -70,12 +70,12 @@ class NotificationManager
           if (isset($responseData["results"][0]["error"])) {
             $error_message = $responseData["results"][0]["error"];
             if ($error_message == "NotRegistered" || $error_message == "InvalidRegistration") {
-              //Delete login with this device_token
-              //cyAaHN34RfCg5_F6xOwaut:APA91bF2RWkBntRWgB-ahcvPYIyPJGoFcnV5stW8lrI8qi2wriXSuQulaEohB0G7utlK_RlSAI03ci7NUbZmSog6bH_P3YdvujBglE1esqGAdLmweGtZblzuAGuWhAHhGgD3pgQoHyft
+              Login::where("device_token", $device_token)->delete();
             }
           }
 
           curl_close($curl);
+          return $responseData;
         }
       }
     }
