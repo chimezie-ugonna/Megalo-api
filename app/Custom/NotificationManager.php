@@ -67,9 +67,12 @@ class NotificationManager
           unset($array["receiver_user_id"]);
 
           $responseData = json_decode($response, true);
-          $error_message = $responseData["results"][0]["error"];
-          if ($error_message == "NotRegistered" || $error_message == "InvalidRegistration") {
-            //Delete login with this device_token
+          if (isset($responseData["results"][0]["error"])) {
+            $error_message = $responseData["results"][0]["error"];
+            if ($error_message == "NotRegistered" || $error_message == "InvalidRegistration") {
+              //Delete login with this device_token
+              //cyAaHN34RfCg5_F6xOwaut:APA91bF2RWkBntRWgB-ahcvPYIyPJGoFcnV5stW8lrI8qi2wriXSuQulaEohB0G7utlK_RlSAI03ci7NUbZmSog6bH_P3YdvujBglE1esqGAdLmweGtZblzuAGuWhAHhGgD3pgQoHyft
+            }
           }
 
           curl_close($curl);
