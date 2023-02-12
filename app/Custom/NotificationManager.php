@@ -45,7 +45,7 @@ class NotificationManager
           }
 
           $notification = ["title" => $array["title"], "body" => $array["body"], "sound" => "notifications.mp3", "icon" => "notification_icon", "android_channel_id" => "megalo_general_channel_id"];
-          $json = json_encode(["to" => "cyAaHN34RfCg5_F6xOwaut:APA91bF2RWkBntRWgB-ahcvPYIyPJGoFcnV5stW8lrI8qi2wriXSuQulaEohB0G7utlK_RlSAI03ci7NUbZmSog6bH_P3YdvujBglE1esqGAdLmweGtZblzuAGuWhAHhGgD3pgQoHyft", "notification" => $notification, "data" => array_merge($data, $notification), "priority" => $priority]);
+          $json = json_encode(["to" => $device_token, "notification" => $notification, "data" => array_merge($data, $notification), "priority" => $priority]);
           $curl = curl_init();
 
           curl_setopt_array($curl, array(
@@ -62,20 +62,17 @@ class NotificationManager
 
           $response = curl_exec($curl);
 
-
-          /*$responseData = $response->json();
-            foreach ($responseData["results"] as $i => $result) {
-              if (isset($result["error"])) {
-                deleteUserFcmToken($recipients[$i]);
-              }
-            }*/
-
           Notification::Create($array);
           unset($array["notification_id"]);
           unset($array["receiver_user_id"]);
 
+          $responseData = json_decode($response, true);
+          $error_message = $responseData["results"][0]["error"];
+          if ($error_message == "NotRegistered" || $error_message == "InvalidRegistration") {
+            //Delete login with this device_token
+          }
+
           curl_close($curl);
-          return $response;
         }
       }
     }
