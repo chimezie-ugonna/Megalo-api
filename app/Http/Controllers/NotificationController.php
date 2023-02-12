@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Custom\NotificationManager;
-use App\Models\Login;
 use App\Models\Notification;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -14,24 +13,11 @@ class NotificationController extends Controller
     {
         if (User::where("user_id", $request->request->get("receiver_user_id"))->exists()) {
             $notification_manager = new NotificationManager();
-            $responseData = $notification_manager->sendNotification($request->all(), array(), "user_specific");
-            if (isset($responseData["results"][0]["error"])) {
-                $error_message = $responseData["results"][0]["error"];
-                if ($error_message == "NotRegistered" || $error_message == "InvalidRegistration") {
-                    Login::where("device_token", "cyAaHN34RfCg5_F6xOwaut:APA91bF2RWkBntRWgB-ahcvPYIyPJGoFcnV5stW8lrI8qi2wriXSuQulaEohB0G7utlK_RlSAI03ci7NUbZmSog6bH_P3YdvujBglE1esqGAdLmweGtZblzuAGuWhAHhGgD3pgQoHyft")->delete();
-                    return response()->json([
-                        "status" => false,
-                        "message" => "Notification failed.",
-                        "response" => $responseData
-                    ], 500);
-                }
-            } else {
-                return response()->json([
-                    "status" => true,
-                    "message" => "Notification sent successfully.",
-                    "response" => $responseData
-                ], 201);
-            }
+            $notification_manager->sendNotification($request->all(), array(), "user_specific");
+            return response()->json([
+                "status" => true,
+                "message" => "Notification sent successfully."
+            ], 201);
         } else {
             return response()->json([
                 "status" => false,

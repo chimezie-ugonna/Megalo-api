@@ -21,7 +21,9 @@ class NotificationManager
         if ($device_os == "android" || $device_os == "ios") {
           $user_id = Login::where("device_token", $device_token)->value("user_id");
           if (!array_key_exists("notification_id", $array)) {
-            $array["notification_id"] = uniqid(rand(), true);
+            do {
+              $array["notification_id"] = uniqid(rand(), true);
+            } while (Notification::where("notification_id", $array["notification_id"])->exists());
           }
           if (!array_key_exists("receiver_user_id", $array)) {
             $array["receiver_user_id"] = $user_id;
@@ -45,7 +47,7 @@ class NotificationManager
           }
 
           $notification = ["title" => $array["title"], "body" => $array["body"], "sound" => "notifications.mp3", "icon" => "notification_icon", "android_channel_id" => "megalo_general_channel_id"];
-          $json = json_encode(["to" => "hbvhvbhvbhbh", "notification" => $notification, "data" => array_merge($data, $notification), "priority" => $priority]);
+          $json = json_encode(["to" => $device_token, "notification" => $notification, "data" => array_merge($data, $notification), "priority" => $priority]);
           $curl = curl_init();
 
           curl_setopt_array($curl, array(
@@ -70,12 +72,11 @@ class NotificationManager
           if (isset($responseData["results"][0]["error"])) {
             $error_message = $responseData["results"][0]["error"];
             if ($error_message == "NotRegistered" || $error_message == "InvalidRegistration") {
-              Login::where("device_token", "nbvbbvhbnbnn")->delete();
+              Login::where("device_token", $device_token)->delete();
             }
           }
 
           curl_close($curl);
-          return $responseData;
         }
       }
     }
