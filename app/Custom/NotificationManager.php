@@ -45,7 +45,7 @@ class NotificationManager
           }
 
           $notification = ["title" => $array["title"], "body" => $array["body"], "sound" => "notifications.mp3", "icon" => "notification_icon", "android_channel_id" => "megalo_general_channel_id"];
-          $json = json_encode(["to" => "cyAaHN34RfCg5_F6xOwaut:APA91bF2RWkBntRWgB-ahcvPYIyPJGoFcnV5stW8lrI8qi2wriXSuQulaEohB0G7utlK_RlSAI03ci7NUbZmSog6bH_P3YdvujBglE1esqGAdLmweGtZblzuAGuWhAHhGgD3pgQoHyft", "notification" => $notification, "data" => array_merge($data, $notification), "priority" => $priority]);
+          $json = json_encode(["to" => "tesrretet", "notification" => $notification, "data" => array_merge($data, $notification), "priority" => $priority]);
           $curl = curl_init();
 
           curl_setopt_array($curl, array(
