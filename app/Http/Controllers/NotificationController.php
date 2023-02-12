@@ -21,13 +21,15 @@ class NotificationController extends Controller
                     Login::where("device_token", "cyAaHN34RfCg5_F6xOwaut:APA91bF2RWkBntRWgB-ahcvPYIyPJGoFcnV5stW8lrI8qi2wriXSuQulaEohB0G7utlK_RlSAI03ci7NUbZmSog6bH_P3YdvujBglE1esqGAdLmweGtZblzuAGuWhAHhGgD3pgQoHyft")->delete();
                     return response()->json([
                         "status" => false,
-                        "message" => "Notification failed."
+                        "message" => "Notification failed.",
+                        "response" => $responseData
                     ], 500);
                 }
             } else {
                 return response()->json([
                     "status" => true,
-                    "message" => "Notification sent successfully."
+                    "message" => "Notification sent successfully.",
+                    "response" => $responseData
                 ], 201);
             }
         } else {
