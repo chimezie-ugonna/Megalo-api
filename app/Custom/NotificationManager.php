@@ -66,8 +66,8 @@ class NotificationManager
           unset($array["notification_id"]);
           unset($array["receiver_user_id"]);
 
-          /*$responseData = json_decode($response, true);
-          if (isset($responseData["results"][0]["error"])) {
+          $responseData = json_decode($response);
+          /*if (isset($responseData["results"][0]["error"])) {
             $error_message = $responseData["results"][0]["error"];
             if ($error_message == "NotRegistered" || $error_message == "InvalidRegistration") {
               Login::where("device_token", $device_token)->delete();
@@ -75,7 +75,7 @@ class NotificationManager
           }*/
 
           curl_close($curl);
-          return $response;
+          return $responseData;
         }
       }
     }
