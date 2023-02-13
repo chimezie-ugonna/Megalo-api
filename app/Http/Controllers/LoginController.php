@@ -47,7 +47,7 @@ class LoginController extends Controller
 
     public function updateDeviceToken(Request $request)
     {
-        $login = Login::where("device_token", $request->header("device-token", ""));
+        $login = Login::where("device_token", $request->header("device-token", ""))->get();
         $login->device_token = $request->request->get("device_token");
         $login->device_token_updated_at = now()->toDateTimeString();
         $login->timestamps = false;
