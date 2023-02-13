@@ -50,7 +50,6 @@ class TokenValidation
                                 "device_brand" => $request->header("device-brand", ""),
                                 "device_model" => $request->header("device-model", ""),
                                 "app_version" => $request->header("app-version", ""),
-                                "os_version" => $request->header("os-version", ""),
                                 "ip_address" => $ip_address,
                                 "updated_at" => now()
                             ]);
