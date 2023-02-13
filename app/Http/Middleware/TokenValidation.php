@@ -113,14 +113,16 @@ class TokenValidation
                                     break;
                             }
 
-                            Login::where("user_id", $user_id)->where("access_type", $request->header("access-type"))->where("device_os", $request->header("device-os", ""))->where("device_token", $request->header("device-token", ""))->update([
-                                "device_brand" => $request->header("device-brand", ""),
-                                "device_model" => $request->header("device-model", ""),
-                                "app_version" => $request->header("app-version", ""),
-                                "os_version" => $request->header("os-version", ""),
-                                "ip_address" => $ip_address,
-                                "updated_at" => now()
-                            ]);
+                            if ($request->path() != "api/v1/login/update_device_token") {
+                                Login::where("user_id", $user_id)->where("access_type", $request->header("access-type"))->where("device_os", $request->header("device-os", ""))->where("device_token", $request->header("device-token", ""))->update([
+                                    "device_brand" => $request->header("device-brand", ""),
+                                    "device_model" => $request->header("device-model", ""),
+                                    "app_version" => $request->header("app-version", ""),
+                                    "os_version" => $request->header("os-version", ""),
+                                    "ip_address" => $ip_address,
+                                    "updated_at" => now()
+                                ]);
+                            }
                         } else {
                             return response()->json([
                                 "status" => false,
