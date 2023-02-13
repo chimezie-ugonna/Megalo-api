@@ -71,7 +71,6 @@ class PropertyController extends Controller
                     $last_dividend_payment_period = strtotime(PaidDividend::where("property_id", $request->request->get("property_id"))->latest()->first()->created_at);
                     $last_dividend_payment_year = date("Y", $last_dividend_payment_period);
                     $last_dividend_payment_month = date("m", $last_dividend_payment_period);
-                    date_default_timezone_set("UTC");
                     $current_year = date("Y");
                     $current_month = date("m");
                     if ($last_dividend_payment_year == $current_year && $last_dividend_payment_month == $current_month) {

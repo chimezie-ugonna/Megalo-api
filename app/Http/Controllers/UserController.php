@@ -430,7 +430,6 @@ class UserController extends Controller
                 if (User::where("user_id", $request->request->get("user_id"))->value("payment_account_id") != "") {
                     $add_payment_method_response = $payment_manager->manage(array("type" => "add_account_payment_method", "account_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_account_id"), "data" => ["token" => $token]));
                 } else {
-                    date_default_timezone_set("UTC");
                     $account_response = $payment_manager->manage(array("type" => "create_account", "data" => ["time_stamp" => strtotime(date("Y-m-d H:i:s")), "ip_address" => User::find($request->request->get("user_id"))->login()->where("access_type", $request->header("access-type"))->where("device_os", $request->header("device-os", ""))->where("device_token", $request->header("device-token", ""))->value("ip_address")]));
                     if (isset($account_response) && isset($account_response["id"])) {
                         User::find($request->request->get("user_id"))->update(["payment_account_id" => $account_response["id"]]);

@@ -185,7 +185,6 @@ class InvestmentController extends Controller
             $initial_investment_period = strtotime(Investment::where("property_id", $request->request->get("property_id"))->where("user_id", $request->request->get("user_id"))->value("created_at"));
             $initial_investment_year = date("Y", $initial_investment_period);
             $initial_investment_month = date("m", $initial_investment_period);
-            date_default_timezone_set("UTC");
             $current_year = date("Y");
             $current_month = date("m");
             $payment_manager = new PaymentManager();

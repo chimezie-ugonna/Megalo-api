@@ -30,7 +30,7 @@ class TokenValidation
                 $data = $auth->decode($request->bearerToken());
                 if (isset($data) && isset($data["data"])) {
                     $ip_address_manager = new IpAddressManager();
-                    $ip_address = $ip_address_manager->getIpAddress();
+                    $ip_address = "";//$ip_address_manager->getIpAddress();
 
                     $user_id = $data["data"];
                     if ($request->path() == "api/v1/user/create" || $request->path() == "api/v1/login/create") {

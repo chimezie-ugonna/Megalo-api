@@ -24,6 +24,7 @@ return new class extends Migration
             $table->text("app_version");
             $table->text("os_version");
             $table->text("ip_address");
+            $table->timestampTz("device_token_updated_at")->useCurrent();
             $table->timestampTz("created_at");
             $table->timestampTz("updated_at");
         });

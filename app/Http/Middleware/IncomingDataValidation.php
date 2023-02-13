@@ -351,6 +351,10 @@ class IncomingDataValidation
                     "action" => ["bail", "required", "in:deposit,withdrawal"],
                     "id" => ["bail", "required"]
                 ]);
+            } else if ($request->path() == "api/v1/login/delete") {
+                $request->validate([
+                    "everywhere" => ["bail", "filled", "boolean"]
+                ]);
             }
         }
         return $next($request);

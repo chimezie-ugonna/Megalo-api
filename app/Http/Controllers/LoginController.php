@@ -47,27 +47,46 @@ class LoginController extends Controller
 
     public function updateDeviceToken(Request $request)
     {
-        Login::where("device_token", $request->header("device-token", ""))->update(["device_token" => $request->request->get("device_token")]);
+        $login = Login::where("device_token", $request->header("device-token", ""));
+        $login->device_token = $request->request->get("device_token");
+        $login->device_token_updated_at = now()->toDateTimeString();
+        $login->timestamps = false;
+        $login->save();
         return response()->json([
             "status" => true,
             "message" => "Device token updated successfully.",
-            "date" => ["device_token" => $request->request->get("device_token")]
+            "data" => ["device_token" => $request->request->get("device_token")]
         ], 200);
     }
 
     public function delete(Request $request)
     {
-        if (Login::where("user_id", $request->request->get("user_id"))->where("access_type", $request->header("access-type"))->where("device_os", $request->header("device-os", ""))->where("device_token", $request->header("device-token", ""))->exists()) {
-            Login::where("user_id", $request->request->get("user_id"))->where("access_type", $request->header("access-type"))->where("device_os", $request->header("device-os", ""))->where("device_token", $request->header("device-token", ""))->delete();
-            return response()->json([
-                "status" => true,
-                "message" => "User logged out successfully."
-            ], 200);
+        if ($request->request->has("everywhere") && $request->filled("everywhere") && $request->request->get("everywhere")) {
+            if (Login::where("user_id", $request->request->get("user_id"))->exists()) {
+                Login::where("user_id", $request->request->get("user_id"))->delete();
+                return response()->json([
+                    "status" => true,
+                    "message" => "User logged out successfully."
+                ], 200);
+            } else {
+                return response()->json([
+                    "status" => false,
+                    "message" => "No login data found."
+                ], 404);
+            }
         } else {
-            return response()->json([
-                "status" => false,
-                "message" => "Login data not found."
-            ], 404);
+            if (Login::where("user_id", $request->request->get("user_id"))->where("access_type", $request->header("access-type"))->where("device_os", $request->header("device-os", ""))->where("device_token", $request->header("device-token", ""))->exists()) {
+                Login::where("user_id", $request->request->get("user_id"))->where("access_type", $request->header("access-type"))->where("device_os", $request->header("device-os", ""))->where("device_token", $request->header("device-token", ""))->delete();
+                return response()->json([
+                    "status" => true,
+                    "message" => "User logged out successfully."
+                ], 200);
+            } else {
+                return response()->json([
+                    "status" => false,
+                    "message" => "Login data not found."
+                ], 404);
+            }
         }
     }
 }
