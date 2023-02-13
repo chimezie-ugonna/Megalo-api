@@ -9,7 +9,6 @@ use App\Custom\IpAddressManager;
 use App\Models\FailedWithdrawal;
 use App\Models\User;
 use App\Models\Login;
-use App\Models\Notification;
 use App\Models\Payment;
 use App\Models\Property;
 
@@ -50,6 +49,7 @@ class TokenValidation
                                 "device_brand" => $request->header("device-brand", ""),
                                 "device_model" => $request->header("device-model", ""),
                                 "app_version" => $request->header("app-version", ""),
+                                "os_version" => $request->header("os-version", ""),
                                 "ip_address" => $ip_address,
                                 "updated_at" => now()
                             ]);
@@ -98,10 +98,6 @@ class TokenValidation
 
                             switch ($request->path()) {
                                 case "api/v1/property/create":
-                                    if ($request->request->has("property_id")) {
-                                        $request->request->remove("property_id");
-                                    }
-
                                     do {
                                         $property_id = uniqid(rand(), true);
                                     } while (Property::where("property_id", $property_id)->exists());
@@ -109,25 +105,10 @@ class TokenValidation
 
                                     break;
                                 case "api/v1/payment/create":
-                                    if ($request->request->has("payment_id")) {
-                                        $request->request->remove("payment_id");
-                                    }
-
                                     do {
                                         $payment_id = uniqid(rand(), true);
                                     } while (Payment::where("payment_id", $payment_id)->exists() || FailedWithdrawal::where("payment_id", $payment_id)->exists());
                                     $request->request->add(["payment_id" => $payment_id]);
-
-                                    break;
-                                case "api/v1/notification/create":
-                                    if ($request->request->has("notification_id")) {
-                                        $request->request->remove("notification_id");
-                                    }
-
-                                    do {
-                                        $notification_id = uniqid(rand(), true);
-                                    } while (Notification::where("notification_id", $notification_id)->exists());
-                                    $request->request->add(["notification_id" => $notification_id]);
 
                                     break;
                             }
@@ -146,9 +127,6 @@ class TokenValidation
                                 "message" => "Unauthorized access, unknown user."
                             ], 401);
                         }
-                    }
-                    if ($request->request->has("user_id")) {
-                        $request->request->remove("user_id");
                     }
                     $request->request->add(["user_id" => $user_id]);
                 } else {

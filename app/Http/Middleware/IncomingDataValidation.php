@@ -44,7 +44,8 @@ class IncomingDataValidation
                     "identity_verified" => ["bail", "prohibited"],
                     "referral_code" => ["bail", "filled", "not_in:null"],
                     "payment_customer_id" => ["bail", "prohibited"],
-                    "payment_account_id" => ["bail", "prohibited"]
+                    "payment_account_id" => ["bail", "prohibited"],
+                    "user_id" => ["bail", "prohibited"]
                 ]);
                 if ($request->request->has("full_name") && $request->filled("full_name")) {
                     $full_name_split = explode(" ", $request->request->get("full_name"), 2);
@@ -106,7 +107,8 @@ class IncomingDataValidation
                     "monthly_earning_usd" => ["bail", "required", "numeric"],
                     "value_average_annual_change_percentage" => ["bail", "required", "numeric"],
                     "sold" => ["bail", "prohibited"],
-                    "company_percentage" => ["bail", "prohibited"]
+                    "company_percentage" => ["bail", "prohibited"],
+                    "property_id" => ["bail", "prohibited"]
                 ]);
             } else if ($request->path() == "api/v1/property/pay_dividend") {
                 $request->validate([
@@ -124,7 +126,8 @@ class IncomingDataValidation
                 $request->validate([
                     "type" => ["bail", "required", "in:deposit,withdrawal"],
                     "reference" => ["bail", "prohibited"],
-                    "amount_usd" => ["bail", "required", "numeric", "gte:0.50", "lte:999999.99"]
+                    "amount_usd" => ["bail", "required", "numeric", "gte:0.50", "lte:999999.99"],
+                    "payment_id" => ["bail", "prohibited"]
                 ]);
             } else if ($request->path() == "api/v1/notification/create") {
                 $request->validate([
@@ -138,7 +141,8 @@ class IncomingDataValidation
                     "title_key" => ["bail", "required", "in:test"],
                     "body_key" => ["bail", "required", "in:test"],
                     "title" => ["bail", "prohibited"],
-                    "body" => ["bail", "prohibited"]
+                    "body" => ["bail", "prohibited"],
+                    "notification_id" => ["bail", "prohibited"]
                 ]);
             } else if ($request->path() == "api/v1/notification/create_all") {
                 $request->validate([
@@ -152,7 +156,8 @@ class IncomingDataValidation
                     "title_key" => ["bail", "required", "in:test"],
                     "body_key" => ["bail", "required", "in:test"],
                     "title" => ["bail", "prohibited"],
-                    "body" => ["bail", "prohibited"]
+                    "body" => ["bail", "prohibited"],
+                    "notification_id" => ["bail", "prohibited"]
                 ]);
             }
         } else if ($request->isMethod("put") || $request->isMethod("patch")) {

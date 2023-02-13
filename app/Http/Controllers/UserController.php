@@ -165,7 +165,6 @@ class UserController extends Controller
                     if (!Referral::where("referree_phone_number", $referree_phone_number)->exists() && !Referral::where("referrer_phone_number", $referree_phone_number)->exists()) {
                         $has_referral = true;
                     }
-                    $request->request->remove("referral_code");
                 } else {
                     return response()->json([
                         "status" => false,
