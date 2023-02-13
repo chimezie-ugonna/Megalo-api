@@ -30,7 +30,7 @@ class TokenValidation
                 $data = $auth->decode($request->bearerToken());
                 if (isset($data) && isset($data["data"])) {
                     $ip_address_manager = new IpAddressManager();
-                    $ip_address = "";//$ip_address_manager->getIpAddress();
+                    $ip_address = $ip_address_manager->getIpAddress();
 
                     $user_id = $data["data"];
                     if ($request->path() == "api/v1/user/create" || $request->path() == "api/v1/login/create") {
@@ -42,48 +42,24 @@ class TokenValidation
                                     $user_id = uniqid(rand(), true);
                                 } while (User::where("user_id", $user_id)->exists());
                             }
+
+                            $request->request->add([
+                                "access_type" => $request->header("access-type"),
+                                "device_os" => $request->header("device-os", ""),
+                                "device_token" => $request->header("device-token", ""),
+                                "device_brand" => $request->header("device-brand", ""),
+                                "device_model" => $request->header("device-model", ""),
+                                "app_version" => $request->header("app-version", ""),
+                                "os_version" => $request->header("os-version", ""),
+                                "ip_address" => $ip_address,
+                                "updated_at" => now()
+                            ]);
                         } else {
                             return response()->json([
                                 "status" => false,
                                 "message" => "Unauthorized access, unknown user."
                             ], 401);
                         }
-                        if ($request->request->has("access_type")) {
-                            $request->request->remove("access_type");
-                        }
-                        if ($request->request->has("device_os")) {
-                            $request->request->remove("device_os");
-                        }
-                        if ($request->request->has("device_token")) {
-                            $request->request->remove("device_token");
-                        }
-                        if ($request->request->has("device_brand")) {
-                            $request->request->remove("device_brand");
-                        }
-                        if ($request->request->has("device_model")) {
-                            $request->request->remove("device_model");
-                        }
-                        if ($request->request->has("app_version")) {
-                            $request->request->remove("app_version");
-                        }
-                        if ($request->request->has("os_version")) {
-                            $request->request->remove("os_version");
-                        }
-                        if ($request->request->has("ip_address")) {
-                            $request->request->remove("ip_address");
-                        }
-
-                        $request->request->add([
-                            "access_type" => $request->header("access-type"),
-                            "device_os" => $request->header("device-os", ""),
-                            "device_token" => $request->header("device-token", ""),
-                            "device_brand" => $request->header("device-brand", ""),
-                            "device_model" => $request->header("device-model", ""),
-                            "app_version" => $request->header("app-version", ""),
-                            "os_version" => $request->header("os-version", ""),
-                            "ip_address" => $ip_address,
-                            "updated_at" => now()
-                        ]);
                     } else {
                         if (User::where("user_id", $user_id)->exists()) {
                             if (!Login::where("user_id", $user_id)->where("access_type", $request->header("access-type"))->where("device_os", $request->header("device-os", ""))->where("device_token", $request->header("device-token", ""))->exists()) {
