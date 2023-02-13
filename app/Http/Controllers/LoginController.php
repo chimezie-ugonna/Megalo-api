@@ -45,6 +45,16 @@ class LoginController extends Controller
         ], 200);
     }
 
+    public function updateDeviceToken(Request $request)
+    {
+        Login::where("device_token", $request->header("device-token", ""))->update(["device_token" => $request->request->get("device_token")]);
+        return response()->json([
+            "status" => true,
+            "message" => "Device token updated successfully.",
+            "date" => ["device_token" => $request->request->get("device_token")]
+        ], 200);
+    }
+
     public function delete(Request $request)
     {
         if (Login::where("user_id", $request->request->get("user_id"))->where("access_type", $request->header("access-type"))->where("device_os", $request->header("device-os", ""))->where("device_token", $request->header("device-token", ""))->exists()) {

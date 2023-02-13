@@ -237,6 +237,10 @@ class IncomingDataValidation
                     "action" => ["bail", "required", "in:deposit,withdrawal"],
                     "id" => ["bail", "required"]
                 ]);
+            } else if ($request->path() == "api/v1/user/update_device_token") {
+                $request->validate([
+                    "device_token" => ["bail", "required"]
+                ]);
             } else if ($request->path() == "api/v1/investment/liquidate") {
                 $request->validate([
                     "property_id" => ["bail", "required"],

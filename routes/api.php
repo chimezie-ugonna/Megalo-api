@@ -51,6 +51,7 @@ Route::middleware([EnsureSecureUrl::class, CheckHeader::class, IncomingDataValid
         Route::post("/login/create", "create");
         Route::get("/login/read", "read");
         Route::get("/login/read_all", "readAll");
+        Route::put("/login/update_device_token", "updateDeviceToken");
         Route::delete("/login/delete", "delete");
     });
 
