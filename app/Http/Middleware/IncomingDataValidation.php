@@ -45,7 +45,8 @@ class IncomingDataValidation
                     "referral_code" => ["bail", "filled", "not_in:null"],
                     "payment_customer_id" => ["bail", "prohibited"],
                     "payment_account_id" => ["bail", "prohibited"],
-                    "user_id" => ["bail", "prohibited"]
+                    "user_id" => ["bail", "prohibited"],
+                    "device_token_updated_at" => ["bail", "prohibited"]
                 ]);
                 if ($request->request->has("full_name") && $request->filled("full_name")) {
                     $full_name_split = explode(" ", $request->request->get("full_name"), 2);
@@ -88,7 +89,8 @@ class IncomingDataValidation
                 }
             } else if ($request->path() == "api/v1/login/create") {
                 $request->validate([
-                    "phone_number" => ["bail", "required"]
+                    "phone_number" => ["bail", "required"],
+                    "device_token_updated_at" => ["bail", "prohibited"]
                 ]);
             } else if ($request->path() == "api/v1/investment/create") {
                 $request->validate([
@@ -242,7 +244,7 @@ class IncomingDataValidation
                     "action" => ["bail", "required", "in:deposit,withdrawal"],
                     "id" => ["bail", "required"]
                 ]);
-            } else if ($request->path() == "api/v1/user/update_device_token") {
+            } else if ($request->path() == "api/v1/login/update_device_token") {
                 $request->validate([
                     "device_token" => ["bail", "required"]
                 ]);
