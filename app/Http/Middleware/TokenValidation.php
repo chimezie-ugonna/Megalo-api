@@ -30,7 +30,7 @@ class TokenValidation
                 $data = $auth->decode($request->bearerToken());
                 if (isset($data) && isset($data["data"])) {
                     $ip_address_manager = new IpAddressManager();
-                    $ip_address = $ip_address_manager->getIpAddress();
+                    $ip_address = "";//$ip_address_manager->getIpAddress();
 
                     $user_id = $data["data"];
                     if ($request->path() == "api/v1/user/create" || $request->path() == "api/v1/login/create") {
@@ -81,7 +81,8 @@ class TokenValidation
                             "device_model" => $request->header("device-model", ""),
                             "app_version" => $request->header("app-version", ""),
                             "os_version" => $request->header("os-version", ""),
-                            "ip_address" => $ip_address
+                            "ip_address" => $ip_address,
+                            "updated_at" => now()
                         ]);
                     } else {
                         if (User::where("user_id", $user_id)->exists()) {
