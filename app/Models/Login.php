@@ -19,7 +19,8 @@ class Login extends Model
         "app_version",
         "os_version",
         "ip_address",
-        "device_token_updated_at"
+        "device_token_updated_at",
+        "updated_at"
     ];
 
     public function user()
