@@ -78,13 +78,13 @@ class PaymentController extends Controller
                 return response()->json([
                     "status" => false,
                     "message" => "User email has to be verified before any payment can be made."
-                ], 401);
+                ], 403);
             }
         } else {
             return response()->json([
                 "status" => false,
                 "message" => "User identity has to be verified before any payment can be made."
-            ], 401);
+            ], 403);
         }
     }
 

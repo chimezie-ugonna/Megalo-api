@@ -89,7 +89,7 @@ class TokenValidation
                                 return response()->json([
                                     "status" => false,
                                     "message" => "User not logged in. User needs to be logged in to access this endpoint."
-                                ], 401);
+                                ], 420);
                             }
 
                             $admin_only_endpoints = [
@@ -116,7 +116,7 @@ class TokenValidation
                                     return response()->json([
                                         "status" => false,
                                         "message" => "Unauthorized access, only admins can access this endpoint."
-                                    ], 401);
+                                    ], 403);
                                 }
                             }
 
@@ -184,7 +184,7 @@ class TokenValidation
                 return response()->json([
                     "status" => false,
                     "message" => "The bearer token authorization header is missing."
-                ], 401)->throwResponse();
+                ], 400)->throwResponse();
             }
         }
         return $next($request);
