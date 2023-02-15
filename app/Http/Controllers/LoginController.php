@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Login;
 use App\Custom\Authentication;
-use App\Custom\NotificationManager;
 
 class LoginController extends Controller
 {
@@ -48,13 +47,11 @@ class LoginController extends Controller
 
     public function updateDeviceToken(Request $request)
     {
-        $notification_manager = new NotificationManager();
-        $notification_manager->sendNotification(["receiver_user_id" => "1065914460635a2ebf5d1601.20615038", "title_key" => "test", "body_key" => "test"], array(), "user_specific");
-        /*$login = Login::where("user_id", $request->request->get("user_id"))->where("access_type", $request->header("access-type"))->where("device_os", $request->header("device-os", ""))->where("device_token", $request->header("device-token", ""))->first();
+        $login = Login::where("user_id", $request->request->get("user_id"))->where("access_type", $request->header("access-type"))->where("device_os", $request->header("device-os", ""))->where("device_token", $request->header("device-token", ""))->first();
         $login->device_token = $request->request->get("device_token");
         $login->device_token_updated_at = now();
         $login->timestamps = false;
-        $login->save();*/
+        $login->save();
         return response()->json([
             "status" => true,
             "message" => "Device token updated successfully.",
