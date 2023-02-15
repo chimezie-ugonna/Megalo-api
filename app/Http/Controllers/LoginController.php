@@ -58,7 +58,7 @@ class LoginController extends Controller
         return response()->json([
             "status" => true,
             "message" => "Device token updated successfully.",
-            "data" => ["device_token" => "It worked."]
+            "data" => ["device_token" => "It worked again."]
         ], 200);
     }
 
