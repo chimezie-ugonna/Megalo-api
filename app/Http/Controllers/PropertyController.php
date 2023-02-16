@@ -131,7 +131,7 @@ class PropertyController extends Controller
                     return response()->json([
                         "status" => false,
                         "message" => "This property has already paid its dividend this month."
-                    ], 400);
+                    ], 403);
                 }
             } else {
                 return response()->json([

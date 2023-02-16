@@ -141,7 +141,7 @@ class TokenValidation
                 return response()->json([
                     "status" => false,
                     "message" => "The bearer token authorization header is missing."
-                ], 400)->throwResponse();
+                ], 401)->throwResponse();
             }
         }
         return $next($request);

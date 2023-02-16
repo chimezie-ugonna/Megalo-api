@@ -108,7 +108,7 @@ class UserController extends Controller
                 return response()->json([
                     "status" => false,
                     "message" => "The otp verification was unsuccessful. Code is incorrect."
-                ], 400);
+                ], 403);
             }
         } else {
             return response()->json([
@@ -270,19 +270,26 @@ class UserController extends Controller
 
     public function verifyIdentity(Request $request)
     {
-        $identity_verifier = new IdentityVerifier();
-        $response = json_decode($identity_verifier->generateToken($request->request->get("user_id")), true);
-        if (isset($response) && isset($response["authToken"])) {
-            return response()->json([
-                "status" => true,
-                "message" => "Identity verification process initiated.",
-                "data" => ["auth_token" => $response["authToken"]]
-            ], 200);
+        if (!User::where("user_id", $request->request->get("user_id"))->value("identity_verified")) {
+            $identity_verifier = new IdentityVerifier();
+            $response = json_decode($identity_verifier->generateToken($request->request->get("user_id")), true);
+            if (isset($response) && isset($response["authToken"])) {
+                return response()->json([
+                    "status" => true,
+                    "message" => "Identity verification process initiated.",
+                    "data" => ["auth_token" => $response["authToken"]]
+                ], 200);
+            } else {
+                return response()->json([
+                    "status" => false,
+                    "message" => "An error occurred while initiating identity verification, identity verification initiation failed."
+                ], 500);
+            }
         } else {
             return response()->json([
                 "status" => false,
-                "message" => "An error occurred while initiating identity verification, identity verification initiation failed."
-            ], 500);
+                "message" => "This user's identity has already been verified.",
+            ], 403);
         }
     }
 
@@ -346,12 +353,11 @@ class UserController extends Controller
     public function update(Request $request)
     {
         if ($request->request->has("first_name") && $request->filled("first_name") || $request->request->has("last_name") && $request->filled("last_name") || $request->request->has("dob") && $request->filled("dob")) {
-            $identity_verified = User::where("user_id", $request->request->get("user_id"))->value("identity_verified");
-            if ($identity_verified) {
+            if (User::where("user_id", $request->request->get("user_id"))->value("identity_verified")) {
                 return response()->json([
                     "status" => false,
                     "message" => "This user's identity has been verified so they can not update their name or dob.",
-                ], 400);
+                ], 403);
             }
         }
         User::find($request->request->get("user_id"))->update($request->all());
