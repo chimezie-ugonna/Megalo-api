@@ -306,9 +306,10 @@ class UserController extends Controller
                     if (intval($interval->y) < 18) {
                         $body_key = "identity_verification_success_under_age";
                     } else {
-                        User::find($request->request->get("clientId"))->update(["identity_verified" => true]);
+                        User::find($request->request->get("clientId"))->update(["identity_verified" => true, "nationality" => $request->request->get("data")["docNationality"], "verified_selfie_url" => $request->request->get("fileUrls")["FACE"], "gender" => $request->request->get("data")["docSex"]]);
                     }
                 } else if ($request->request->get("status")["overall"] == "SUSPECTED") {
+                    $mismatchTags = json_decode($request->request->get("status")["mismatchTags"]);
                     if ($request->request->get("status")["autoDocument"] == "DOC_VALIDATED" && $request->request->get("status")["manualDocument"] == "DOC_VALIDATED" && $request->request->get("status")["autoFace"] == "FACE_MATCH" && $request->request->get("status")["manualFace"] == "FACE_MATCH") {
                         $today = new DateTime(date("Y-m-d"));
                         $bday = new DateTime($request->request->get("data")["docDob"]);
@@ -316,7 +317,15 @@ class UserController extends Controller
                         if (intval($interval->y) < 18) {
                             $body_key = "identity_verification_success_under_age";
                         } else {
-                            User::find($request->request->get("clientId"))->update(["identity_verified" => true]);
+                            User::find($request->request->get("clientId"))->update(["identity_verified" => true, "nationality" => $request->request->get("data")["docNationality"], "verified_selfie_url" => $request->request->get("fileUrls")["FACE"], "gender" => $request->request->get("data")["docSex"]]);
+                        }
+                    } else if (sizeof($mismatchTags) > 0) {
+                        if (in_array("NAME", $mismatchTags) || in_array("SURNAME", $mismatchTags) || in_array("DATE_OF_BIRTH", $mismatchTags)) {
+                            $status = false;
+                            $body_key = "identity_verification_failed_data_mismatch";
+                        } else {
+                            $status = false;
+                            $body_key = "identity_verification_failed_body";
                         }
                     } else {
                         $status = false;

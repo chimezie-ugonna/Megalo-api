@@ -46,7 +46,10 @@ class IncomingDataValidation
                     "payment_customer_id" => ["bail", "prohibited"],
                     "payment_account_id" => ["bail", "prohibited"],
                     "user_id" => ["bail", "prohibited"],
-                    "device_token_updated_at" => ["bail", "prohibited"]
+                    "device_token_updated_at" => ["bail", "prohibited"],
+                    "nationality" => ["bail", "prohibited"],
+                    "verified_selfie_url" => ["bail", "prohibited"],
+                    "gender" => ["bail", "prohibited"]
                 ]);
                 if ($request->request->has("full_name") && $request->filled("full_name")) {
                     $full_name_split = explode(" ", $request->request->get("full_name"), 2);
@@ -205,7 +208,10 @@ class IncomingDataValidation
                     "email" => ["bail", "prohibited"],
                     "referral_code" => ["bail", "prohibited"],
                     "payment_customer_id" => ["bail", "prohibited"],
-                    "payment_account_id" => ["bail", "prohibited"]
+                    "payment_account_id" => ["bail", "prohibited"],
+                    "nationality" => ["bail", "prohibited"],
+                    "verified_selfie_url" => ["bail", "prohibited"],
+                    "gender" => ["bail", "prohibited"]
                 ]);
                 if (sizeof($request->all()) == 0) {
                     return response()->json([
