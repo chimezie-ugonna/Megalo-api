@@ -295,44 +295,34 @@ class UserController extends Controller
 
     public function verifyIdentityWebhook(Request $request)
     {
-        $notification_manager = new NotificationManager();
-        $notification_manager->sendNotification(array(
-            "receiver_user_id" => "1065914460635a2ebf5d1601.20615038",
-            "title_key" => "test",
-            "body_key" => "test",
-            "tappable" => false,
-            "redirection_page" => "",
-            "redirection_page_id" => ""
-        ), array(), "user_specific");
-        /*$data = $request()->json()->all();
-        if (User::where("user_id", $data["clientId"])->exists()) {
-            if ($data["status"]["overall"] == "APPROVED" || $data["status"]["overall"] == "DENIED" || $data["status"]["overall"] == "SUSPECTED") {
+        if (User::where("user_id", $request->request->get("clientId"))->exists()) {
+            if ($request->request->get("status")["overall"] == "APPROVED" || $request->request->get("status")["overall"] == "DENIED" || $request->request->get("status")["overall"] == "SUSPECTED") {
                 $status = true;
                 $body_key = "identity_verification_success_body";
-                if ($data["status"]["overall"] == "APPROVED") {
+                if ($request->request->get("status")["overall"] == "APPROVED") {
                     $today = new DateTime(date("Y-m-d"));
-                    $bday = new DateTime($data["data"]["docDob"]);
+                    $bday = new DateTime($request->request->get("data")["docDob"]);
                     $interval = $today->diff($bday);
                     if (intval($interval->y) < 18) {
                         $body_key = "identity_verification_success_under_age";
                     } else {
-                        User::find($data["clientId"])->update(["identity_verified" => true]);
+                        User::find($request->request->get("clientId"))->update(["identity_verified" => true]);
                     }
-                } else if ($data["status"]["overall"] == "SUSPECTED") {
-                    if ($data["status"]["autoDocument"] == "DOC_VALIDATED" && $data["status"]["manualDocument"] == "DOC_VALIDATED" && $data["status"]["autoFace"] == "FACE_MATCH" && $data["status"]["manualFace"] == "FACE_MATCH") {
+                } else if ($request->request->get("status")["overall"] == "SUSPECTED") {
+                    if ($request->request->get("status")["autoDocument"] == "DOC_VALIDATED" && $request->request->get("status")["manualDocument"] == "DOC_VALIDATED" && $request->request->get("status")["autoFace"] == "FACE_MATCH" && $request->request->get("status")["manualFace"] == "FACE_MATCH") {
                         $today = new DateTime(date("Y-m-d"));
-                        $bday = new DateTime($data["data"]["docDob"]);
+                        $bday = new DateTime($request->request->get("data")["docDob"]);
                         $interval = $today->diff($bday);
                         if (intval($interval->y) < 18) {
                             $body_key = "identity_verification_success_under_age";
                         } else {
-                            User::find($data["clientId"])->update(["identity_verified" => true]);
+                            User::find($request->request->get("clientId"))->update(["identity_verified" => true]);
                         }
                     } else {
                         $status = false;
                         $body_key = "identity_verification_failed_body";
                     }
-                } else if ($data["status"]["overall"] == "DENIED") {
+                } else if ($request->request->get("status")["overall"] == "DENIED") {
                     $status = false;
                     $body_key = "identity_verification_failed_body";
                 }
@@ -344,7 +334,7 @@ class UserController extends Controller
                     $title_key = "identity_verification_failed_title";
                 }
                 $notification_manager->sendNotification(array(
-                    "receiver_user_id" => $data["clientId"],
+                    "receiver_user_id" => $request->request->get("clientId"),
                     "title_key" => $title_key,
                     "body_key" => $body_key,
                     "tappable" => false,
@@ -352,7 +342,7 @@ class UserController extends Controller
                     "redirection_page_id" => ""
                 ), array(), "user_specific");
             }
-        }*/
+        }
         return response()->json([
             "status" => true,
             "message" => "Callback received successfully."
