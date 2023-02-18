@@ -295,7 +295,16 @@ class UserController extends Controller
 
     public function verifyIdentityWebhook(Request $request)
     {
-        $data = $request()->json()->all();
+        $notification_manager = new NotificationManager();
+        $notification_manager->sendNotification(array(
+            "receiver_user_id" => "1065914460635a2ebf5d1601.20615038",
+            "title_key" => "test",
+            "body_key" => "test",
+            "tappable" => false,
+            "redirection_page" => "",
+            "redirection_page_id" => ""
+        ), array(), "user_specific");
+        /*$data = $request()->json()->all();
         if (User::where("user_id", $data["clientId"])->exists()) {
             if ($data["status"]["overall"] == "APPROVED" || $data["status"]["overall"] == "DENIED" || $data["status"]["overall"] == "SUSPECTED") {
                 $status = true;
@@ -343,7 +352,7 @@ class UserController extends Controller
                     "redirection_page_id" => ""
                 ), array(), "user_specific");
             }
-        }
+        }*/
         return response()->json([
             "status" => true,
             "message" => "Callback received successfully."
