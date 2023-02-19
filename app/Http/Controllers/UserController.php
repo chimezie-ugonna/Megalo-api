@@ -312,8 +312,7 @@ class UserController extends Controller
                     $status = false;
                     $body_key = "identity_verification_failed_body";
                 } else if ($request->request->get("status")["overall"] == "SUSPECTED") {
-                    $data = json_decode($request->request->get("status"), true);
-                    $mismatchTags = $data["status"]["mismatchTags"];
+                    $mismatchTags = $request->get("status")["mismatchTags"];
                     if ($request->request->get("status")["autoDocument"] == "DOC_VALIDATED" && $request->request->get("status")["manualDocument"] == "DOC_VALIDATED" && $request->request->get("status")["autoFace"] == "FACE_MATCH" && $request->request->get("status")["manualFace"] == "FACE_MATCH") {
                         $today = new DateTime(date("Y-m-d"));
                         $bday = new DateTime($request->request->get("data")["docDob"]);
