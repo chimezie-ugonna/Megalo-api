@@ -308,8 +308,12 @@ class UserController extends Controller
                     } else {
                         User::find($request->request->get("clientId"))->update(["identity_verified" => true, "nationality" => $request->request->get("data")["docNationality"], "verified_selfie_url" => $request->request->get("fileUrls")["FACE"], "gender" => $request->request->get("data")["docSex"]]);
                     }
+                } else if ($request->request->get("status")["overall"] == "DENIED") {
+                    $status = false;
+                    $body_key = "identity_verification_failed_body";
                 } else if ($request->request->get("status")["overall"] == "SUSPECTED") {
-                    $mismatchTags = json_decode($request->request->get("status")["mismatchTags"], true);
+                    $data = json_decode($request->request->get("status"), true);
+                    $mismatchTags = $data["status"]["mismatchTags"];
                     if ($request->request->get("status")["autoDocument"] == "DOC_VALIDATED" && $request->request->get("status")["manualDocument"] == "DOC_VALIDATED" && $request->request->get("status")["autoFace"] == "FACE_MATCH" && $request->request->get("status")["manualFace"] == "FACE_MATCH") {
                         $today = new DateTime(date("Y-m-d"));
                         $bday = new DateTime($request->request->get("data")["docDob"]);
@@ -331,9 +335,6 @@ class UserController extends Controller
                         $status = false;
                         $body_key = "identity_verification_failed_body";
                     }
-                } else if ($request->request->get("status")["overall"] == "DENIED") {
-                    $status = false;
-                    $body_key = "identity_verification_failed_body";
                 }
 
                 $notification_manager = new NotificationManager();
