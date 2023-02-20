@@ -2,35 +2,25 @@
 
 namespace App\Custom;
 
-use App\Models\User;
-use DateTime;
-
 class IdentityVerifier
 {
-    private $api_key;
-    private $secret_key;
-
-    function __construct()
+    function run($type, $id)
     {
-        $this->api_key = getenv("IDENFY_API_KEY");
-        $this->secret_key = getenv("IDENFY_SECRET_KEY");
-    }
-
-    function generateToken($user_id)
-    {
-        $first_name = User::where("user_id", $user_id)->value("first_name");
-        $last_name = User::where("user_id", $user_id)->value("last_name");
-        $date_obj = DateTime::createFromFormat("d/m/Y", User::where("user_id", $user_id)->value("dob"));
-        $dob = $date_obj->format("Y-m-d");
+        if ($type == "generateToken") {
+            $url_end = "token";
+            $param = "clientId";
+        } else {
+            $url_end = "delete";
+            $param = "scanRef";
+        }
         $curl = curl_init();
-
         curl_setopt_array($curl, array(
-            CURLOPT_URL => "https://ivs.idenfy.com/api/v2/token",
+            CURLOPT_URL => "https://ivs.idenfy.com/api/v2/" . $url_end,
             CURLOPT_HTTPAUTH => CURLAUTH_BASIC,
-            CURLOPT_USERPWD => $this->api_key . ":" . $this->secret_key,
+            CURLOPT_USERPWD => getenv("IDENFY_API_KEY") . ":" . getenv("IDENFY_SECRET_KEY"),
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_POST => true,
-            CURLOPT_POSTFIELDS => json_encode(["clientId" => $user_id, "firstName" => $first_name, "lastName" => $last_name, "dateOfBirth" => $dob])
+            CURLOPT_POSTFIELDS => json_encode([$param => $id])
         ));
 
         $response = curl_exec($curl);

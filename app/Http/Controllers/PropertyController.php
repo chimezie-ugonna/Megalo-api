@@ -23,7 +23,7 @@ class PropertyController extends Controller
                 $cloudinary_image_urls = "";
                 $media_manager = new MediaManager();
                 for ($i = 0; $i < count($image_urls); $i++) {
-                    $data = $media_manager->uploadMedia("image", $image_urls[$i]);
+                    $data = $media_manager->uploadMedia("image", $image_urls[$i], "properties");
                     if (isset($data) && isset($data["url"]) && isset($data["public_id"])) {
                         if ($i == count($image_urls) - 1) {
                             $cloudinary_image_urls .= $data["url"] . "+ " . $data["public_id"];
@@ -237,7 +237,7 @@ class PropertyController extends Controller
                     if ($status) {
                         for ($i = 0; $i < count($new_image_urls); $i++) {
                             if (!in_array($new_image_urls[$i], $current_image_urls)) {
-                                $data = $media_manager->uploadMedia("image", $new_image_urls[$i]);
+                                $data = $media_manager->uploadMedia("image", $new_image_urls[$i], "properties");
                                 if (isset($data) && isset($data["url"]) && isset($data["public_id"])) {
                                     $cloudinary_image_urls .= $data["url"] . "+ " . $data["public_id"] . ", ";
                                 } else {

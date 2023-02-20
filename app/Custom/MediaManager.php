@@ -16,12 +16,12 @@ class MediaManager
     $this->upload = new UploadApi();
   }
 
-  function uploadMedia($media_type, $image_string)
+  function uploadMedia($media_type, $image_string, $folder)
   {
     if ($media_type == "image") {
       return $this->upload->upload($image_string, [
         "overwrite" => TRUE,
-        "folder" => "properties"
+        "folder" => $folder
       ]);
     }
   }

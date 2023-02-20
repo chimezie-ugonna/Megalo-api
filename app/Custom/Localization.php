@@ -50,9 +50,10 @@ class Localization
             "identity_verification_success_title" => "Identity verification successful",
             "identity_verification_success_body" => "Your identity was successfully verified.",
             "identity_verification_success_under_age" => "Your identity was successfully verified but you need to be 18 years or older to use Megalo.",
+            "identity_verification_success_estimate_under_age" => "Your identity was successfully verified but our system determined that you are not up to 18 years old. You need to be 18 years or older to use Megalo.",
             "identity_verification_failed_title" => "Identity verification failed",
             "identity_verification_failed_body" => "Your identity was not verified successfully. This could mainly be either because your selfie face was not successfully matched with the face on your document or because the document you provided could not be validated.",
-            "identity_verification_failed_data_mismatch" => "Your identity was not verified successfully because the data on your profile does not match the data on your document.",
+            "identity_verification_failed_image_upload_error" => "Your identity was not verified successfully because an error occurred while we were processing your selfie image.",
             "test" => "This is a test."
         ];
 
@@ -81,9 +82,10 @@ class Localization
             "identity_verification_success_title" => "Identitätsprüfung erfolgreich",
             "identity_verification_success_body" => "Ihre Identität wurde erfolgreich verifiziert.",
             "identity_verification_success_under_age" => "Ihre Identität wurde erfolgreich verifiziert, aber Sie müssen mindestens 18 Jahre alt sein, um Megalo nutzen zu können.",
+            "identity_verification_success_estimate_under_age" => "Ihre Identität wurde erfolgreich verifiziert, aber unser System hat festgestellt, dass Sie nicht älter als 18 Jahre sind. Sie müssen 18 Jahre oder älter sein, um Megalo zu verwenden.",
             "identity_verification_failed_title" => "Identitätsüberprüfung fehlgeschlagen",
             "identity_verification_failed_body" => "Ihre Identität wurde nicht erfolgreich verifiziert. Dies kann hauptsächlich daran liegen, dass Ihr Selfie-Gesicht nicht erfolgreich mit dem Gesicht auf Ihrem Dokument abgeglichen wurde oder dass das von Ihnen bereitgestellte Dokument nicht validiert werden konnte.",
-            "identity_verification_failed_data_mismatch" => "Ihre Identität wurde nicht erfolgreich verifiziert, da die Daten in Ihrem Profil nicht mit den Daten in Ihrem Dokument übereinstimmen.",
+            "identity_verification_failed_image_upload_error" => "Ihre Identität wurde nicht erfolgreich verifiziert, da bei der Verarbeitung Ihres Selfie-Bildes ein Fehler aufgetreten ist.",
             "test" => "Das ist ein Test."
         ];
 

@@ -17,8 +17,11 @@ class User extends Model
         "phone_number",
         "first_name",
         "last_name",
-        "dob",
         "email",
+        "gender",
+        "dob",
+        "nationality",
+        "image_url",
         "referral_code",
         "payment_account_id",
         "payment_customer_id",
@@ -26,9 +29,7 @@ class User extends Model
         "is_admin",
         "email_verified",
         "identity_verified",
-        "nationality",
-        "verified_selfie_url",
-        "gender"
+        "identity_verification_id"
     ];
     protected $casts = [
         "dob" => "encrypted",

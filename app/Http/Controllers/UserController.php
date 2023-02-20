@@ -6,6 +6,7 @@ use App\Custom\Authentication;
 use App\Custom\EmailManager;
 use App\Custom\IdentityVerifier;
 use App\Custom\Localization;
+use App\Custom\MediaManager;
 use App\Custom\NotificationManager;
 use Illuminate\Http\Request;
 use App\Custom\PaymentManager;
@@ -272,7 +273,7 @@ class UserController extends Controller
     {
         if (!User::where("user_id", $request->request->get("user_id"))->value("identity_verified")) {
             $identity_verifier = new IdentityVerifier();
-            $response = json_decode($identity_verifier->generateToken($request->request->get("user_id")), true);
+            $response = json_decode($identity_verifier->run("generateToken", $request->request->get("user_id")), true);
             if (isset($response) && isset($response["authToken"])) {
                 return response()->json([
                     "status" => true,
@@ -303,32 +304,47 @@ class UserController extends Controller
                     $today = new DateTime(date("Y-m-d"));
                     $bday = new DateTime($request->request->get("data")["docDob"]);
                     $interval = $today->diff($bday);
+                    $age_estimate = $request->request->get("data")["ageEstimate"];
                     if (intval($interval->y) < 18) {
                         $body_key = "identity_verification_success_under_age";
+                    } else if ($age_estimate == "UNDER_13") {
+                        $body_key = "identity_verification_success_estimate_under_age";
                     } else {
-                        User::find($request->request->get("clientId"))->update(["identity_verified" => true, "nationality" => $request->request->get("data")["docNationality"], "verified_selfie_url" => $request->request->get("fileUrls")["FACE"], "gender" => $request->request->get("data")["docSex"]]);
+                        $date_obj = DateTime::createFromFormat("Y-m-d", $request->request->get("data")["docDob"]);
+                        $dob = $date_obj->format("d/m/Y");
+                        $media_manager = new MediaManager();
+                        $data = $media_manager->uploadMedia("image", $request->request->get("fileUrls")["FACE"], "users");
+                        if (isset($data) && isset($data["url"]) && isset($data["public_id"])) {
+                            User::find($request->request->get("clientId"))->update(["first_name" => ucfirst($request->request->get("data")["docFirstName"]), "last_name" => ucfirst($request->request->get("data")["docLastName"]), "dob" => $dob, "gender" => strtolower($request->request->get("data")["docSex"]), "nationality" => $request->request->get("data")["docNationality"], "image_url" => $data["url"] . "+ " . $data["public_id"], "identity_verified" => true, "identity_verification_id" => $request->request->get("scanRef")]);
+                        } else {
+                            $status = false;
+                            $body_key = "identity_verification_failed_image_upload_error";
+                        }
                     }
                 } else if ($request->request->get("status")["overall"] == "DENIED") {
                     $status = false;
                     $body_key = "identity_verification_failed_body";
                 } else if ($request->request->get("status")["overall"] == "SUSPECTED") {
-                    $mismatchTags = $request->get("status")["mismatchTags"];
                     if ($request->request->get("status")["autoDocument"] == "DOC_VALIDATED" && $request->request->get("status")["manualDocument"] == "DOC_VALIDATED" && $request->request->get("status")["autoFace"] == "FACE_MATCH" && $request->request->get("status")["manualFace"] == "FACE_MATCH") {
                         $today = new DateTime(date("Y-m-d"));
                         $bday = new DateTime($request->request->get("data")["docDob"]);
                         $interval = $today->diff($bday);
+                        $age_estimate = $request->request->get("data")["ageEstimate"];
                         if (intval($interval->y) < 18) {
                             $body_key = "identity_verification_success_under_age";
+                        } else if ($age_estimate == "UNDER_13") {
+                            $body_key = "identity_verification_success_estimate_under_age";
                         } else {
-                            User::find($request->request->get("clientId"))->update(["identity_verified" => true, "nationality" => $request->request->get("data")["docNationality"], "verified_selfie_url" => $request->request->get("fileUrls")["FACE"], "gender" => $request->request->get("data")["docSex"]]);
-                        }
-                    } else if (sizeof($mismatchTags) > 0) {
-                        if (in_array("NAME", $mismatchTags) || in_array("SURNAME", $mismatchTags) || in_array("DATE_OF_BIRTH", $mismatchTags)) {
-                            $status = false;
-                            $body_key = "identity_verification_failed_data_mismatch";
-                        } else {
-                            $status = false;
-                            $body_key = "identity_verification_failed_body";
+                            $date_obj = DateTime::createFromFormat("Y-m-d", $request->request->get("data")["docDob"]);
+                            $dob = $date_obj->format("d/m/Y");
+                            $media_manager = new MediaManager();
+                            $data = $media_manager->uploadMedia("image", $request->request->get("fileUrls")["FACE"], "users");
+                            if (isset($data) && isset($data["url"]) && isset($data["public_id"])) {
+                                User::find($request->request->get("clientId"))->update(["first_name" => ucfirst($request->request->get("data")["docFirstName"]), "last_name" => ucfirst($request->request->get("data")["docLastName"]), "dob" => $dob, "gender" => strtolower($request->request->get("data")["docSex"]), "nationality" => $request->request->get("data")["docNationality"], "image_url" => $data["url"] . "+ " . $data["public_id"], "identity_verified" => true, "identity_verification_id" => $request->request->get("scanRef")]);
+                            } else {
+                                $status = false;
+                                $body_key = "identity_verification_failed_image_upload_error";
+                            }
                         }
                     } else {
                         $status = false;
@@ -377,7 +393,7 @@ class UserController extends Controller
 
     public function delete(Request $request)
     {
-        $status = true;
+        /*$status = true;
         $payment_manager = new PaymentManager();
         if (User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id") != "") {
             $customer_response = $payment_manager->manage(array("type" => "delete_customer", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id")));
@@ -391,6 +407,27 @@ class UserController extends Controller
             $account_response = $payment_manager->manage(array("type" => "delete_account", "account_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_account_id")));
             if (isset($account_response) && isset($account_response["deleted"]) && $account_response["deleted"]) {
                 User::find($request->request->get("user_id"))->update(["payment_account_id" => ""]);
+            } else {
+                $status = false;
+            }
+        }
+        if ($status && User::where("user_id", $request->request->get("user_id"))->value("image_url") != "") {
+            $media_manager = new MediaManager();
+            $data = explode("+ ", User::where("user_id", $request->request->get("user_id"))->value("image_url"));
+            if (count($data) > 1) {
+                $data = $media_manager->deleteMedia("image", $data[1]);
+                if (!isset($data) || !isset($data["result"]) || $data["result"] != "ok") {
+                    $status = false;
+                } else {
+                    User::find($request->request->get("user_id"))->update(["image_url" => ""]);
+                }
+            }
+        }
+        if ($status && User::where("user_id", $request->request->get("user_id"))->value("identity_verification_id") != "") {
+            $identity_verifier = new IdentityVerifier();
+            $response = json_decode($identity_verifier->run("deleteVerification", User::where("user_id", $request->request->get("user_id"))->value("identity_verification_id")), true);
+            if (isset($response) && isset($response["status"]) && $response["status"] == 200) {
+                User::find($request->request->get("user_id"))->update(["identity_verification_id" => ""]);
             } else {
                 $status = false;
             }
@@ -414,7 +451,18 @@ class UserController extends Controller
                 "status" => false,
                 "message" => "An error occurred while deleting user, user could not be deleted."
             ], 500);
-        }
+        }*/
+
+        $identity_verifier = new IdentityVerifier();
+        $identity_verifier->run("deleteVerification", "C04EA477B6624B");
+        $identity_verifier->run("deleteVerification", "B1FB7744BAB641");
+        $identity_verifier->run("deleteVerification", "5502AE33953E43");
+        $identity_verifier->run("deleteVerification", "C4519C03E2B24F");
+        $identity_verifier->run("deleteVerification", "1E1BA748900E44");
+        $identity_verifier->run("deleteVerification", "29a7e7ac-a83c-11ed-9bfe-021acf81328b");
+        $identity_verifier->run("deleteVerification", "89d630ef-a840-11ed-88be-021acf81328b");
+        $identity_verifier->run("deleteVerification", "8e532db1-af64-11ed-bc84-0a445bedc1d3");
+        $identity_verifier->run("deleteVerification", "5fddd61d-af6f-11ed-9289-0a445bedc1d3");
     }
 
     public function createPaymentMethod(Request $request)
