@@ -454,15 +454,18 @@ class UserController extends Controller
         }*/
 
         $identity_verifier = new IdentityVerifier();
-        $identity_verifier->run("deleteVerification", "C04EA477B6624B");
-        $identity_verifier->run("deleteVerification", "B1FB7744BAB641");
-        $identity_verifier->run("deleteVerification", "5502AE33953E43");
-        $identity_verifier->run("deleteVerification", "C4519C03E2B24F");
-        $identity_verifier->run("deleteVerification", "1E1BA748900E44");
-        $identity_verifier->run("deleteVerification", "29a7e7ac-a83c-11ed-9bfe-021acf81328b");
-        $identity_verifier->run("deleteVerification", "89d630ef-a840-11ed-88be-021acf81328b");
-        $identity_verifier->run("deleteVerification", "8e532db1-af64-11ed-bc84-0a445bedc1d3");
-        $identity_verifier->run("deleteVerification", "5fddd61d-af6f-11ed-9289-0a445bedc1d3");
+        $response = json_decode($identity_verifier->run("deleteVerification", "a35c8df0-a943-11ed-8f4f-0ab6f5435e15"), true);
+        if (isset($response) && isset($response["status"]) && $response["status"] == 200) {
+            return response()->json([
+                "status" => true,
+                "message" => "Verification deleted successfully."
+            ], 200);
+        } else {
+            return response()->json([
+                "status" => false,
+                "message" => "An error occurred while deleting verification, verification could not be deleted."
+            ], 500);
+        }
     }
 
     public function createPaymentMethod(Request $request)
