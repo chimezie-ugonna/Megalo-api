@@ -454,18 +454,11 @@ class UserController extends Controller
         }*/
 
         $identity_verifier = new IdentityVerifier();
-        $response = json_decode($identity_verifier->run("deleteVerification", "a35c8df0-a943-11ed-8f4f-0ab6f5435e15"), true);
-        if (isset($response) && isset($response["status"]) && $response["status"] == 200) {
-            return response()->json([
-                "status" => true,
-                "message" => "Verification deleted successfully."
-            ], 200);
-        } else {
-            return response()->json([
-                "status" => false,
-                "message" => "An error occurred while deleting verification, verification could not be deleted."
-            ], 500);
-        }
+        $response = json_decode($identity_verifier->run("deleteVerification", "216a0a0c-afd2-11ed-a798-0a445bedc1d3"), true);
+        return response()->json([
+            "status" => true,
+            "message" => $response
+        ], 200);
     }
 
     public function createPaymentMethod(Request $request)
