@@ -425,8 +425,8 @@ class UserController extends Controller
         }
         if ($status && User::where("user_id", $request->request->get("user_id"))->value("identity_verification_id") != "") {
             $identity_verifier = new IdentityVerifier();
-            $response = json_decode($identity_verifier->run("deleteVerification", User::where("user_id", $request->request->get("user_id"))->value("identity_verification_id")), true);
-            if (isset($response) && isset($response["status"]) && $response["status"] == 200) {
+            $response = $identity_verifier->run("deleteVerification", User::where("user_id", $request->request->get("user_id"))->value("identity_verification_id"));
+            if ($response == "") {
                 User::find($request->request->get("user_id"))->update(["identity_verification_id" => ""]);
             } else {
                 $status = false;
@@ -454,7 +454,7 @@ class UserController extends Controller
         }*/
 
         $identity_verifier = new IdentityVerifier();
-        $response = $identity_verifier->run("deleteVerification", "e64e4420-afd5-11ed-bee6-0a445bedc1d3");
+        $response = $identity_verifier->run("deleteVerification", "844dab7f-b004-11ed-b66d-0a445bedc1d3");
         if ($response == "") {
             return response()->json([
                 "status" => true,
