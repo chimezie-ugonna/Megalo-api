@@ -20,7 +20,7 @@ class IdentityVerifier
             CURLOPT_USERPWD => getenv("IDENFY_API_KEY") . ":" . getenv("IDENFY_SECRET_KEY"),
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_POST => true,
-            CURLOPT_POSTFIELDS => json_encode([$param => $id, "expiryTime" => 60, "sessionLength" => 61])
+            CURLOPT_POSTFIELDS => json_encode([$param => $id])
         ));
 
         $response = curl_exec($curl);

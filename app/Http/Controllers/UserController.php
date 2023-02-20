@@ -393,7 +393,7 @@ class UserController extends Controller
 
     public function delete(Request $request)
     {
-        /*$status = true;
+        $status = true;
         $payment_manager = new PaymentManager();
         if (User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id") != "") {
             $customer_response = $payment_manager->manage(array("type" => "delete_customer", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id")));
@@ -450,20 +450,6 @@ class UserController extends Controller
             return response()->json([
                 "status" => false,
                 "message" => "An error occurred while deleting user, user could not be deleted."
-            ], 500);
-        }*/
-
-        $identity_verifier = new IdentityVerifier();
-        $response = $identity_verifier->run("deleteVerification", "844dab7f-b004-11ed-b66d-0a445bedc1d3");
-        if ($response == "") {
-            return response()->json([
-                "status" => true,
-                "message" => $response
-            ], 200);
-        } else {
-            return response()->json([
-                "status" => false,
-                "message" => $response
             ], 500);
         }
     }
