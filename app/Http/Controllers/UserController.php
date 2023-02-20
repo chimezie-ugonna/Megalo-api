@@ -454,7 +454,7 @@ class UserController extends Controller
         }*/
 
         $identity_verifier = new IdentityVerifier();
-        $response = json_decode($identity_verifier->run("deleteVerification", "216a0a0c-afd2-11ed-a798-0a445bedc1d3"), true);
+        $response = $identity_verifier->run("deleteVerification", "216a0a0c-afd2-11ed-a798-0a445bedc1d3");
         return response()->json([
             "status" => true,
             "message" => $response
