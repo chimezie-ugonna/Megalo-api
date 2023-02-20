@@ -455,10 +455,17 @@ class UserController extends Controller
 
         $identity_verifier = new IdentityVerifier();
         $response = $identity_verifier->run("deleteVerification", "e64e4420-afd5-11ed-bee6-0a445bedc1d3");
-        return response()->json([
-            "status" => true,
-            "message" => $response
-        ], 200);
+        if ($response == "") {
+            return response()->json([
+                "status" => true,
+                "message" => $response
+            ], 200);
+        } else {
+            return response()->json([
+                "status" => false,
+                "message" => $response
+            ], 500);
+        }
     }
 
     public function createPaymentMethod(Request $request)
