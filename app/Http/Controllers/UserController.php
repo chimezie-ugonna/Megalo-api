@@ -315,7 +315,7 @@ class UserController extends Controller
                         $media_manager = new MediaManager();
                         $data = $media_manager->uploadMedia("image", $request->request->get("fileUrls")["FACE"], "users");
                         if (isset($data) && isset($data["url"]) && isset($data["public_id"])) {
-                            User::find($request->request->get("clientId"))->update(["first_name" => ucfirst($request->request->get("data")["docFirstName"]), "last_name" => ucfirst($request->request->get("data")["docLastName"]), "dob" => $dob, "gender" => strtolower($request->request->get("data")["docSex"]), "nationality" => $request->request->get("data")["docNationality"], "image_url" => $data["url"] . "+ " . $data["public_id"], "identity_verified" => true, "identity_verification_id" => $request->request->get("scanRef")]);
+                            User::find($request->request->get("clientId"))->update(["first_name" => ucwords($request->request->get("data")["docFirstName"]), "last_name" => ucwords($request->request->get("data")["docLastName"]), "dob" => $dob, "gender" => strtolower($request->request->get("data")["docSex"]), "nationality" => $request->request->get("data")["docNationality"], "image_url" => $data["url"] . "+ " . $data["public_id"], "identity_verified" => true, "identity_verification_id" => $request->request->get("scanRef")]);
                         } else {
                             $status = false;
                             $body_key = "identity_verification_failed_image_upload_error";
@@ -340,7 +340,7 @@ class UserController extends Controller
                             $media_manager = new MediaManager();
                             $data = $media_manager->uploadMedia("image", $request->request->get("fileUrls")["FACE"], "users");
                             if (isset($data) && isset($data["url"]) && isset($data["public_id"])) {
-                                User::find($request->request->get("clientId"))->update(["first_name" => ucfirst($request->request->get("data")["docFirstName"]), "last_name" => ucfirst($request->request->get("data")["docLastName"]), "dob" => $dob, "gender" => strtolower($request->request->get("data")["docSex"]), "nationality" => $request->request->get("data")["docNationality"], "image_url" => $data["url"] . "+ " . $data["public_id"], "identity_verified" => true, "identity_verification_id" => $request->request->get("scanRef")]);
+                                User::find($request->request->get("clientId"))->update(["first_name" => ucwords($request->request->get("data")["docFirstName"]), "last_name" => ucwords($request->request->get("data")["docLastName"]), "dob" => $dob, "gender" => strtolower($request->request->get("data")["docSex"]), "nationality" => $request->request->get("data")["docNationality"], "image_url" => $data["url"] . "+ " . $data["public_id"], "identity_verified" => true, "identity_verification_id" => $request->request->get("scanRef")]);
                             } else {
                                 $status = false;
                                 $body_key = "identity_verification_failed_image_upload_error";

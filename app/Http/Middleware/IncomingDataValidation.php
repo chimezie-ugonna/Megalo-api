@@ -60,8 +60,8 @@ class IncomingDataValidation
                         $last_name = $full_name_split[1];
                     }
                     $request->request->add([
-                        "first_name" => ucfirst($first_name),
-                        "last_name" => ucfirst($last_name)
+                        "first_name" => ucwords($first_name),
+                        "last_name" => ucwords($last_name)
                     ]);
                     $request->request->remove("full_name");
                 }
@@ -240,8 +240,8 @@ class IncomingDataValidation
                                 $last_name = $full_name_split[1];
                             }
                             $request->request->add([
-                                "first_name" => ucfirst($first_name),
-                                "last_name" => ucfirst($last_name)
+                                "first_name" => ucwords($first_name),
+                                "last_name" => ucwords($last_name)
                             ]);
                         }
                         $request->request->remove("full_name");
