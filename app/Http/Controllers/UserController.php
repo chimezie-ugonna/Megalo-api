@@ -296,7 +296,7 @@ class UserController extends Controller
 
     public function verifyIdentityWebhook(Request $request)
     {
-        if (User::where("user_id", $request->request->get("clientId"))->exists()) {
+        if (User::where("user_id", $request->request->get("clientId"))->exists() && !User::where("user_id", $request->request->get("clientId"))->value("identity_verified")) {
             if ($request->request->get("status")["overall"] == "APPROVED" || $request->request->get("status")["overall"] == "DENIED" || $request->request->get("status")["overall"] == "SUSPECTED") {
                 $status = true;
                 $body_key = "identity_verification_success_body";
