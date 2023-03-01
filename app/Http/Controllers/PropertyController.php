@@ -98,10 +98,15 @@ class PropertyController extends Controller
                                 $new_user_balance = $user_balance + $user_percentage_of_property_monthly_earning;
                                 User::where("user_id", $user_id)->update(["balance_usd" => $new_user_balance]);
                                 Earning::create(["property_id" => $request->request->get("property_id"), "user_id" => $user_id, "amount_usd" => $user_percentage_of_property_monthly_earning]);
+                                if (number_format($user_percentage_of_property_monthly_earning, 2) < 0.01) {
+                                    $body_key = "property_dividend_payment_body_2";
+                                } else {
+                                    $body_key = "property_dividend_payment_body";
+                                }
                                 $notification_manager->sendNotification(array(
                                     "receiver_user_id" => $user_id,
                                     "title_key" => "property_dividend_payment_title",
-                                    "body_key" => "property_dividend_payment_body",
+                                    "body_key" => $body_key,
                                     "tappable" => true,
                                     "redirection_page" => "earning",
                                     "redirection_page_id" => $request->request->get("property_id")
@@ -314,10 +319,15 @@ class PropertyController extends Controller
                                     if ($earning > 0) {
                                         Earning::create(["property_id" => $request->request->get("property_id"), "user_id" => $user_id, "amount_usd" => $earning]);
                                     }
+                                    if (number_format($user_percentage_of_property_value, 2) < 0.01) {
+                                        $body_key = "property_sale_payment_body_2";
+                                    } else {
+                                        $body_key = "property_sale_payment_body";
+                                    }
                                     $notification_manager->sendNotification(array(
                                         "receiver_user_id" => $user_id,
                                         "title_key" => "property_sale_payment_title",
-                                        "body_key" => "property_sale_payment_body",
+                                        "body_key" => $body_key,
                                         "tappable" => true,
                                         "redirection_page" => "earning",
                                         "redirection_page_id" => $request->request->get("property_id")
