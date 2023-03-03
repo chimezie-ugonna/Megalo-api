@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Custom\Localization;
 use App\Custom\NotificationManager;
 use App\Models\Notification;
 use App\Models\User;
