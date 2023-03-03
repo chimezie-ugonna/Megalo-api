@@ -96,6 +96,7 @@ Route::middleware([EnsureSecureUrl::class, CheckHeader::class, IncomingDataValid
         Route::get("/notification/read", "read");
         Route::get("/notification/read_all", "readAll");
         Route::get("/notification/read_user_specific", "readUserSpecific");
+        Route::get("/notification/read_all_key", "readAllKey");
         Route::put("/notification/update", "update");
         Route::delete("/notification/delete", "delete");
     });

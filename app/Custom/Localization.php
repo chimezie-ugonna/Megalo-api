@@ -46,7 +46,7 @@ class Localization
             "insufficient_fund_email_body" => "A payment failure has just occurred while a user was trying to withdraw a sum of $" . $amount . " from their Megalo balance. This failure occurred because there is not enough money in Megalo's stripe account balance for that transaction. A top up of Megalo's stripe account balance with enough money to cover the user's withdrawal amount ($" . $amount . ") is required as soon as possible so as to not degrade the user's experience on Megalo.",
             "insufficient_fund_email_footer" => "You received this email because you are a Megalo administrator.",
             "verification_email_subject" => "Megalo Verification Code",
-            "verification_email_title" => "Verify Your Email Addres",
+            "verification_email_title" => "Verify Your Email Address",
             "verification_email_body" => "Your Megalo verification code is: ",
             "verification_email_footer" => "You received this email because we received an email verification request for your Megalo account. If you didn't request for email verification you can safely delete this email.",
             "identity_verification_success_title" => "Identity verification successful",
@@ -56,7 +56,9 @@ class Localization
             "identity_verification_failed_title" => "Identity verification failed",
             "identity_verification_failed_body" => "Your identity was not verified successfully. This could mainly be either because your selfie face was not successfully matched with the face on your document or because the document you provided could not be validated.",
             "identity_verification_failed_image_upload_error" => "Your identity was not verified successfully because an error occurred while we were processing your selfie image.",
-            "test" => "This is a test."
+            "test" => "This is a test.",
+            "appreciation_title" => "We appreciate you \u{1F60A}.",
+            "appreciation_body" => "Thank You for being our esteemed customer. Your support and trust in us are much cherished. Thank You once again!"
         ];
 
         $this->german = [
@@ -90,10 +92,11 @@ class Localization
             "identity_verification_failed_title" => "Identitätsüberprüfung fehlgeschlagen",
             "identity_verification_failed_body" => "Ihre Identität wurde nicht erfolgreich verifiziert. Dies kann hauptsächlich daran liegen, dass Ihr Selfie-Gesicht nicht erfolgreich mit dem Gesicht auf Ihrem Dokument abgeglichen wurde oder dass das von Ihnen bereitgestellte Dokument nicht validiert werden konnte.",
             "identity_verification_failed_image_upload_error" => "Ihre Identität wurde nicht erfolgreich verifiziert, da bei der Verarbeitung Ihres Selfie-Bildes ein Fehler aufgetreten ist.",
-            "test" => "Das ist ein Test."
+            "test" => "Das ist ein Test.",
+            "appreciation_title" => "Wir wissen dich zu schätzen \u{1F60A}.",
+            "appreciation_body" => "Vielen Dank, dass Sie unser geschätzter Kunde sind. Ihre Unterstützung und Ihr Vertrauen in uns werden sehr geschätzt. Vielen Dank noch mal!"
         ];
 
-        $ip_address = $ip_address;
         if ($ip_address != "") {
             $ip_address_manager = new IpAddressManager();
             $country = $ip_address_manager->getIpAddressDetails($ip_address, "Country");

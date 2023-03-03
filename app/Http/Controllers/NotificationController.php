@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Custom\Localization;
 use App\Custom\NotificationManager;
 use App\Models\Notification;
 use App\Models\User;
@@ -67,6 +68,17 @@ class NotificationController extends Controller
             "status" => true,
             "message" => "Notification data retrieved successfully.",
             "data" => Notification::where("receiver_user_id", $request->request->get("user_id"))->latest()->get()
+        ], 200);
+    }
+
+    public function readAllKey()
+    {
+        return response()->json([
+            "status" => true,
+            "message" => "Data retrieved successfully.",
+            "data" => [
+                ["title_key" => "appreciation_title", "body_key" => "appreciation_body", "description" => "This is a notification to appreciate the recipient(s) for using Megalo."]
+            ]
         ], 200);
     }
 

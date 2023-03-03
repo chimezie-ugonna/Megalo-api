@@ -85,7 +85,8 @@ class TokenValidation
                                 "api/v1/payment/read_all",
                                 "api/v1/notification/create",
                                 "api/v1/notification/create_all",
-                                "api/v1/notification/read_all"
+                                "api/v1/notification/read_all",
+                                "api/v1/notification/read_all_key"
                             ];
                             if (in_array($request->path(), $admin_only_endpoints)) {
                                 if (!User::where("user_id", $user_id)->value("is_admin")) {
