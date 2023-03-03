@@ -144,8 +144,8 @@ class IncomingDataValidation
                     "redirection_page_id" => ["bail", "prohibited_if:tappable,false,0", "filled", "not_in:null", "required_if:tappable,true,1"],
                     "sender_user_id" => ["bail", "prohibited"],
                     "receiver_user_id" => ["bail", "required"],
-                    "title_key" => ["bail", "required", "in:test"],
-                    "body_key" => ["bail", "required", "in:test"],
+                    "title_key" => ["bail", "required", "in:test,appreciation_title"],
+                    "body_key" => ["bail", "required", "in:test,appreciation_body"],
                     "title" => ["bail", "prohibited"],
                     "body" => ["bail", "prohibited"],
                     "notification_id" => ["bail", "prohibited"]
@@ -159,8 +159,8 @@ class IncomingDataValidation
                     "redirection_page_id" => ["bail", "prohibited_if:tappable,false,0", "filled", "not_in:null", "required_if:tappable,true,1"],
                     "sender_user_id" => ["bail", "prohibited"],
                     "receiver_user_id" => ["bail", "prohibited"],
-                    "title_key" => ["bail", "required", "in:test"],
-                    "body_key" => ["bail", "required", "in:test"],
+                    "title_key" => ["bail", "required", "in:test,appreciation_title"],
+                    "body_key" => ["bail", "required", "in:test,appreciation_body"],
                     "title" => ["bail", "prohibited"],
                     "body" => ["bail", "prohibited"],
                     "notification_id" => ["bail", "prohibited"]
