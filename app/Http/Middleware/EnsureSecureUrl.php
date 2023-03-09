@@ -16,9 +16,9 @@ class EnsureSecureUrl
      */
     public function handle(Request $request, Closure $next)
     {
-        if (!$request->secure()) {
-            return redirect()->secure($request->path(), 307);
-        }
+        /*if (!$request->secure()) {
+            return redirect()->secure($request->getRequestUri());
+        }*/
         return $next($request);
     }
 }
