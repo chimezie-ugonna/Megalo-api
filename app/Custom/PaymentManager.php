@@ -42,14 +42,6 @@ class PaymentManager
             $response = $this->createToken($data["data"]);
             break;
           }
-        case "create_verification_session": {
-            $response = $this->createVerificationSession($data["data"]);
-            break;
-          }
-        case "create_ephemeral_key": {
-            $response = $this->createEphemeralKey($data["data"]);
-            break;
-          }
         case "add_account_payment_method": {
             $response = $this->addAccountPaymentMethod($data["account_id"], $data["data"]);
             break;
@@ -375,36 +367,6 @@ class PaymentManager
       $customer_id,
       []
     );
-  }
-
-  function createVerificationSession($data)
-  {
-    return $this->stripe->identity->verificationSessions->create(
-      [
-        "type" => "document",
-        "metadata" => [
-          "user_id" => $data["user_id"]
-        ], "options" => [
-          "document" => [
-            "require_id_number" => true,
-            "require_live_capture" => true,
-            "require_matching_selfie" => true
-          ]
-        ]
-      ],
-      [
-        "idempotency_key" => $_SESSION["idempotency_key"]
-      ]
-    );
-  }
-
-  function createEphemeralKey($data)
-  {
-    return $this->stripe->ephemeralKeys->create([
-      "verification_session" => $data["verification_session_id"],
-    ], [
-      "stripe_version" => "2022-08-01"
-    ]);
   }
 
   function getPaymentProcessingFee($amount_usd, $type)
