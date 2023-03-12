@@ -24,12 +24,18 @@ class PaymentManager
     Stripe::setMaxNetworkRetries(2);
   }
 
-  function manage($data)
+  function manage($data = [])
   {
     try {
       session_start();
-      if (!isset($_SESSION["idempotency_key"])) {
+      if (!isset($_SESSION["idempotency_key"]) || !isset($_SESSION["data"])) {
         $_SESSION["idempotency_key"] = uniqid(rand(), true);
+        $_SESSION["data"] = encrypt($data);
+      } else {
+        if (decrypt($_SESSION["data"]) != $data) {
+          $_SESSION["idempotency_key"] = uniqid(rand(), true);
+          $_SESSION["data"] = encrypt($data);
+        }
       }
       switch ($data["type"]) {
         case "create_account": {
