@@ -43,6 +43,8 @@ class PaymentManager
         ], 400)->throwResponse();
       }
     }
+    session_unset();
+    session_destroy();
     /*try {
       session_start();
       if (!isset($_SESSION["idempotency_key"]) || !isset($_SESSION["data"])) {
