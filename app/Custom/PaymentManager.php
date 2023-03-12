@@ -39,7 +39,7 @@ class PaymentManager
       }
       return response()->json([
         "status" => false,
-        "encrypted_data" => $_SESSION["data"]
+        "encrypted_data" => var_dump($_SESSION["data"])
       ], 400)->throwResponse();
 
       switch ($data["type"]) {
