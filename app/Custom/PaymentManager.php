@@ -39,8 +39,8 @@ class PaymentManager
       }
       return response()->json([
         "status" => false,
-        "encrypted_data" => $_SESSION["data"],
-        "decrypted_data" => decrypt($_SESSION["data"])
+        "encrypted_data" => print_r($_SESSION["data"]),
+        "decrypted_data" => print_r(decrypt($_SESSION["data"]))
       ], 400)->throwResponse();
 
       switch ($data["type"]) {
@@ -155,7 +155,7 @@ class PaymentManager
       } else if ($e instanceof ApiErrorException) {
         return response()->json([
           "status" => false,
-          "message" => "An unexpected payment error occurred from our end."
+          "message" => "A payment api error occurred from our end."
         ], 500)->throwResponse();
       } else if ($e instanceof IdempotencyException) {
         return response()->json([
