@@ -26,11 +26,11 @@ class PaymentManager
 
   function manage($data)
   {
-    session_start();
-    if (!isset($_SESSION["idempotency_key"])) {
-      $_SESSION["idempotency_key"] = uniqid(rand(), true);
-    }
     try {
+      session_start();
+      if (!isset($_SESSION["idempotency_key"])) {
+        $_SESSION["idempotency_key"] = uniqid(rand(), true);
+      }
       switch ($data["type"]) {
         case "create_account": {
             $response = $this->createAccount($data["data"]);
@@ -109,51 +109,66 @@ class PaymentManager
             break;
           }
       }
+      session_unset();
+      session_destroy();
+      return $response;
     } catch (CardException $e) {
-      $response = response()->json([
+      session_unset();
+      session_destroy();
+      return response()->json([
         "status" => false,
         "message" => $e->getError()->message
-      ], 400);
+      ], 400)->throwResponse();
     } catch (RateLimitException $e) {
-      $response = response()->json([
+      session_unset();
+      session_destroy();
+      return response()->json([
         "status" => false,
         "message" => "Too many requests made too quickly."
-      ], 429);
+      ], 429)->throwResponse();
     } catch (InvalidRequestException $e) {
-      $response = response()->json([
+      session_unset();
+      session_destroy();
+      return response()->json([
         "status" => false,
         "message" => "A payment error occurred with the provided parameters from our end."
-      ], 500);
+      ], 500)->throwResponse();
     } catch (AuthenticationException $e) {
-      $response = response()->json([
+      session_unset();
+      session_destroy();
+      return response()->json([
         "status" => false,
         "message" => "A payment error occurred with authentication from our end."
-      ], 500);
+      ], 500)->throwResponse();
     } catch (ApiConnectionException $e) {
-      $response = response()->json([
+      session_unset();
+      session_destroy();
+      return response()->json([
         "status" => false,
         "message" => "A payment error occurred with network communication from our end."
-      ], 500);
+      ], 500)->throwResponse();
     } catch (ApiErrorException $e) {
-      $response = response()->json([
+      session_unset();
+      session_destroy();
+      return response()->json([
         "status" => false,
         "message" => "An unexpected payment error occurred from our end."
-      ], 500);
+      ], 500)->throwResponse();
     } catch (IdempotencyException $e) {
-      $response = response()->json([
+      session_unset();
+      session_destroy();
+      return response()->json([
         "status" => false,
         "message" => "A payment error occurred from our end. An idempotency key was used for something unexpected, like replaying a request but passing different parameters."
-      ], 500);
+      ], 500)->throwResponse();
     } catch (Exception $e) {
-      $response = response()->json([
+      session_unset();
+      session_destroy();
+      return response()->json([
         "status" => false,
         "message" => "An unexpected payment error occurred from our end."
-      ], 500);
+      ], 500)->throwResponse();
     }
-
-    session_unset();
-    session_destroy();
-    return $response;
   }
 
   function createToken($data)
