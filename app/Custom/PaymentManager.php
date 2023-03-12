@@ -164,7 +164,7 @@ class PaymentManager
       } else {
         return response()->json([
           "status" => false,
-          "message" => "An unexpected payment error occurred from our end."
+          "message" => $e->getMessage()
         ], 500)->throwResponse();
       }
     }
