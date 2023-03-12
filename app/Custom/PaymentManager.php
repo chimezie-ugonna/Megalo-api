@@ -39,9 +39,8 @@ class PaymentManager
       }
       return response()->json([
         "status" => false,
-        "encrypted_data" => print_r($_SESSION["data"]),
-        "decrypted_data" => print_r(decrypt($_SESSION["data"]))
-      ], 400);
+        "encrypted_data" => $_SESSION["data"]
+      ], 400)->throwResponse();
 
       switch ($data["type"]) {
         case "create_account": {
