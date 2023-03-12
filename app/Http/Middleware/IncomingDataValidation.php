@@ -82,8 +82,8 @@ class IncomingDataValidation
                     ]);
                 } else if ($request->request->has("type") && $request->filled("type") && $request->request->get("type") == "bank_account") {
                     $request->validate([
-                        "country" => ["bail", "required", "alpha", "size:2"],
-                        "currency" => ["bail", "required", "alpha", "size:3"],
+                        "country" => ["bail", "required", "alpha", "size:2", "uppercase"],
+                        "currency" => ["bail", "required", "alpha", "size:3", "lowercase"],
                         "account_number" => ["bail", "required", "numeric"],
                         "number" => ["bail", "prohibited"],
                         "exp_month" => ["bail", "prohibited"],
