@@ -135,22 +135,22 @@ class PaymentManager
       } else if ($e instanceof InvalidRequestException) {
         return response()->json([
           "status" => false,
-          "message" => "A payment error occurred with the provided parameters from our end."
+          "message" => "A payment error occurred with the provided parameters."
         ], 500)->throwResponse();
       } else if ($e instanceof AuthenticationException) {
         return response()->json([
           "status" => false,
-          "message" => "A payment error occurred with authentication from our end."
+          "message" => "A payment error occurred with authentication."
         ], 500)->throwResponse();
       } else if ($e instanceof ApiConnectionException) {
         return response()->json([
           "status" => false,
-          "message" => "A payment error occurred with network communication from our end."
+          "message" => "A payment error occurred with network communication."
         ], 500)->throwResponse();
       } else if ($e instanceof ApiErrorException) {
         return response()->json([
           "status" => false,
-          "message" => "A payment api error occurred from our end."
+          "message" => "A payment api error occurred."
         ], 500)->throwResponse();
       } else if ($e instanceof IdempotencyException) {
         return response()->json([
