@@ -112,62 +112,50 @@ class PaymentManager
       session_unset();
       session_destroy();
       return $response;
-    } catch (CardException $e) {
-      session_unset();
-      session_destroy();
-      return response()->json([
-        "status" => false,
-        "message" => $e->getError()->message
-      ], 400)->throwResponse();
-    } catch (RateLimitException $e) {
-      session_unset();
-      session_destroy();
-      return response()->json([
-        "status" => false,
-        "message" => "Too many requests made too quickly."
-      ], 429)->throwResponse();
-    } catch (InvalidRequestException $e) {
-      session_unset();
-      session_destroy();
-      return response()->json([
-        "status" => false,
-        "message" => "A payment error occurred with the provided parameters from our end."
-      ], 500)->throwResponse();
-    } catch (AuthenticationException $e) {
-      session_unset();
-      session_destroy();
-      return response()->json([
-        "status" => false,
-        "message" => "A payment error occurred with authentication from our end."
-      ], 500)->throwResponse();
-    } catch (ApiConnectionException $e) {
-      session_unset();
-      session_destroy();
-      return response()->json([
-        "status" => false,
-        "message" => "A payment error occurred with network communication from our end."
-      ], 500)->throwResponse();
-    } catch (ApiErrorException $e) {
-      session_unset();
-      session_destroy();
-      return response()->json([
-        "status" => false,
-        "message" => "An unexpected payment error occurred from our end."
-      ], 500)->throwResponse();
-    } catch (IdempotencyException $e) {
-      session_unset();
-      session_destroy();
-      return response()->json([
-        "status" => false,
-        "message" => "A payment error occurred from our end. An idempotency key was used for something unexpected, like replaying a request but passing different parameters."
-      ], 500)->throwResponse();
     } catch (Exception $e) {
       session_unset();
       session_destroy();
-      return response()->json([
-        "status" => false,
-        "message" => "An unexpected payment error occurred from our end."
-      ], 500)->throwResponse();
+      if ($e instanceof CardException) {
+        return response()->json([
+          "status" => false,
+          "message" => $e->getError()->message
+        ], 400)->throwResponse();
+      } else if ($e instanceof RateLimitException) {
+        return response()->json([
+          "status" => false,
+          "message" => "Too many requests made too quickly."
+        ], 429)->throwResponse();
+      } else if ($e instanceof InvalidRequestException) {
+        return response()->json([
+          "status" => false,
+          "message" => "A payment error occurred with the provided parameters from our end."
+        ], 500)->throwResponse();
+      } else if ($e instanceof AuthenticationException) {
+        return response()->json([
+          "status" => false,
+          "message" => "A payment error occurred with authentication from our end."
+        ], 500)->throwResponse();
+      } else if ($e instanceof ApiConnectionException) {
+        return response()->json([
+          "status" => false,
+          "message" => "A payment error occurred with network communication from our end."
+        ], 500)->throwResponse();
+      } else if ($e instanceof ApiErrorException) {
+        return response()->json([
+          "status" => false,
+          "message" => "An unexpected payment error occurred from our end."
+        ], 500)->throwResponse();
+      } else if ($e instanceof IdempotencyException) {
+        return response()->json([
+          "status" => false,
+          "message" => "A payment error occurred from our end. An idempotency key was used for something unexpected, like replaying a request but passing different parameters."
+        ], 500)->throwResponse();
+      } else {
+        return response()->json([
+          "status" => false,
+          "message" => "An unexpected payment error occurred from our end."
+        ], 500)->throwResponse();
+      }
     }
   }
 
