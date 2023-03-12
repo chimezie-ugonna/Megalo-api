@@ -37,10 +37,6 @@ class PaymentManager
           $_SESSION["data"] = encrypt($data);
         }
       }
-      return response()->json([
-        "status" => false,
-        "encrypted_data" => var_dump($_SESSION["data"])
-      ], 400)->throwResponse();
 
       switch ($data["type"]) {
         case "create_account": {
@@ -164,7 +160,7 @@ class PaymentManager
       } else {
         return response()->json([
           "status" => false,
-          "message" => $e->getMessage()
+          "message" => "An unexpected payment error occurred from our end."
         ], 500)->throwResponse();
       }
     }
