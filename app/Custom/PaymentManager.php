@@ -26,7 +26,7 @@ class PaymentManager
 
   function manage($data = [])
   {
-    session_start();
+    /*session_start();
     if (!isset($_SESSION["idempotency_key"]) || !isset($_SESSION["data"])) {
       $_SESSION["idempotency_key"] = uniqid(rand(), true);
       $_SESSION["data"] = encrypt($data);
@@ -42,10 +42,8 @@ class PaymentManager
           "message" => "Same data"
         ], 400)->throwResponse();
       }
-    }
-    session_unset();
-    session_destroy();
-    /*try {
+    }*/
+    try {
       session_start();
       if (!isset($_SESSION["idempotency_key"]) || !isset($_SESSION["data"])) {
         $_SESSION["idempotency_key"] = uniqid(rand(), true);
@@ -182,7 +180,7 @@ class PaymentManager
           "message" => "An unexpected payment error occurred from our end."
         ], 500)->throwResponse();
       }
-    }*/
+    }
   }
 
   function createToken($data)

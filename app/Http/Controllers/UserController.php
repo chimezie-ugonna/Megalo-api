@@ -463,6 +463,35 @@ class UserController extends Controller
             $add_payment_method_response = null;
             if ($request->request->get("action") == "deposit") {
                 if (User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id") != "") {
+                    $list_all_payment_method_response = $payment_manager->manage(array("type" => "list_all_customer_payment_method", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id"), "data" => ["type" => $create_token_response["type"]]));
+                    foreach ($list_all_payment_method_response->data as $data) {
+                        if (
+                            $data->object == "card" &&
+                            $data->object == $create_token_response["type"] &&
+                            $data->brand == $create_token_response->card->brand &&
+                            $data->fingerprint == $create_token_response->card->fingerprint &&
+                            $data->exp_month == $create_token_response->card->exp_month &&
+                            $data->exp_year == $create_token_response->card->exp_year &&
+                            $data->last4 == $create_token_response->card->last4
+                        ) {
+                            return response()->json([
+                                "status" => false,
+                                "message" => "This card has already been added."
+                            ], 400);
+                        } else if (
+                            $data->object == "bank_account" &&
+                            $data->object == $create_token_response["type"] &&
+                            $data->bank_name == $create_token_response->bank_account->bank_name &&
+                            $data->fingerprint == $create_token_response->bank_account->fingerprint &&
+                            $data->routing_number == $create_token_response->bank_account->routing_number &&
+                            $data->last4 == $create_token_response->bank_account->last4
+                        ) {
+                            return response()->json([
+                                "status" => false,
+                                "message" => "This bank account has already been added."
+                            ], 400);
+                        }
+                    }
                     $add_payment_method_response = $payment_manager->manage(array("type" => "add_customer_payment_method", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id"), "data" => ["token" => $token]));
                 } else {
                     $customer_response = $payment_manager->manage(array("type" => "create_customer"));
@@ -478,6 +507,35 @@ class UserController extends Controller
                 }
             } else if ($request->request->get("action") == "withdrawal") {
                 if (User::where("user_id", $request->request->get("user_id"))->value("payment_account_id") != "") {
+                    $list_all_payment_method_response = $payment_manager->manage(array("type" => "list_all_account_payment_method", "account_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_account_id"), "data" => ["type" => $create_token_response["type"]]));
+                    foreach ($list_all_payment_method_response->data as $data) {
+                        if (
+                            $data->object == "card" &&
+                            $data->object == $create_token_response["type"] &&
+                            $data->brand == $create_token_response->card->brand &&
+                            $data->fingerprint == $create_token_response->card->fingerprint &&
+                            $data->exp_month == $create_token_response->card->exp_month &&
+                            $data->exp_year == $create_token_response->card->exp_year &&
+                            $data->last4 == $create_token_response->card->last4
+                        ) {
+                            return response()->json([
+                                "status" => false,
+                                "message" => "This card has already been added."
+                            ], 400);
+                        } else if (
+                            $data->object == "bank_account" &&
+                            $data->object == $create_token_response["type"] &&
+                            $data->bank_name == $create_token_response->bank_account->bank_name &&
+                            $data->fingerprint == $create_token_response->bank_account->fingerprint &&
+                            $data->routing_number == $create_token_response->bank_account->routing_number &&
+                            $data->last4 == $create_token_response->bank_account->last4
+                        ) {
+                            return response()->json([
+                                "status" => false,
+                                "message" => "This bank account has already been added."
+                            ], 400);
+                        }
+                    }
                     $add_payment_method_response = $payment_manager->manage(array("type" => "add_account_payment_method", "account_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_account_id"), "data" => ["token" => $token]));
                 } else {
                     $account_response = $payment_manager->manage(array("type" => "create_account", "data" => ["time_stamp" => strtotime(date("Y-m-d H:i:s")), "ip_address" => User::find($request->request->get("user_id"))->login()->where("access_type", $request->header("access-type"))->where("device_os", $request->header("device-os", ""))->where("device_token", $request->header("device-token", ""))->value("ip_address")]));
