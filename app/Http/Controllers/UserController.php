@@ -456,139 +456,155 @@ class UserController extends Controller
 
     public function createPaymentMethod(Request $request)
     {
-        $payment_manager = new PaymentManager();
-        $create_token_response = $payment_manager->manage(array("type" => "create_token", "data" => $request->all()));
-        if (isset($create_token_response) && isset($create_token_response["id"])) {
-            $token = $create_token_response["id"];
-            $add_payment_method_response = null;
-            if ($request->request->get("action") == "deposit") {
-                if (User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id") != "") {
-                    $list_all_payment_method_response = $payment_manager->manage(array("type" => "list_all_customer_payment_method", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id"), "data" => ["type" => $create_token_response["type"]]));
-                    foreach ($list_all_payment_method_response->data as $data) {
-                        if (
-                            $data->object == "card" &&
-                            $data->object == $create_token_response["type"] &&
-                            $data->brand == $create_token_response->card->brand &&
-                            $data->fingerprint == $create_token_response->card->fingerprint &&
-                            $data->exp_month == $create_token_response->card->exp_month &&
-                            $data->exp_year == $create_token_response->card->exp_year &&
-                            $data->last4 == $create_token_response->card->last4
-                        ) {
-                            return response()->json([
-                                "status" => false,
-                                "message" => "This card has already been added."
-                            ], 400);
-                        } else if (
-                            $data->object == "bank_account" &&
-                            $data->object == $create_token_response["type"] &&
-                            $data->bank_name == $create_token_response->bank_account->bank_name &&
-                            $data->fingerprint == $create_token_response->bank_account->fingerprint &&
-                            $data->routing_number == $create_token_response->bank_account->routing_number &&
-                            $data->last4 == $create_token_response->bank_account->last4
-                        ) {
-                            return response()->json([
-                                "status" => false,
-                                "message" => "This bank account has already been added."
-                            ], 400);
+        $user_identity_verified = User::where("user_id", $request->request->get("user_id"))->value("identity_verified");
+        if ($user_identity_verified) {
+            $user_email_verified = User::where("user_id", $request->request->get("user_id"))->value("email_verified");
+            if ($user_email_verified) {
+                $payment_manager = new PaymentManager();
+                $create_token_response = $payment_manager->manage(array("type" => "create_token", "data" => $request->all()));
+                if (isset($create_token_response) && isset($create_token_response["id"])) {
+                    $token = $create_token_response["id"];
+                    $add_payment_method_response = null;
+                    if ($request->request->get("action") == "deposit") {
+                        if (User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id") != "") {
+                            $list_all_payment_method_response = $payment_manager->manage(array("type" => "list_all_customer_payment_method", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id"), "data" => ["type" => $create_token_response["type"]]));
+                            foreach ($list_all_payment_method_response->data as $data) {
+                                if (
+                                    $data->object == "card" &&
+                                    $data->object == $create_token_response["type"] &&
+                                    $data->brand == $create_token_response->card->brand &&
+                                    $data->fingerprint == $create_token_response->card->fingerprint &&
+                                    $data->exp_month == $create_token_response->card->exp_month &&
+                                    $data->exp_year == $create_token_response->card->exp_year &&
+                                    $data->last4 == $create_token_response->card->last4
+                                ) {
+                                    return response()->json([
+                                        "status" => false,
+                                        "message" => "This card has already been added."
+                                    ], 400);
+                                } else if (
+                                    $data->object == "bank_account" &&
+                                    $data->object == $create_token_response["type"] &&
+                                    $data->bank_name == $create_token_response->bank_account->bank_name &&
+                                    $data->fingerprint == $create_token_response->bank_account->fingerprint &&
+                                    $data->routing_number == $create_token_response->bank_account->routing_number &&
+                                    $data->last4 == $create_token_response->bank_account->last4
+                                ) {
+                                    return response()->json([
+                                        "status" => false,
+                                        "message" => "This bank account has already been added."
+                                    ], 400);
+                                }
+                            }
+                            $add_payment_method_response = $payment_manager->manage(array("type" => "add_customer_payment_method", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id"), "data" => ["token" => $token]));
+                        } else {
+                            $customer_response = $payment_manager->manage(array("type" => "create_customer"));
+                            if (isset($customer_response) && isset($customer_response["id"])) {
+                                User::find($request->request->get("user_id"))->update(["payment_customer_id" => $customer_response["id"]]);
+                                $add_payment_method_response = $payment_manager->manage(array("type" => "add_customer_payment_method", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id"), "data" => ["token" => $token]));
+                            } else {
+                                return response()->json([
+                                    "status" => false,
+                                    "message" => "An error occurred while adding payment method, payment method could not be added."
+                                ], 500);
+                            }
+                        }
+                    } else if ($request->request->get("action") == "withdrawal") {
+                        if (User::where("user_id", $request->request->get("user_id"))->value("payment_account_id") != "") {
+                            $list_all_payment_method_response = $payment_manager->manage(array("type" => "list_all_account_payment_method", "account_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_account_id"), "data" => ["type" => $create_token_response["type"]]));
+                            foreach ($list_all_payment_method_response->data as $data) {
+                                if (
+                                    $data->object == "card" &&
+                                    $data->object == $create_token_response["type"] &&
+                                    $data->brand == $create_token_response->card->brand &&
+                                    $data->fingerprint == $create_token_response->card->fingerprint &&
+                                    $data->exp_month == $create_token_response->card->exp_month &&
+                                    $data->exp_year == $create_token_response->card->exp_year &&
+                                    $data->last4 == $create_token_response->card->last4
+                                ) {
+                                    return response()->json([
+                                        "status" => false,
+                                        "message" => "This card has already been added."
+                                    ], 400);
+                                } else if (
+                                    $data->object == "bank_account" &&
+                                    $data->object == $create_token_response["type"] &&
+                                    $data->bank_name == $create_token_response->bank_account->bank_name &&
+                                    $data->fingerprint == $create_token_response->bank_account->fingerprint &&
+                                    $data->routing_number == $create_token_response->bank_account->routing_number &&
+                                    $data->last4 == $create_token_response->bank_account->last4
+                                ) {
+                                    return response()->json([
+                                        "status" => false,
+                                        "message" => "This bank account has already been added."
+                                    ], 400);
+                                }
+                            }
+                            $add_payment_method_response = $payment_manager->manage(array("type" => "add_account_payment_method", "account_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_account_id"), "data" => ["token" => $token]));
+                        } else {
+                            $account_response = $payment_manager->manage(array("type" => "create_account", "data" => ["time_stamp" => strtotime(date("Y-m-d H:i:s")), "ip_address" => User::find($request->request->get("user_id"))->login()->where("access_type", $request->header("access-type"))->where("device_os", $request->header("device-os", ""))->where("device_token", $request->header("device-token", ""))->value("ip_address")]));
+                            if (isset($account_response) && isset($account_response["id"])) {
+                                User::find($request->request->get("user_id"))->update(["payment_account_id" => $account_response["id"]]);
+                                $add_payment_method_response = $payment_manager->manage(array("type" => "add_account_payment_method", "account_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_account_id"), "data" => ["token" => $token]));
+                            } else {
+                                return response()->json([
+                                    "status" => false,
+                                    "message" => "An error occurred while adding payment method, payment method could not be added."
+                                ], 500);
+                            }
                         }
                     }
-                    $add_payment_method_response = $payment_manager->manage(array("type" => "add_customer_payment_method", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id"), "data" => ["token" => $token]));
-                } else {
-                    $customer_response = $payment_manager->manage(array("type" => "create_customer"));
-                    if (isset($customer_response) && isset($customer_response["id"])) {
-                        User::find($request->request->get("user_id"))->update(["payment_customer_id" => $customer_response["id"]]);
-                        $add_payment_method_response = $payment_manager->manage(array("type" => "add_customer_payment_method", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id"), "data" => ["token" => $token]));
-                    } else {
-                        return response()->json([
-                            "status" => false,
-                            "message" => "An error occurred while adding payment method, payment method could not be added."
-                        ], 500);
-                    }
-                }
-            } else if ($request->request->get("action") == "withdrawal") {
-                if (User::where("user_id", $request->request->get("user_id"))->value("payment_account_id") != "") {
-                    $list_all_payment_method_response = $payment_manager->manage(array("type" => "list_all_account_payment_method", "account_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_account_id"), "data" => ["type" => $create_token_response["type"]]));
-                    foreach ($list_all_payment_method_response->data as $data) {
-                        if (
-                            $data->object == "card" &&
-                            $data->object == $create_token_response["type"] &&
-                            $data->brand == $create_token_response->card->brand &&
-                            $data->fingerprint == $create_token_response->card->fingerprint &&
-                            $data->exp_month == $create_token_response->card->exp_month &&
-                            $data->exp_year == $create_token_response->card->exp_year &&
-                            $data->last4 == $create_token_response->card->last4
-                        ) {
-                            return response()->json([
-                                "status" => false,
-                                "message" => "This card has already been added."
-                            ], 400);
-                        } else if (
-                            $data->object == "bank_account" &&
-                            $data->object == $create_token_response["type"] &&
-                            $data->bank_name == $create_token_response->bank_account->bank_name &&
-                            $data->fingerprint == $create_token_response->bank_account->fingerprint &&
-                            $data->routing_number == $create_token_response->bank_account->routing_number &&
-                            $data->last4 == $create_token_response->bank_account->last4
-                        ) {
-                            return response()->json([
-                                "status" => false,
-                                "message" => "This bank account has already been added."
-                            ], 400);
-                        }
-                    }
-                    $add_payment_method_response = $payment_manager->manage(array("type" => "add_account_payment_method", "account_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_account_id"), "data" => ["token" => $token]));
-                } else {
-                    $account_response = $payment_manager->manage(array("type" => "create_account", "data" => ["time_stamp" => strtotime(date("Y-m-d H:i:s")), "ip_address" => User::find($request->request->get("user_id"))->login()->where("access_type", $request->header("access-type"))->where("device_os", $request->header("device-os", ""))->where("device_token", $request->header("device-token", ""))->value("ip_address")]));
-                    if (isset($account_response) && isset($account_response["id"])) {
-                        User::find($request->request->get("user_id"))->update(["payment_account_id" => $account_response["id"]]);
-                        $add_payment_method_response = $payment_manager->manage(array("type" => "add_account_payment_method", "account_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_account_id"), "data" => ["token" => $token]));
-                    } else {
-                        return response()->json([
-                            "status" => false,
-                            "message" => "An error occurred while adding payment method, payment method could not be added."
-                        ], 500);
-                    }
-                }
-            }
-            if (isset($add_payment_method_response) && isset($add_payment_method_response["id"])) {
-                if ($request->request->get("action") == "deposit" && $request->request->get("type") == "bank_account") {
-                    $verify_customer_bank_account_response = $payment_manager->manage(array("type" => "verify_customer_bank_account", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id"), "data" => ["id" => $add_payment_method_response["id"]]));
-                    if (isset($verify_customer_bank_account_response) && isset($verify_customer_bank_account_response["status"]) && $verify_customer_bank_account_response["status"] == "verified") {
-                        return response()->json([
-                            "status" => true,
-                            "message" => "Payment method added successfully."
-                        ], 201);
-                    } else {
-                        $delete_customer_payment_method_response = $payment_manager->manage(array("type" => "delete_customer_payment_method", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id"), "data" => ["id" => $add_payment_method_response["id"]]));
-                        if (isset($delete_customer_payment_method_response) && isset($delete_customer_payment_method_response["deleted"]) && $delete_customer_payment_method_response["deleted"]) {
-                            return response()->json([
-                                "status" => false,
-                                "message" => "An error occurred while verifying payment method, payment method could not be added."
-                            ], 500);
+                    if (isset($add_payment_method_response) && isset($add_payment_method_response["id"])) {
+                        if ($request->request->get("action") == "deposit" && $request->request->get("type") == "bank_account") {
+                            $verify_customer_bank_account_response = $payment_manager->manage(array("type" => "verify_customer_bank_account", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id"), "data" => ["id" => $add_payment_method_response["id"]]));
+                            if (isset($verify_customer_bank_account_response) && isset($verify_customer_bank_account_response["status"]) && $verify_customer_bank_account_response["status"] == "verified") {
+                                return response()->json([
+                                    "status" => true,
+                                    "message" => "Payment method added successfully."
+                                ], 201);
+                            } else {
+                                $delete_customer_payment_method_response = $payment_manager->manage(array("type" => "delete_customer_payment_method", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id"), "data" => ["id" => $add_payment_method_response["id"]]));
+                                if (isset($delete_customer_payment_method_response) && isset($delete_customer_payment_method_response["deleted"]) && $delete_customer_payment_method_response["deleted"]) {
+                                    return response()->json([
+                                        "status" => false,
+                                        "message" => "An error occurred while verifying payment method, payment method could not be added."
+                                    ], 500);
+                                } else {
+                                    return response()->json([
+                                        "status" => false,
+                                        "message" => "An error occurred while verifying payment method and while attempting to delete payment method."
+                                    ], 500);
+                                }
+                            }
                         } else {
                             return response()->json([
-                                "status" => false,
-                                "message" => "An error occurred while verifying payment method and while attempting to delete payment method."
-                            ], 500);
+                                "status" => true,
+                                "message" => "Payment method added successfully."
+                            ], 201);
                         }
+                    } else {
+                        return response()->json([
+                            "status" => false,
+                            "message" => "An error occurred while adding payment method, payment method could not be added."
+                        ], 500);
                     }
                 } else {
                     return response()->json([
-                        "status" => true,
-                        "message" => "Payment method added successfully."
-                    ], 201);
+                        "status" => false,
+                        "message" => "An error occurred while adding payment method, payment method could not be added."
+                    ], 500);
                 }
             } else {
                 return response()->json([
                     "status" => false,
-                    "message" => "An error occurred while adding payment method, payment method could not be added."
-                ], 500);
+                    "message" => "User email has to be verified before any payment method can be added."
+                ], 403);
             }
         } else {
             return response()->json([
                 "status" => false,
-                "message" => "An error occurred while adding payment method, payment method could not be added."
-            ], 500);
+                "message" => "User identity has to be verified before any payment method can be added."
+            ], 403);
         }
     }
 
