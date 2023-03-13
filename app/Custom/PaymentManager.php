@@ -191,7 +191,7 @@ class PaymentManager
           "number" => $data["number"],
           "exp_month" => $data["exp_month"],
           "exp_year" => $data["exp_year"],
-          "cvc" => $data["cvc"],
+          "cvc" => $data["cvc"]
         ],
       ], [
         "idempotency_key" => $_SESSION["idempotency_key"]
@@ -202,6 +202,7 @@ class PaymentManager
           "country" => $data["country"],
           "currency" => $data["currency"],
           "account_number" => $data["account_number"],
+          "routing_number" => $data["routing_number"]
         ],
       ], [
         "idempotency_key" => $_SESSION["idempotency_key"]
