@@ -78,13 +78,15 @@ class IncomingDataValidation
                         "cvc" => ["bail", "required", "numeric", "digits_between:3,4"],
                         "country" => ["bail", "prohibited"],
                         "currency" => ["bail", "prohibited"],
-                        "account_number" => ["bail", "prohibited"]
+                        "account_number" => ["bail", "prohibited"],
+                        "routing_number" => ["bail", "prohibited"]
                     ]);
                 } else if ($request->request->has("type") && $request->filled("type") && $request->request->get("type") == "bank_account") {
                     $request->validate([
                         "country" => ["bail", "required", "alpha", "size:2", "uppercase"],
                         "currency" => ["bail", "required", "alpha", "size:3", "lowercase"],
                         "account_number" => ["bail", "required", "numeric"],
+                        "routing_number" => ["bail", "filled", "numeric", "required_if:country,US"],
                         "number" => ["bail", "prohibited"],
                         "exp_month" => ["bail", "prohibited"],
                         "exp_year" => ["bail", "prohibited"],
