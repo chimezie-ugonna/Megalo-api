@@ -201,6 +201,8 @@ class PaymentManager
         $data["type"] => [
           "country" => $data["country"],
           "currency" => $data["currency"],
+          "account_holder_name" => $data["account_holder_name"],
+          "account_holder_type" => $data["account_holder_type"],
           "account_number" => $data["account_number"],
           "routing_number" => $data["routing_number"]
         ],

@@ -78,6 +78,8 @@ class IncomingDataValidation
                         "cvc" => ["bail", "required", "numeric", "digits_between:3,4"],
                         "country" => ["bail", "prohibited"],
                         "currency" => ["bail", "prohibited"],
+                        "account_holder_name" => ["bail", "prohibited"],
+                        "account_holder_type" => ["bail", "prohibited"],
                         "account_number" => ["bail", "prohibited"],
                         "routing_number" => ["bail", "prohibited"]
                     ]);
@@ -85,6 +87,8 @@ class IncomingDataValidation
                     $request->validate([
                         "country" => ["bail", "required", "alpha", "size:2", "uppercase"],
                         "currency" => ["bail", "required", "alpha", "size:3", "lowercase"],
+                        "account_holder_name" => ["bail", "filled", "required_if:action,deposit"],
+                        "account_holder_type" => ["bail", "filled", "in:individual,company", "required_if:action,deposit"],
                         "account_number" => ["bail", "required", "numeric"],
                         "routing_number" => ["bail", "filled", "numeric", "required_if:country,US"],
                         "number" => ["bail", "prohibited"],
