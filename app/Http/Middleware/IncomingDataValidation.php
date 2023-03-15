@@ -87,8 +87,8 @@ class IncomingDataValidation
                     $request->validate([
                         "country" => ["bail", "required", "alpha", "size:2", "uppercase"],
                         "currency" => ["bail", "required", "alpha", "size:3", "lowercase"],
-                        "account_holder_name" => ["bail", "filled", "required_if:action,deposit"],
-                        "account_holder_type" => ["bail", "filled", "in:individual,company", "required_if:action,deposit"],
+                        "account_holder_name" => ["bail", "required"],
+                        "account_holder_type" => ["bail", "required", "in:individual,company"],
                         "account_number" => ["bail", "required", "numeric"],
                         "routing_number" => ["bail", "filled", "numeric", "required_if:country,US"],
                         "number" => ["bail", "prohibited"],
