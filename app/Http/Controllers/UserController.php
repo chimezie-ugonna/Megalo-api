@@ -498,7 +498,7 @@ class UserController extends Controller
                             }
                             $add_payment_method_response = $payment_manager->manage(array("type" => "add_customer_payment_method", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id"), "data" => ["token" => $token]));
                         } else {
-                            $customer_response = $payment_manager->manage(array("type" => "create_customer"));
+                            $customer_response = $payment_manager->manage(array("type" => "create_customer", "data" => ["full_name" => User::where("user_id", $request->request->get("user_id"))->value("first_name") . " " . User::where("user_id", $request->request->get("user_id"))->value("last_name")]));
                             if (isset($customer_response) && isset($customer_response["id"])) {
                                 User::find($request->request->get("user_id"))->update(["payment_customer_id" => $customer_response["id"]]);
                                 $add_payment_method_response = $payment_manager->manage(array("type" => "add_customer_payment_method", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id"), "data" => ["token" => $token]));
@@ -542,7 +542,8 @@ class UserController extends Controller
                             }
                             $add_payment_method_response = $payment_manager->manage(array("type" => "add_account_payment_method", "account_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_account_id"), "data" => ["token" => $token]));
                         } else {
-                            $account_response = $payment_manager->manage(array("type" => "create_account", "data" => ["time_stamp" => strtotime(date("Y-m-d H:i:s")), "ip_address" => User::find($request->request->get("user_id"))->login()->where("access_type", $request->header("access-type"))->where("device_os", $request->header("device-os", ""))->where("device_token", $request->header("device-token", ""))->value("ip_address")]));
+                            $dob = User::where("user_id", $request->request->get("user_id"))->value("dob");
+                            $account_response = $payment_manager->manage(array("type" => "create_account", "data" => ["first_name" => User::where("user_id", $request->request->get("user_id"))->value("first_name"), "last_name" => User::where("user_id", $request->request->get("user_id"))->value("last_name"), "gender" => User::where("user_id", $request->request->get("user_id"))->value("gender"), "day_of_birth" => date("j", strtotime(date("d/m/Y", strtotime($dob)))), "month_of_birth" => date("n", strtotime(date("d/m/Y", strtotime($dob)))), "year_of_birth" => date("Y", strtotime(date("d/m/Y", strtotime($dob)))), "time_stamp" => strtotime(date("Y-m-d H:i:s")), "ip_address" => User::find($request->request->get("user_id"))->login()->where("access_type", $request->header("access-type"))->where("device_os", $request->header("device-os", ""))->where("device_token", $request->header("device-token", ""))->value("ip_address")]));
                             if (isset($account_response) && isset($account_response["id"])) {
                                 User::find($request->request->get("user_id"))->update(["payment_account_id" => $account_response["id"]]);
                                 $add_payment_method_response = $payment_manager->manage(array("type" => "add_account_payment_method", "account_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_account_id"), "data" => ["token" => $token]));
