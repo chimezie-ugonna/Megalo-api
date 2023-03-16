@@ -154,13 +154,17 @@ class PaymentManager
   function createToken($data)
   {
     if ($data["type"] == "card") {
+      $parameters = [
+        "number" => $data["number"],
+        "exp_month" => $data["exp_month"],
+        "exp_year" => $data["exp_year"],
+        "cvc" => $data["cvc"]
+      ];
+      if ($data["action"] == "withdrawal") {
+        $parameters["currency"] = $data["currency"];
+      }
       return $this->stripe->tokens->create([
-        $data["type"] => [
-          "number" => $data["number"],
-          "exp_month" => $data["exp_month"],
-          "exp_year" => $data["exp_year"],
-          "cvc" => $data["cvc"]
-        ],
+        $data["type"] => $parameters,
       ]);
     } else if ($data["type"] == "bank_account") {
       return $this->stripe->tokens->create([
