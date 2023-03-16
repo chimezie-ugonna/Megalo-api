@@ -21,7 +21,7 @@ class PaymentManager
   function __construct()
   {
     $this->stripe = new StripeClient(getenv("STRIPE_API_KEY"));
-    Stripe::setMaxNetworkRetries(2);
+    //Stripe::setMaxNetworkRetries(2);
   }
 
   function manage($data = [])
