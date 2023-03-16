@@ -77,7 +77,7 @@ class IncomingDataValidation
                         "exp_year" => ["bail", "required", "numeric", "digits:4"],
                         "cvc" => ["bail", "required", "numeric", "digits_between:3,4"],
                         "country" => ["bail", "prohibited"],
-                        "currency" => ["bail", "prohibited"],
+                        "currency" => ["bail", "prohibited_if:action,deposit", "filled", "alpha", "size:3", "lowercase", "required_if:action,withdrawal"],
                         "account_holder_name" => ["bail", "prohibited"],
                         "account_holder_type" => ["bail", "prohibited"],
                         "account_number" => ["bail", "prohibited"],
