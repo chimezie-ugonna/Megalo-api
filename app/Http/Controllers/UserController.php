@@ -393,64 +393,71 @@ class UserController extends Controller
 
     public function delete(Request $request)
     {
-        $status = true;
-        $payment_manager = new PaymentManager();
-        if (User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id") != "") {
-            $customer_response = $payment_manager->manage(array("type" => "delete_customer", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id")));
-            if (isset($customer_response) && isset($customer_response["deleted"]) && $customer_response["deleted"]) {
-                User::find($request->request->get("user_id"))->update(["payment_customer_id" => ""]);
-            } else {
-                $status = false;
-            }
-        }
-        if ($status && User::where("user_id", $request->request->get("user_id"))->value("payment_account_id") != "") {
-            $account_response = $payment_manager->manage(array("type" => "delete_account", "account_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_account_id")));
-            if (isset($account_response) && isset($account_response["deleted"]) && $account_response["deleted"]) {
-                User::find($request->request->get("user_id"))->update(["payment_account_id" => ""]);
-            } else {
-                $status = false;
-            }
-        }
-        if ($status && User::where("user_id", $request->request->get("user_id"))->value("image_url") != "") {
-            $media_manager = new MediaManager();
-            $data = explode("+ ", User::where("user_id", $request->request->get("user_id"))->value("image_url"));
-            if (count($data) > 1) {
-                $data = $media_manager->deleteMedia("image", $data[1]);
-                if (!isset($data) || !isset($data["result"]) || $data["result"] != "ok") {
-                    $status = false;
+        if (User::where("user_id", $request->request->get("user_id"))->value("balance_usd") == 0) {
+            $status = true;
+            $payment_manager = new PaymentManager();
+            if (User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id") != "") {
+                $customer_response = $payment_manager->manage(array("type" => "delete_customer", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id")));
+                if (isset($customer_response) && isset($customer_response["deleted"]) && $customer_response["deleted"]) {
+                    User::find($request->request->get("user_id"))->update(["payment_customer_id" => ""]);
                 } else {
-                    User::find($request->request->get("user_id"))->update(["image_url" => ""]);
+                    $status = false;
                 }
             }
-        }
-        if ($status && User::where("user_id", $request->request->get("user_id"))->value("identity_verification_id") != "") {
-            $identity_verifier = new IdentityVerifier();
-            $response = $identity_verifier->run("deleteVerification", User::where("user_id", $request->request->get("user_id"))->value("identity_verification_id"));
-            if ($response == "") {
-                User::find($request->request->get("user_id"))->update(["identity_verification_id" => ""]);
-            } else {
-                $status = false;
+            if ($status && User::where("user_id", $request->request->get("user_id"))->value("payment_account_id") != "") {
+                $account_response = $payment_manager->manage(array("type" => "delete_account", "account_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_account_id")));
+                if (isset($account_response) && isset($account_response["deleted"]) && $account_response["deleted"]) {
+                    User::find($request->request->get("user_id"))->update(["payment_account_id" => ""]);
+                } else {
+                    $status = false;
+                }
             }
-        }
+            if ($status && User::where("user_id", $request->request->get("user_id"))->value("image_url") != "") {
+                $media_manager = new MediaManager();
+                $data = explode("+ ", User::where("user_id", $request->request->get("user_id"))->value("image_url"));
+                if (count($data) > 1) {
+                    $data = $media_manager->deleteMedia("image", $data[1]);
+                    if (!isset($data) || !isset($data["result"]) || $data["result"] != "ok") {
+                        $status = false;
+                    } else {
+                        User::find($request->request->get("user_id"))->update(["image_url" => ""]);
+                    }
+                }
+            }
+            if ($status && User::where("user_id", $request->request->get("user_id"))->value("identity_verification_id") != "") {
+                $identity_verifier = new IdentityVerifier();
+                $response = $identity_verifier->run("deleteVerification", User::where("user_id", $request->request->get("user_id"))->value("identity_verification_id"));
+                if ($response == "") {
+                    User::find($request->request->get("user_id"))->update(["identity_verification_id" => ""]);
+                } else {
+                    $status = false;
+                }
+            }
 
-        if ($status) {
-            User::find($request->request->get("user_id"))->login()->delete();
-            User::find($request->request->get("user_id"))->investment()->delete();
-            User::find($request->request->get("user_id"))->notificationSender()->delete();
-            User::find($request->request->get("user_id"))->notificationReceiver()->delete();
-            User::find($request->request->get("user_id"))->payment()->delete();
-            User::find($request->request->get("user_id"))->earning()->delete();
-            User::find($request->request->get("user_id"))->failedWithdrawal()->delete();
-            User::destroy($request->request->get("user_id"));
-            return response()->json([
-                "status" => true,
-                "message" => "User deleted successfully."
-            ], 200);
+            if ($status) {
+                User::find($request->request->get("user_id"))->login()->delete();
+                User::find($request->request->get("user_id"))->investment()->delete();
+                User::find($request->request->get("user_id"))->notificationSender()->delete();
+                User::find($request->request->get("user_id"))->notificationReceiver()->delete();
+                User::find($request->request->get("user_id"))->payment()->delete();
+                User::find($request->request->get("user_id"))->earning()->delete();
+                User::find($request->request->get("user_id"))->failedWithdrawal()->delete();
+                User::destroy($request->request->get("user_id"));
+                return response()->json([
+                    "status" => true,
+                    "message" => "User deleted successfully."
+                ], 200);
+            } else {
+                return response()->json([
+                    "status" => false,
+                    "message" => "An error occurred while deleting user, user could not be deleted."
+                ], 500);
+            }
         } else {
             return response()->json([
                 "status" => false,
-                "message" => "An error occurred while deleting user, user could not be deleted."
-            ], 500);
+                "message" => "User's balance has to be zero before this process can be completed."
+            ], 403);
         }
     }
 
