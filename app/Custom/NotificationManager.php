@@ -48,11 +48,13 @@ class NotificationManager
 
                 if ($device_os == "android") {
                   $priority = "high";
+                  $sound = "notifications.mp3";
                 } else {
                   $priority = "10";
+                  $sound = "notifications.caf";
                 }
 
-                $notification = ["title" => $title, "body" => $body, "sound" => "notifications.mp3", "icon" => "notification_icon", "android_channel_id" => "megalo_general_channel_id"];
+                $notification = ["title" => $title, "body" => $body, "sound" => $sound, "icon" => "logo_notification", "android_channel_id" => "megalo_general_channel_id"];
                 $json = json_encode(["to" => $device_token, "notification" => $notification, "data" => array_merge($data, $notification), "priority" => $priority]);
                 $curl = curl_init();
 

@@ -195,6 +195,7 @@ class PaymentManager
         "dob" => ["day" => $data["day_of_birth"], "month" => $data["month_of_birth"], "year" => $data["year_of_birth"]]
       ],
       "tos_acceptance" => [
+        "service_agreement" => "recipient",
         "date" => $data["time_stamp"],
         "ip" => $data["ip_address"]
       ]
