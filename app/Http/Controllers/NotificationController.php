@@ -29,10 +29,10 @@ class NotificationController extends Controller
     public function createAll(Request $request)
     {
         $notification_manager = new NotificationManager();
-        $notification_manager->sendNotification($request->all(), array(), "general");
+        $response = $notification_manager->sendNotification($request->all(), array(), "general");
         return response()->json([
             "status" => true,
-            "message" => "Notification sent successfully."
+            "message" => $response
         ], 201);
     }
 

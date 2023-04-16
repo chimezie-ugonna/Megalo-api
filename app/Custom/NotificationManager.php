@@ -80,17 +80,12 @@ class NotificationManager
                   }
                 }
 
-                return response()->json([
-                  "status" => true,
-                  "message" => $responseData
-              ], 200);
-
                 curl_close($curl);
               }
             }
           }
         }
-
+        return $responseData;
         Notification::Create($array);
       }
     }
