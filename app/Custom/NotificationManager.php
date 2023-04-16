@@ -85,7 +85,7 @@ class NotificationManager
             }
           }
         }
-        return $responseData;
+
         Notification::Create($array);
       }
     }

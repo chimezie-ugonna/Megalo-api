@@ -28,12 +28,38 @@ class NotificationController extends Controller
 
     public function createAll(Request $request)
     {
-        $notification_manager = new NotificationManager();
-        $response = $notification_manager->sendNotification($request->all(), array(), "general");
+        /*$notification_manager = new NotificationManager();
+        $notification_manager->sendNotification($request->all(), array(), "general");
         return response()->json([
             "status" => true,
-            "message" => $response
-        ], 201);
+            "message" => "Notification sent successfully."
+        ], 201);*/
+
+        $notification = ["title" => "Test", "body" => "Test", "sound" => "notifications.caf", "icon" => "logo_notification", "android_channel_id" => "megalo_general_channel_id"];
+        $json = json_encode([
+            "to" => "fwRxtjop_kWLunpEz7THJN:APA91bFd_B6BHcJKyJhRStkYtGBwlm5ToqYGf7XzRKYwnna0Rr55RMOcIqA2Nvf6l8awCYb5TfADHCwDthnGE8R4Q-9ytnDjJfqDxcBfRLDK86M0s45TiCx-KENjj-BPpcFRzoovkbP1", "notification" => $notification, "data" => array_merge([], $notification), "priority" => "10"
+        ]);
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => "https://fcm.googleapis.com/fcm/send",
+            CURLOPT_HTTPHEADER => array(
+                "Content-Type: application/json",
+                "Authorization: key=" . getenv("FCM_SERVER_KEY")
+            ),
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => $json,
+            CURLOPT_CUSTOMREQUEST => "POST"
+        ));
+
+        $response = curl_exec($curl);
+
+        $responseData = json_decode($response, true);
+        return response()->json([
+            "status" => true,
+            "message" => $responseData
+        ], 200);
     }
 
     public function read(Request $request)
