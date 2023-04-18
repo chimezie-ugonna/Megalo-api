@@ -50,7 +50,7 @@ class NotificationManager
                   $priority = "high";
                   $sound = "notifications.mp3";
                 } else {
-                  $priority = "10";
+                  $priority = 10;
                   $sound = "notifications.caf";
                 }
 
