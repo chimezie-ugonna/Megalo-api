@@ -6,9 +6,10 @@ class Localization
 {
     private $english;
     private $german;
-    private $language;
-    function __construct($ip_address, $data)
+    private $language_code;
+    function __construct($language_code, $data)
     {
+        $this->language_code = $language_code;
         $referral_payment_usd = 0;
         if (array_key_exists("referral_payment_usd", $data)) {
             $referral_payment_usd = $data["referral_payment_usd"];
@@ -59,7 +60,12 @@ class Localization
             "identity_verification_failed_image_upload_error" => "Your identity was not verified successfully because an error occurred while we were processing your selfie image.",
             "test" => "This is a test.",
             "appreciation_title" => "We appreciate you \u{1F60A}.",
-            "appreciation_body" => "Thank You for being our esteemed customer. Your support and trust in us are much cherished. Thank You once again!"
+            "appreciation_body" => "Thank You for being our esteemed customer. Your support and trust in us are much cherished. Thank You once again!",
+            str_replace(" ", "_", "the operation failed because a server error occurred while attempting to send the otp") => "The operation failed because a server error occurred while attempting to send the otp.",
+            str_replace(" ", "_", "the operation failed because a server error occurred while attempting to verify the otp") => "The operation failed because a server error occurred while attempting to verify the otp.",
+            str_replace(" ", "_", "this code is incorrect") => "This code is incorrect.",
+            str_replace(" ", "_", "the phone number you provided has been taken") => "The phone number you provided has been taken.",
+            str_replace(" ", "_", "please enter a valid referral code") => "Please enter a valid referral code."
         ];
 
         $this->german = [
@@ -96,33 +102,22 @@ class Localization
             "identity_verification_failed_image_upload_error" => "Ihre Identität wurde nicht erfolgreich verifiziert, da bei der Verarbeitung Ihres Selfie-Bildes ein Fehler aufgetreten ist.",
             "test" => "Das ist ein Test.",
             "appreciation_title" => "Wir wissen dich zu schätzen \u{1F60A}.",
-            "appreciation_body" => "Vielen Dank, dass Sie unser geschätzter Kunde sind. Ihre Unterstützung und Ihr Vertrauen in uns werden sehr geschätzt. Vielen Dank noch mal!"
+            "appreciation_body" => "Vielen Dank, dass Sie unser geschätzter Kunde sind. Ihre Unterstützung und Ihr Vertrauen in uns werden sehr geschätzt. Vielen Dank noch mal!",
+            str_replace(" ", "_", "the operation failed because a server error occurred while attempting to send the otp") => "Der Vorgang ist fehlgeschlagen, da beim Versuch, das otp zu senden, ein Serverfehler aufgetreten ist.",
+            str_replace(" ", "_", "the operation failed because a server error occurred while attempting to verify the otp") => "Der Vorgang ist fehlgeschlagen, da beim Versuch, das otp zu überprüfen, ein Serverfehler aufgetreten ist.",
+            str_replace(" ", "_", "this code is incorrect") => "Dieser Code ist falsch.",
+            str_replace(" ", "_", "the phone number you provided has been taken") => "Die von Ihnen angegebene Telefonnummer wurde vergeben.",
+            str_replace(" ", "_", "please enter a valid referral code") => "Bitte geben Sie einen gültigen Empfehlungscode ein."
         ];
-
-        if ($ip_address != "") {
-            $ip_address_manager = new IpAddressManager();
-            $country = $ip_address_manager->getIpAddressDetails($ip_address, "Country");
-            if (isset($country)) {
-                if ($country == "Germany") {
-                    $this->language = "German";
-                } else {
-                    $this->language = "English";
-                }
-            } else {
-                $this->language = "English";
-            }
-        } else {
-            $this->language = "English";
-        }
     }
 
     function getText($key)
     {
         if (array_key_exists($key, $this->english)) {
-            if ($this->language == "English") {
-                return $this->english[$key];
-            } else if ($this->language == "German") {
+            if ($this->language_code == "de") {
                 return $this->german[$key];
+            } else {
+                return $this->english[$key];
             }
         } else {
             return false;

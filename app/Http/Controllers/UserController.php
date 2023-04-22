@@ -23,8 +23,8 @@ class UserController extends Controller
     {
         /*if ($request->request->get("type") == "email") {
             if ($request->request->has("update") && $request->filled("update") && $request->request->get("update")) {
-                $ip_address = User::find($request->request->get("user_id"))->login()->where("access_type", $request->header("access-type"))->where("device_os", $request->header("device-os", ""))->where("device_token", $request->header("device-token", ""))->value("ip_address");
-                $localization = new Localization($ip_address, []);
+                $app_language_code = User::find($request->request->get("user_id"))->login()->where("access_type", $request->header("access-type"))->where("device_os", $request->header("device-os", ""))->where("device_token", $request->header("device-token", ""))->value("app_language_code");
+                $localization = new Localization($app_language_code, []);
                 $subject = $localization->getText("verification_email_subject");
                 $title = $localization->getText("verification_email_title");
                 $body = $localization->getText("verification_email_body");
@@ -48,9 +48,12 @@ class UserController extends Controller
                 "message" => "Otp was successfully sent."
             ], 200);
         } else {
+            $localization = new Localization($request->header("app-language-code", ""), []);
+            $client_message_key = str_replace(" ", "_", "the operation failed because a server error occurred while attempting to send the otp");
             return response()->json([
                 "status" => false,
-                "message" => "A failure occurred while trying to send otp."
+                "message" => "A failure occurred while trying to send otp.",
+                "client_message" => $localization->getText($client_message_key)
             ], 500);
         }*/
 
@@ -62,6 +65,8 @@ class UserController extends Controller
 
     public function verifyOtp(Request $request)
     {
+        $localization = new Localization($request->header("app-language-code", ""), []);
+        $client_message_key = str_replace(" ", "_", "the operation failed because a server error occurred while attempting to verify the otp");
         /*if ($request->request->get("type") == "email") {
             $send = new EmailManager();
             $status = $send->verifyOtp($request->request->get("email"), $request->request->get("otp"));
@@ -81,9 +86,11 @@ class UserController extends Controller
                 } else {
                     if ($request->request->has("update") && $request->filled("update") && $request->request->get("update")) {
                         if (User::where("user_id", "!=", $request->request->get("user_id"))->where("phone_number", $request->request->get("phone_number"))->exists()) {
+                            $client_message_key = str_replace(" ", "_", "the phone number you provided has been taken");
                             return response()->json([
                                 "status" => false,
                                 "message" => "The phone number provided has been taken.",
+                                "client_message" => $localization->getText($client_message_key)
                             ], 409);
                         } else {
                             User::find($request->request->get("user_id"))->update(["phone_number" => $request->request->get("phone_number")]);
@@ -106,20 +113,24 @@ class UserController extends Controller
                     "data" => $data
                 ], 200);
             } else if ($status->status == "pending") {
+                $client_message_key = str_replace(" ", "_", "this code is incorrect");
                 return response()->json([
                     "status" => false,
-                    "message" => "The otp verification was unsuccessful. Code is incorrect."
+                    "message" => "The otp verification was unsuccessful. Code is incorrect.",
+                    "client_message" => $localization->getText($client_message_key)
                 ], 403);
             } else {
                 return response()->json([
                     "status" => false,
-                    "message" => "The otp verification was unsuccessful. Something went wrong."
+                    "message" => "The otp verification was unsuccessful. Something went wrong.",
+                    "client_message" => $localization->getText($client_message_key)
                 ], 500);
             }
         } else {
             return response()->json([
                 "status" => false,
-                "message" => "A failure occurred while trying to verify otp."
+                "message" => "A failure occurred while trying to verify otp.",
+                "client_message" => $localization->getText($client_message_key)
             ], 500);
         }*/
 
@@ -131,9 +142,11 @@ class UserController extends Controller
         } else {
             if ($request->request->has("update") && $request->filled("update") && $request->request->get("update")) {
                 if (User::where("user_id", "!=", $request->request->get("user_id"))->where("phone_number", $request->request->get("phone_number"))->exists()) {
+                    $client_message_key = str_replace(" ", "_", "the phone number you provided has been taken");
                     return response()->json([
                         "status" => false,
                         "message" => "The phone number provided has been taken.",
+                        "client_message" => $localization->getText($client_message_key)
                     ], 409);
                 } else {
                     User::where("user_id", $request->request->get("user_id"))->update(["phone_number" => $request->request->get("phone_number")]);
@@ -172,9 +185,12 @@ class UserController extends Controller
                         $has_referral = true;
                     }
                 } else {
+                    $localization = new Localization($request->header("app-language-code", ""), []);
+                    $client_message_key = str_replace(" ", "_", "please enter a valid referral code");
                     return response()->json([
                         "status" => false,
-                        "message" => "Invalid referral code."
+                        "message" => "Invalid referral code.",
+                        "client_message" => $localization->getText($client_message_key)
                     ], 404);
                 }
             }

@@ -5,7 +5,6 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use App\Custom\Authentication;
-use App\Custom\IpAddressManager;
 use App\Models\FailedWithdrawal;
 use App\Models\User;
 use App\Models\Login;
@@ -28,8 +27,7 @@ class TokenValidation
                 $auth = new Authentication();
                 $data = $auth->decode($request->bearerToken());
                 if (isset($data) && isset($data["data"])) {
-                    $ip_address_manager = new IpAddressManager();
-                    $ip_address = $ip_address_manager->getIpAddress();
+                    $ip_address = $this->getIpAddress();
 
                     $user_id = $data["data"];
                     if ($request->path() == "api/v1/user/create" || $request->path() == "api/v1/login/create") {
@@ -49,6 +47,7 @@ class TokenValidation
                                 "device_brand" => $request->header("device-brand", ""),
                                 "device_model" => $request->header("device-model", ""),
                                 "app_version" => $request->header("app-version", ""),
+                                "app_language_code" => $request->header("app-language-code", ""),
                                 "os_version" => $request->header("os-version", ""),
                                 "ip_address" => $ip_address,
                                 "updated_at" => now()
@@ -119,6 +118,7 @@ class TokenValidation
                                     "device_brand" => $request->header("device-brand", ""),
                                     "device_model" => $request->header("device-model", ""),
                                     "app_version" => $request->header("app-version", ""),
+                                    "app_language_code" => $request->header("app-language-code", ""),
                                     "os_version" => $request->header("os-version", ""),
                                     "ip_address" => $ip_address,
                                     "updated_at" => now()
@@ -127,8 +127,8 @@ class TokenValidation
                         } else {
                             return response()->json([
                                 "status" => false,
-                                "message" => "Unauthorized access, unknown user."
-                            ], 401);
+                                "message" => "This user does not exist."
+                            ], 420);
                         }
                     }
                     $request->request->add(["user_id" => $user_id]);
@@ -146,5 +146,25 @@ class TokenValidation
             }
         }
         return $next($request);
+    }
+
+    function getIpAddress()
+    {
+        $ipaddress = "";
+        if (isset($_SERVER["HTTP_CLIENT_IP"]))
+            $ipaddress = $_SERVER["HTTP_CLIENT_IP"];
+        else if (isset($_SERVER["HTTP_X_FORWARDED_FOR"]))
+            $ipaddress = $_SERVER["HTTP_X_FORWARDED_FOR"];
+        else if (isset($_SERVER["HTTP_X_FORWARDED"]))
+            $ipaddress = $_SERVER["HTTP_X_FORWARDED"];
+        else if (isset($_SERVER["HTTP_FORWARDED_FOR"]))
+            $ipaddress = $_SERVER["HTTP_FORWARDED_FOR"];
+        else if (isset($_SERVER["HTTP_FORWARDED"]))
+            $ipaddress = $_SERVER["HTTP_FORWARDED"];
+        else if (isset($_SERVER["REMOTE_ADDR"]))
+            $ipaddress = $_SERVER["REMOTE_ADDR"];
+        else
+            $ipaddress = "Unknown";
+        return $ipaddress;
     }
 }

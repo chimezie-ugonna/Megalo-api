@@ -22,6 +22,7 @@ return new class extends Migration
             $table->text("device_brand");
             $table->text("device_model");
             $table->text("app_version");
+            $table->text("app_language_code");
             $table->text("os_version");
             $table->text("ip_address");
             $table->timestampTz("device_token_updated_at")->useCurrent();

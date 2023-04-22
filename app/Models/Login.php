@@ -17,6 +17,7 @@ class Login extends Model
         "device_brand",
         "device_model",
         "app_version",
+        "app_language_code",
         "os_version",
         "ip_address",
         "device_token_updated_at",

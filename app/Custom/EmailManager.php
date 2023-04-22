@@ -71,19 +71,16 @@ class EmailManager
             foreach ($admin_user_ids as $user_id) {
                 $email = User::where("user_id", $user_id)->value("email");
                 if (sizeof(User::find($user_id)->login()->get()) > 0) {
-                    $ip_address = User::find($user_id)->login()->latest("updated_at")->first()->ip_address;
-                    $localization = new Localization($ip_address, ["amount" => $amount]);
-                    $subject = $localization->getText("insufficient_fund_email_subject");
-                    $title = $localization->getText("insufficient_fund_email_title");
-                    $body = $localization->getText("insufficient_fund_email_body");
-                    $footer = $localization->getText("insufficient_fund_email_footer");
+                    $app_language_code = User::find($user_id)->login()->latest("updated_at")->first()->app_language_code;
+                    $localization = new Localization($app_language_code, ["amount" => $amount]);
                 } else {
                     $localization = new Localization("", ["amount" => $amount]);
-                    $subject = $localization->getText("insufficient_fund_email_subject");
-                    $title = $localization->getText("insufficient_fund_email_title");
-                    $body = $localization->getText("insufficient_fund_email_body");
-                    $footer = $localization->getText("insufficient_fund_email_footer");
                 }
+                $subject = $localization->getText("insufficient_fund_email_subject");
+                $title = $localization->getText("insufficient_fund_email_title");
+                $body = $localization->getText("insufficient_fund_email_body");
+                $footer = $localization->getText("insufficient_fund_email_footer");
+                
                 $tos[$count] = new To(
                     $email,
                     null,

@@ -23,8 +23,12 @@ class NotificationManager
         } while (Notification::where("notification_id", $array["notification_id"])->exists());
         $array["receiver_user_id"] = $user_id;
 
-        $ip_address = Login::where("user_id", $user_id)->latest("updated_at")->first()->ip_address;
-        $localization = new Localization($ip_address, $data);
+        if (Login::where("user_id", $user_id)->exists()) {
+          $app_language_code = Login::where("user_id", $user_id)->latest("updated_at")->first()->app_language_code;
+          $localization = new Localization($app_language_code, $data);
+        } else {
+          $localization = new Localization("", $data);
+        }
         $array["title"] = $localization->getText($array["title_key"]);
         $array["body"] = $localization->getText($array["body_key"]);
 
@@ -41,8 +45,8 @@ class NotificationManager
             } else {
               $device_os = Login::where("device_token", $device_token)->value("device_os");
               if ($device_os == "android" || $device_os == "ios") {
-                $ip_address = Login::where("device_token", $device_token)->value("ip_address");
-                $localization = new Localization($ip_address, $data);
+                $app_language_code = Login::where("device_token", $device_token)->value("app_language_code");
+                $localization = new Localization($app_language_code, $data);
                 $title = $localization->getText($array["title_key"]);
                 $body = $localization->getText($array["body_key"]);
 

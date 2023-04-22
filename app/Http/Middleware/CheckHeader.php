@@ -63,6 +63,11 @@ class CheckHeader
                         "status" => false,
                         "message" => "The app-version header is missing."
                     ], 400)->throwResponse();
+                } else if ($request->hasHeader("app-language-code") == null || $request->header("app-language-code") == "") {
+                    return response()->json([
+                        "status" => false,
+                        "message" => "The app-language-code header is missing."
+                    ], 400)->throwResponse();
                 } else if ($request->hasHeader("os-version") == null || $request->header("os-version") == "") {
                     return response()->json([
                         "status" => false,
@@ -94,6 +99,11 @@ class CheckHeader
                     return response()->json([
                         "status" => false,
                         "message" => "The app-version header should be blank since the access-type header is not 'mobile'."
+                    ], 400)->throwResponse();
+                } else if ($request->hasHeader("app-language-code") != null && $request->header("app-language-code") != "") {
+                    return response()->json([
+                        "status" => false,
+                        "message" => "The app-language-code header should be blank since the access-type header is not 'mobile'."
                     ], 400)->throwResponse();
                 } else if ($request->hasHeader("os-version") != null && $request->header("os-version") != "") {
                     return response()->json([
