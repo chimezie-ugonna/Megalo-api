@@ -39,6 +39,12 @@ class UserController extends Controller
                 ]);
             }
         } else {
+            if ($request->request->has("update") && $request->filled("update") && $request->request->get("update") && User::where("user_id", "!=", $request->request->get("user_id"))->where("phone_number", $request->request->get("phone_number"))->exists()) {
+                return response()->json([
+                    "status" => false,
+                    "message" => "The phone number provided has been taken."
+                ], 409);
+            }
             $send = new SmsManager();
             $status = $send->sendOtp($request->request->get("phone_number"));
         }
@@ -48,14 +54,28 @@ class UserController extends Controller
                 "message" => "Otp was successfully sent."
             ], 200);
         } else {
-            $localization = new Localization($request->header("app-language-code", ""), []);
-            $client_message_key = str_replace(" ", "_", "the operation failed because a server error occurred while attempting to send the otp");
             return response()->json([
                 "status" => false,
-                "message" => "A failure occurred while trying to send otp.",
-                "client_message" => $localization->getText($client_message_key)
+                "message" => "A failure occurred while trying to send otp."
             ], 500);
         }*/
+
+        if ($request->request->get("type") == "sms") {
+            if ($request->request->has("update") && $request->filled("update") && $request->request->get("update") && User::where("user_id", "!=", $request->request->get("user_id"))->where("phone_number", $request->request->get("phone_number"))->exists()) {
+                return response()->json([
+                    "status" => false,
+                    "message" => "The phone number provided has been taken."
+                ], 409);
+            }
+        }
+
+        $localization = new Localization($request->header("app-language-code", ""), []);
+        $client_message_key = str_replace(" ", "_", "the operation failed because a server error occurred while attempting to send the otp");
+        return response()->json([
+            "status" => false,
+            "message" => "Invalid referral code.",
+            "client_message" => $localization->getText($client_message_key)
+        ], 404);
 
         return response()->json([
             "status" => true,
@@ -65,8 +85,6 @@ class UserController extends Controller
 
     public function verifyOtp(Request $request)
     {
-        $localization = new Localization($request->header("app-language-code", ""), []);
-        $client_message_key = str_replace(" ", "_", "the operation failed because a server error occurred while attempting to verify the otp");
         /*if ($request->request->get("type") == "email") {
             $send = new EmailManager();
             $status = $send->verifyOtp($request->request->get("email"), $request->request->get("otp"));
@@ -85,17 +103,8 @@ class UserController extends Controller
                     }
                 } else {
                     if ($request->request->has("update") && $request->filled("update") && $request->request->get("update")) {
-                        if (User::where("user_id", "!=", $request->request->get("user_id"))->where("phone_number", $request->request->get("phone_number"))->exists()) {
-                            $client_message_key = str_replace(" ", "_", "the phone number you provided has been taken");
-                            return response()->json([
-                                "status" => false,
-                                "message" => "The phone number provided has been taken.",
-                                "client_message" => $localization->getText($client_message_key)
-                            ], 409);
-                        } else {
-                            User::find($request->request->get("user_id"))->update(["phone_number" => $request->request->get("phone_number")]);
-                            $message = "Otp was successfully verified and phone number was updated successfully.";
-                        }
+                        User::find($request->request->get("user_id"))->update(["phone_number" => $request->request->get("phone_number")]);
+                        $message = "Otp was successfully verified and phone number was updated successfully.";
                     } else {
                         $auth = new Authentication();
                         $data["token"] = $auth->encode($request->request->get("phone_number"));
@@ -113,45 +122,34 @@ class UserController extends Controller
                     "data" => $data
                 ], 200);
             } else if ($status->status == "pending") {
-                $client_message_key = str_replace(" ", "_", "this code is incorrect");
                 return response()->json([
                     "status" => false,
-                    "message" => "The otp verification was unsuccessful. Code is incorrect.",
-                    "client_message" => $localization->getText($client_message_key)
+                    "message" => "The otp verification was unsuccessful. Code is incorrect."
                 ], 403);
             } else {
                 return response()->json([
                     "status" => false,
-                    "message" => "The otp verification was unsuccessful. Something went wrong.",
-                    "client_message" => $localization->getText($client_message_key)
+                    "message" => "The otp verification was unsuccessful. Something went wrong."
                 ], 500);
             }
         } else {
             return response()->json([
                 "status" => false,
-                "message" => "A failure occurred while trying to verify otp.",
-                "client_message" => $localization->getText($client_message_key)
+                "message" => "A failure occurred while trying to verify otp."
             ], 500);
         }*/
 
         $data = [];
         $message = "The otp was not verified because our twilio credit is exhausted. But for testing purposes, this response is successful.";
         if ($request->request->get("type") == "email") {
-            User::where("user_id", $request->request->get("user_id"))->update(["email" => $request->request->get("email"), "email_verified" => true]);
-            $message = "The otp was not verified because our twilio credit is exhausted. But for testing purposes, this response is successful and email was updated successfully.";
+            if ($request->request->has("update") && $request->filled("update") && $request->request->get("update")) {
+                User::where("user_id", $request->request->get("user_id"))->update(["email" => $request->request->get("email"), "email_verified" => true]);
+                $message = "The otp was not verified because our twilio credit is exhausted. But for testing purposes, this response is successful and email was updated successfully.";
+            }
         } else {
             if ($request->request->has("update") && $request->filled("update") && $request->request->get("update")) {
-                if (User::where("user_id", "!=", $request->request->get("user_id"))->where("phone_number", $request->request->get("phone_number"))->exists()) {
-                    $client_message_key = str_replace(" ", "_", "the phone number you provided has been taken");
-                    return response()->json([
-                        "status" => false,
-                        "message" => "The phone number provided has been taken.",
-                        "client_message" => $localization->getText($client_message_key)
-                    ], 409);
-                } else {
-                    User::where("user_id", $request->request->get("user_id"))->update(["phone_number" => $request->request->get("phone_number")]);
-                    $message = "The otp was not verified because our twilio credit is exhausted. But for testing purposes, this response is successful and phone number was updated successfully.";
-                }
+                User::where("user_id", $request->request->get("user_id"))->update(["phone_number" => $request->request->get("phone_number")]);
+                $message = "The otp was not verified because our twilio credit is exhausted. But for testing purposes, this response is successful and phone number was updated successfully.";
             } else {
                 $auth = new Authentication();
                 $data = array("token" => $auth->encode($request->request->get("phone_number")));
@@ -185,12 +183,9 @@ class UserController extends Controller
                         $has_referral = true;
                     }
                 } else {
-                    $localization = new Localization($request->header("app-language-code", ""), []);
-                    $client_message_key = str_replace(" ", "_", "please enter a valid referral code");
                     return response()->json([
                         "status" => false,
-                        "message" => "Invalid referral code.",
-                        "client_message" => $localization->getText($client_message_key)
+                        "message" => "Invalid referral code."
                     ], 404);
                 }
             }
