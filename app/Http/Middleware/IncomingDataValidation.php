@@ -4,7 +4,6 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 
 class IncomingDataValidation
 {
@@ -318,11 +317,11 @@ class IncomingDataValidation
                     "payment_id" => ["bail", "required"]
                 ]);
             } else if ($request->path() == "api/v1/payment/convert_currency") {
-                Validator::make($request->route()->parameters(), [
+                $request->validate([
                     "amount" => ["bail", "required", "numeric", "gt:0"],
                     "from" => ["bail", "required", "alpha", "size:3"],
                     "to" => ["bail", "required", "alpha", "size:3"]
-                ])->validate();
+                ]);
             } else if ($request->path() == "api/v1/payment/read_all_bonus_and_fee") {
                 $request->validate([
                     "type" => ["bail", "required", "in:bonus,fee"],
