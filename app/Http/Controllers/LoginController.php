@@ -54,7 +54,7 @@ class LoginController extends Controller
 
     public function delete(Request $request)
     {
-        if ($request->request->has("everywhere") && $request->filled("everywhere") && $request->request->get("everywhere")) {
+        if ($request->has("everywhere") && $request->filled("everywhere") && $request->get("everywhere")) {
             Login::where("user_id", $request->request->get("user_id"))->delete();
             return response()->json([
                 "status" => true,
