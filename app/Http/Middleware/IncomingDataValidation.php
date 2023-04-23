@@ -322,7 +322,7 @@ class IncomingDataValidation
                     "amount" => ["bail", "required", "numeric", "gt:0"],
                     "from" => ["bail", "required", "alpha", "size:3"],
                     "to" => ["bail", "required", "alpha", "size:3"]
-                ]);
+                ])->validate();
             } else if ($request->path() == "api/v1/payment/read_all_bonus_and_fee") {
                 $request->validate([
                     "type" => ["bail", "required", "in:bonus,fee"],
