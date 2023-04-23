@@ -374,7 +374,7 @@ class IncomingDataValidation
                 ]);
             } else if ($request->path() == "api/v1/login/delete") {
                 $request->validate([
-                    "everywhere" => ["bail", "filled", "boolean"]
+                    "everywhere" => ["bail", "required", "boolean"]
                 ]);
             }
         }
