@@ -761,18 +761,18 @@ class UserController extends Controller
     {
         $payment_manager = new PaymentManager();
         $delete_payment_method_response = null;
-        if ($request->request->get("action") == "deposit") {
+        if ($request->get("action") == "deposit") {
             if (User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id") != "") {
-                $delete_payment_method_response = $payment_manager->manage(array("type" => "delete_customer_payment_method", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id"), "data" => ["id" => $request->request->get("id")]));
+                $delete_payment_method_response = $payment_manager->manage(array("type" => "delete_customer_payment_method", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id"), "data" => ["id" => $request->get("id")]));
             } else {
                 return response()->json([
                     "status" => false,
                     "message" => "User payment data not found."
                 ], 404);
             }
-        } else if ($request->request->get("action") == "withdrawal") {
+        } else if ($request->get("action") == "withdrawal") {
             if (User::where("user_id", $request->request->get("user_id"))->value("payment_account_id") != "") {
-                $delete_payment_method_response = $payment_manager->manage(array("type" => "delete_account_payment_method", "account_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_account_id"), "data" => ["id" => $request->request->get("id")]));
+                $delete_payment_method_response = $payment_manager->manage(array("type" => "delete_account_payment_method", "account_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_account_id"), "data" => ["id" => $request->get("id")]));
             } else {
                 return response()->json([
                     "status" => false,

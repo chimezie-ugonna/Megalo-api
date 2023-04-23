@@ -351,11 +351,7 @@ class IncomingDataValidation
                 ]);
             }
         } else if ($request->isMethod("delete")) {
-            if ($request->path() == "api/v1/investment/delete") {
-                $request->validate([
-                    "property_id" => ["bail", "required"]
-                ]);
-            } else if ($request->path() == "api/v1/property/delete") {
+            if ($request->path() == "api/v1/property/delete") {
                 $request->validate([
                     "property_id" => ["bail", "required"]
                 ]);

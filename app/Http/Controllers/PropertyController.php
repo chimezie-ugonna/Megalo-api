@@ -366,9 +366,9 @@ class PropertyController extends Controller
 
     public function delete(Request $request)
     {
-        if (Property::where("property_id", $request->request->get("property_id"))->exists()) {
+        if (Property::where("property_id", $request->get("property_id"))->exists()) {
             $status = true;
-            $image_urls = explode(", ", Property::where("property_id", $request->request->get("property_id"))->value("image_urls"));
+            $image_urls = explode(", ", Property::where("property_id", $request->get("property_id"))->value("image_urls"));
             if (count($image_urls) > 0) {
                 $media_manager = new MediaManager();
                 for ($i = 0; $i < count($image_urls); $i++) {
@@ -384,11 +384,11 @@ class PropertyController extends Controller
             }
 
             if ($status) {
-                Property::find($request->request->get("property_id"))->investment()->delete();
-                Property::find($request->request->get("property_id"))->paidDividend()->delete();
-                Property::find($request->request->get("property_id"))->earning()->delete();
-                Property::find($request->request->get("property_id"))->propertyValueHistory()->delete();
-                Property::destroy($request->request->get("property_id"));
+                Property::find($request->get("property_id"))->investment()->delete();
+                Property::find($request->get("property_id"))->paidDividend()->delete();
+                Property::find($request->get("property_id"))->earning()->delete();
+                Property::find($request->get("property_id"))->propertyValueHistory()->delete();
+                Property::destroy($request->get("property_id"));
                 return response()->json([
                     "status" => true,
                     "message" => "Property data deleted successfully.",
