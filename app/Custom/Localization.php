@@ -60,8 +60,7 @@ class Localization
             "identity_verification_failed_image_upload_error" => "Your identity was not verified successfully because an error occurred while we were processing your selfie image.",
             "test" => "This is a test.",
             "appreciation_title" => "We appreciate you \u{1F60A}.",
-            "appreciation_body" => "Thank You for being our esteemed customer. Your support and trust in us are much cherished. Thank You once again!",
-            str_replace(" ", "_", "the operation failed because a server error occurred while attempting to send the otp") => "The operation failed because a server error occurred while attempting to send the otp."
+            "appreciation_body" => "Thank You for being our esteemed customer. Your support and trust in us are much cherished. Thank You once again!"
         ];
 
         $this->german = [
@@ -98,8 +97,7 @@ class Localization
             "identity_verification_failed_image_upload_error" => "Ihre Identität wurde nicht erfolgreich verifiziert, da bei der Verarbeitung Ihres Selfie-Bildes ein Fehler aufgetreten ist.",
             "test" => "Das ist ein Test.",
             "appreciation_title" => "Wir wissen dich zu schätzen \u{1F60A}.",
-            "appreciation_body" => "Vielen Dank, dass Sie unser geschätzter Kunde sind. Ihre Unterstützung und Ihr Vertrauen in uns werden sehr geschätzt. Vielen Dank noch mal!",
-            str_replace(" ", "_", "the operation failed because a server error occurred while attempting to send the otp") => "Der Vorgang ist fehlgeschlagen, da beim Versuch, das otp zu senden, ein Serverfehler aufgetreten ist."
+            "appreciation_body" => "Vielen Dank, dass Sie unser geschätzter Kunde sind. Ihre Unterstützung und Ihr Vertrauen in uns werden sehr geschätzt. Vielen Dank noch mal!"
         ];
     }
 

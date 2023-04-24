@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Custom\Authentication;
 use App\Custom\EmailManager;
 use App\Custom\IdentityVerifier;
-use App\Custom\Localization;
 use App\Custom\MediaManager;
 use App\Custom\NotificationManager;
 use Illuminate\Http\Request;
@@ -68,14 +67,6 @@ class UserController extends Controller
                 ], 409);
             }
         }
-
-        $localization = new Localization($request->header("app-language-code", ""), []);
-        $client_message_key = str_replace(" ", "_", "the operation failed because a server error occurred while attempting to send the otp");
-        return response()->json([
-            "status" => false,
-            "message" => "Invalid referral code.",
-            "client_message" => $localization->getText($client_message_key)
-        ], 404);
 
         return response()->json([
             "status" => true,
