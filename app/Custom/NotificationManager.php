@@ -49,6 +49,7 @@ class NotificationManager
                 $localization = new Localization($app_language_code, $data);
                 $title = $localization->getText($array["title_key"]);
                 $body = $localization->getText($array["body_key"]);
+                $badge = Notification::where("receiver_user_id", $user_id)->where("seen", false)->count() + 1;
 
                 if ($device_os == "android") {
                   $priority = "high";
@@ -58,7 +59,7 @@ class NotificationManager
                   $sound = "notifications.caf";
                 }
 
-                $notification = ["title" => $title, "body" => $body, "sound" => $sound, "icon" => "logo_notification", "android_channel_id" => "megalo_general_channel_id", "badge" => 1];
+                $notification = ["title" => $title, "body" => $body, "sound" => $sound, "icon" => "logo_notification", "android_channel_id" => "megalo_general_channel_id", "badge" => $badge];
                 $json = json_encode(["to" => $device_token, "notification" => $notification, "data" => array_merge($data, $notification), "priority" => $priority]);
                 $curl = curl_init();
 
