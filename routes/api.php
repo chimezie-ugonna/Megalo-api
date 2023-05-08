@@ -39,6 +39,7 @@ Route::middleware([EnsureSecureUrl::class, CheckHeader::class, IncomingDataValid
         Route::get("/user/read_payment_method", "readPaymentMethod");
         Route::get("/user/read_all_payment_method", "readAllPaymentMethod");
         Route::get("/user/read_dashboard_data", "readDashboardData");
+        Route::get("/user/read_referral_data", "readReferralData");
         Route::get("/user/verify_identity", "verifyIdentity");
         Route::put("/user/update", "update");
         Route::put("/user/update_default_payment_method", "updateDefaultPaymentMethod");

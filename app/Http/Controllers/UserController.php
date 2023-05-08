@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Custom\Authentication;
 use App\Custom\EmailManager;
 use App\Custom\IdentityVerifier;
+use App\Custom\Localization;
 use App\Custom\MediaManager;
 use App\Custom\NotificationManager;
 use Illuminate\Http\Request;
@@ -39,9 +40,11 @@ class UserController extends Controller
             }
         } else {
             if ($request->request->has("update") && $request->filled("update") && $request->request->get("update") && User::where("user_id", "!=", $request->request->get("user_id"))->where("phone_number", $request->request->get("phone_number"))->exists()) {
+                $localization = new Localization($request->header("app-language-code", ""), []);
                 return response()->json([
                     "status" => false,
-                    "message" => "The phone number provided has been taken."
+                    "message" => "The phone number provided has been taken.",
+                    "client_message" => $localization->getText("taken_phone_number")
                 ], 409);
             }
             $send = new SmsManager();
@@ -61,9 +64,11 @@ class UserController extends Controller
 
         if ($request->request->get("type") == "sms") {
             if ($request->request->has("update") && $request->filled("update") && $request->request->get("update") && User::where("user_id", "!=", $request->request->get("user_id"))->where("phone_number", $request->request->get("phone_number"))->exists()) {
+                $localization = new Localization($request->header("app-language-code", ""), []);
                 return response()->json([
                     "status" => false,
-                    "message" => "The phone number provided has been taken."
+                    "message" => "The phone number provided has been taken.",
+                    "client_message" => $localization->getText("taken_phone_number")
                 ], 409);
             }
         }
@@ -113,9 +118,11 @@ class UserController extends Controller
                     "data" => $data
                 ], 200);
             } else if ($status->status == "pending") {
+                $localization = new Localization($request->header("app-language-code", ""), []);
                 return response()->json([
                     "status" => false,
-                    "message" => "The otp verification was unsuccessful. Code is incorrect."
+                    "message" => "The otp verification was unsuccessful. Code is incorrect.",
+                    "client_message" => $localization->getText("incorrect_otp_code")
                 ], 403);
             } else {
                 return response()->json([
@@ -174,9 +181,11 @@ class UserController extends Controller
                         $has_referral = true;
                     }
                 } else {
+                    $localization = new Localization($request->header("app-language-code", ""), []);
                     return response()->json([
                         "status" => false,
-                        "message" => "Invalid referral code."
+                        "message" => "Invalid referral code.",
+                        "client_message" => $localization->getText("invalid_referral_code")
                     ], 404);
                 }
             }
@@ -273,6 +282,15 @@ class UserController extends Controller
             "status" => true,
             "message" => "Dashboard data retrieved successfully.",
             "data" => ["user_count" => User::count(), "property_count" => Property::count(), "all_property_value" => Property::all()->sum("value_usd")]
+        ], 200);
+    }
+
+    public function readReferralData(Request $request)
+    {
+        return response()->json([
+            "status" => true,
+            "message" => "Referral data retrieved successfully.",
+            "data" => ["total_referral" => Referral::where("referrer_user_id", $request->request->get("user_id"))->count(), "total_rewarded" => Referral::where("referrer_user_id", $request->request->get("user_id"))->where("rewarded", true)->count(), "total_pending" => Referral::where("referrer_user_id", $request->request->get("user_id"))->where("rewarded", false)->count()]
         ], 200);
     }
 
