@@ -22,7 +22,7 @@ class IncomingDataValidation
                     "type" => ["bail", "required", "in:email,sms"],
                     "email" => ["bail", "prohibited_if:type,sms", "filled", "email", "required_if:type,email"],
                     "phone_number" => ["bail", "prohibited_if:type,email", "filled", "required_if:type,sms"],
-                    "update" => ["bail", "filled", "boolean"]
+                    "update" => ["bail", "prohibited_if:type,email", "filled", "boolean"]
                 ]);
             } else if ($request->path() == "api/v1/user/verify_otp") {
                 $request->validate([
@@ -30,7 +30,7 @@ class IncomingDataValidation
                     "email" => ["bail", "prohibited_if:type,sms", "filled", "email", "required_if:type,email"],
                     "phone_number" => ["bail", "prohibited_if:type,email", "filled", "required_if:type,sms"],
                     "otp" => ["bail", "required"],
-                    "update" => ["bail", "filled", "boolean"]
+                    "update" => ["bail", "prohibited_if:type,email", "filled", "boolean"]
                 ]);
             } else if ($request->path() == "api/v1/user/create") {
                 $request->validate([

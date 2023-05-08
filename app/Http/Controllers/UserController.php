@@ -22,22 +22,20 @@ class UserController extends Controller
     public function sendOtp(Request $request)
     {
         /*if ($request->request->get("type") == "email") {
-            if ($request->request->has("update") && $request->filled("update") && $request->request->get("update")) {
-                $app_language_code = User::find($request->request->get("user_id"))->login()->where("access_type", $request->header("access-type"))->where("device_os", $request->header("device-os", ""))->where("device_token", $request->header("device-token", ""))->value("app_language_code");
-                $localization = new Localization($app_language_code, []);
-                $subject = $localization->getText("verification_email_subject");
-                $title = $localization->getText("verification_email_title");
-                $body = $localization->getText("verification_email_body");
-                $footer = $localization->getText("verification_email_footer");
+            $app_language_code = User::find($request->request->get("user_id"))->login()->where("access_type", $request->header("access-type"))->where("device_os", $request->header("device-os", ""))->where("device_token", $request->header("device-token", ""))->value("app_language_code");
+            $localization = new Localization($app_language_code, []);
+            $subject = $localization->getText("verification_email_subject");
+            $title = $localization->getText("verification_email_title");
+            $body = $localization->getText("verification_email_body");
+            $footer = $localization->getText("verification_email_footer");
 
-                $send = new EmailManager();
-                $status = $send->sendOtp($request->request->get("email"), [
-                    "subject" => $subject,
-                    "title" => $title,
-                    "body" => $body,
-                    "footer" => $footer
-                ]);
-            }
+            $send = new EmailManager();
+            $status = $send->sendOtp($request->request->get("email"), [
+                "subject" => $subject,
+                "title" => $title,
+                "body" => $body,
+                "footer" => $footer
+            ]);
         } else {
             if ($request->request->has("update") && $request->filled("update") && $request->request->get("update") && User::where("user_id", "!=", $request->request->get("user_id"))->where("phone_number", $request->request->get("phone_number"))->exists()) {
                 $localization = new Localization($request->header("app-language-code", ""), []);
@@ -93,10 +91,8 @@ class UserController extends Controller
                 $data = [];
                 $message = "Otp was successfully verified.";
                 if ($request->request->get("type") == "email") {
-                    if ($request->request->has("update") && $request->filled("update") && $request->request->get("update")) {
-                        User::find($request->request->get("user_id"))->update(["email" => $request->request->get("email"), "email_verified" => true]);
-                        $message = "Otp was successfully verified and email was updated successfully.";
-                    }
+                    User::find($request->request->get("user_id"))->update(["email" => $request->request->get("email"), "email_verified" => true]);
+                    $message = "Otp was successfully verified and email was updated successfully.";
                 } else {
                     if ($request->request->has("update") && $request->filled("update") && $request->request->get("update")) {
                         User::find($request->request->get("user_id"))->update(["phone_number" => $request->request->get("phone_number")]);
@@ -140,10 +136,8 @@ class UserController extends Controller
         $data = [];
         $message = "The otp was not verified because our twilio credit is exhausted. But for testing purposes, this response is successful.";
         if ($request->request->get("type") == "email") {
-            if ($request->request->has("update") && $request->filled("update") && $request->request->get("update")) {
-                User::where("user_id", $request->request->get("user_id"))->update(["email" => $request->request->get("email"), "email_verified" => true]);
-                $message = "The otp was not verified because our twilio credit is exhausted. But for testing purposes, this response is successful and email was updated successfully.";
-            }
+            User::where("user_id", $request->request->get("user_id"))->update(["email" => $request->request->get("email"), "email_verified" => true]);
+            $message = "The otp was not verified because our twilio credit is exhausted. But for testing purposes, this response is successful and email was updated successfully.";
         } else {
             if ($request->request->has("update") && $request->filled("update") && $request->request->get("update")) {
                 User::where("user_id", $request->request->get("user_id"))->update(["phone_number" => $request->request->get("phone_number")]);
