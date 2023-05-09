@@ -136,11 +136,11 @@ class UserController extends Controller
         $data = [];
         $message = "The otp was not verified because our twilio credit is exhausted. But for testing purposes, this response is successful.";
         if ($request->request->get("type") == "email") {
-            User::where("user_id", $request->request->get("user_id"))->update(["email" => $request->request->get("email"), "email_verified" => true]);
+            User::find($request->request->get("user_id"))->update(["email" => $request->request->get("email"), "email_verified" => true]);
             $message = "The otp was not verified because our twilio credit is exhausted. But for testing purposes, this response is successful and email was updated successfully.";
         } else {
             if ($request->request->has("update") && $request->filled("update") && $request->request->get("update")) {
-                User::where("user_id", $request->request->get("user_id"))->update(["phone_number" => $request->request->get("phone_number")]);
+                User::find($request->request->get("user_id"))->update(["phone_number" => $request->request->get("phone_number")]);
                 $message = "The otp was not verified because our twilio credit is exhausted. But for testing purposes, this response is successful and phone number was updated successfully.";
             } else {
                 $auth = new Authentication();
