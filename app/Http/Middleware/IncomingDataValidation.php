@@ -209,6 +209,7 @@ class IncomingDataValidation
                     "is_admin" => ["bail", "prohibited"],
                     "email_verified" => ["bail", "prohibited"],
                     "identity_verification_status" => ["bail", "prohibited"],
+                    "identity_verification_status_pending" => ["bail", "filled", "boolean"],
                     "identity_verification_id" => ["bail", "prohibited"],
                     "phone_number" => ["bail", "prohibited"],
                     "full_name" => ["bail", "filled", "not_in:null"],

@@ -317,7 +317,7 @@ class UserController extends Controller
     {
         if (User::where("user_id", $request->request->get("clientId"))->exists() && User::where("user_id", $request->request->get("clientId"))->value("identity_verification_status") != "verified") {
             if ($request->request->get("status")["overall"] == "APPROVED" || $request->request->get("status")["overall"] == "DENIED" || $request->request->get("status")["overall"] == "SUSPECTED") {
-                $status = true;
+                $status = "verified";
                 $body_key = "identity_verification_success_body";
                 if ($request->request->get("status")["overall"] == "APPROVED") {
                     $today = new DateTime(date("Y-m-d"));
@@ -325,8 +325,10 @@ class UserController extends Controller
                     $interval = $today->diff($bday);
                     $age_estimate = $request->request->get("data")["ageEstimate"];
                     if (intval($interval->y) < 18) {
+                        $status = "under_age";
                         $body_key = "identity_verification_success_under_age";
                     } else if ($age_estimate == "UNDER_13") {
+                        $status = "under_age";
                         $body_key = "identity_verification_success_estimate_under_age";
                     } else {
                         $date_obj = DateTime::createFromFormat("Y-m-d", $request->request->get("data")["docDob"]);
@@ -337,15 +339,16 @@ class UserController extends Controller
                             if (!User::where("user_id", "!=", $request->request->get("clientId"))->where("identity_verification_status", "verified")->where("first_name", ucwords(strtolower($request->request->get("data")["docFirstName"])))->where("last_name", ucwords(strtolower($request->request->get("data")["docLastName"])))->where("dob", $dob)->where("gender", ucwords(strtolower($request->request->get("data")["docSex"])))->exists()) {
                                 User::find($request->request->get("clientId"))->update(["first_name" => ucwords(strtolower($request->request->get("data")["docFirstName"])), "last_name" => ucwords(strtolower($request->request->get("data")["docLastName"])), "dob" => $dob, "gender" => strtolower($request->request->get("data")["docSex"]), "nationality" => $request->request->get("data")["docNationality"], "image_url" => $data["url"] . "+ " . $data["public_id"], "identity_verification_status" => "verified", "identity_verification_id" => $request->request->get("scanRef")]);
                             } else {
+                                $status = "duplicate";
                                 $body_key = "identity_verification_success_duplicate_verification";
                             }
                         } else {
-                            $status = false;
+                            $status = "unverified";
                             $body_key = "identity_verification_failed_image_upload_error";
                         }
                     }
                 } else if ($request->request->get("status")["overall"] == "DENIED") {
-                    $status = false;
+                    $status = "unverified";
                     $body_key = "identity_verification_failed_body";
                 } else if ($request->request->get("status")["overall"] == "SUSPECTED") {
                     if ($request->request->get("status")["autoDocument"] == "DOC_VALIDATED" && $request->request->get("status")["manualDocument"] == "DOC_VALIDATED" && $request->request->get("status")["autoFace"] == "FACE_MATCH" && $request->request->get("status")["manualFace"] == "FACE_MATCH") {
@@ -354,8 +357,10 @@ class UserController extends Controller
                         $interval = $today->diff($bday);
                         $age_estimate = $request->request->get("data")["ageEstimate"];
                         if (intval($interval->y) < 18) {
+                            $status = "under_age";
                             $body_key = "identity_verification_success_under_age";
                         } else if ($age_estimate == "UNDER_13") {
+                            $status = "under_age";
                             $body_key = "identity_verification_success_estimate_under_age";
                         } else {
                             $date_obj = DateTime::createFromFormat("Y-m-d", $request->request->get("data")["docDob"]);
@@ -366,24 +371,29 @@ class UserController extends Controller
                                 if (!User::where("user_id", "!=", $request->request->get("clientId"))->where("identity_verification_status", "verified")->where("first_name", ucwords(strtolower($request->request->get("data")["docFirstName"])))->where("last_name", ucwords(strtolower($request->request->get("data")["docLastName"])))->where("dob", $dob)->where("gender", ucwords(strtolower($request->request->get("data")["docSex"])))->exists()) {
                                     User::find($request->request->get("clientId"))->update(["first_name" => ucwords(strtolower($request->request->get("data")["docFirstName"])), "last_name" => ucwords(strtolower($request->request->get("data")["docLastName"])), "dob" => $dob, "gender" => strtolower($request->request->get("data")["docSex"]), "nationality" => $request->request->get("data")["docNationality"], "image_url" => $data["url"] . "+ " . $data["public_id"], "identity_verification_status" => "verified", "identity_verification_id" => $request->request->get("scanRef")]);
                                 } else {
+                                    $status = "duplicate";
                                     $body_key = "identity_verification_success_duplicate_verification";
                                 }
                             } else {
-                                $status = false;
+                                $status = "unverified";
                                 $body_key = "identity_verification_failed_image_upload_error";
                             }
                         }
                     } else {
-                        $status = false;
+                        $status = "unverified";
                         $body_key = "identity_verification_failed_body";
                     }
                 }
 
+                if ($status != "verified") {
+                    User::find($request->request->get("clientId"))->update(["identity_verification_status" => "unverified"]);
+                }
+
                 $notification_manager = new NotificationManager();
-                if ($status) {
-                    $title_key = "identity_verification_success_title";
-                } else {
+                if ($status == "unverified") {
                     $title_key = "identity_verification_failed_title";
+                } else {
+                    $title_key = "identity_verification_success_title";
                 }
                 $notification_manager->sendNotification(array(
                     "receiver_user_id" => $request->request->get("clientId"),
@@ -410,6 +420,9 @@ class UserController extends Controller
                     "message" => "This user's identity has been verified so they can not update their name or dob.",
                 ], 403);
             }
+        }
+        if ($request->request->has("identity_verification_status_pending") && $request->filled("identity_verification_status_pending") && $request->request->get("identity_verification_status_pending") && User::where("user_id", $request->request->get("user_id"))->value("identity_verification_status") == "unverified") {
+            $request->request->add(["identity_verification_status" => "pending"]);
         }
         User::find($request->request->get("user_id"))->update($request->all());
         return response()->json([
