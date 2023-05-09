@@ -28,15 +28,14 @@ class User extends Model
         "balance_usd",
         "is_admin",
         "email_verified",
-        "identity_verified",
+        "identity_verification_status",
         "identity_verification_id"
     ];
     protected $casts = [
         "dob" => "encrypted",
         "email" => "encrypted",
         "is_admin" => "boolean",
-        "email_verified" => "boolean",
-        "identity_verified" => "boolean"
+        "email_verified" => "boolean"
     ];
 
     public function login()

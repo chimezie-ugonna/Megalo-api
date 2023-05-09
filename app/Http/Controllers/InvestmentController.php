@@ -14,8 +14,8 @@ class InvestmentController extends Controller
 {
     public function create(Request $request)
     {
-        $user_identity_verified = User::where("user_id", $request->request->get("user_id"))->value("identity_verified");
-        if ($user_identity_verified) {
+        $user_identity_verification_status = User::where("user_id", $request->request->get("user_id"))->value("identity_verification_status");
+        if ($user_identity_verification_status == "verified") {
             $user_email_verified = User::where("user_id", $request->request->get("user_id"))->value("email_verified");
             if ($user_email_verified) {
                 if (Property::where("property_id", $request->request->get("property_id"))->exists()) {

@@ -290,7 +290,7 @@ class UserController extends Controller
 
     public function verifyIdentity(Request $request)
     {
-        if (!User::where("user_id", $request->request->get("user_id"))->value("identity_verified")) {
+        if (User::where("user_id", $request->request->get("user_id"))->value("identity_verification_status") != "verified") {
             $identity_verifier = new IdentityVerifier();
             $response = json_decode($identity_verifier->run("generateToken", $request->request->get("user_id")), true);
             if (isset($response) && isset($response["authToken"])) {
@@ -315,7 +315,7 @@ class UserController extends Controller
 
     public function verifyIdentityWebhook(Request $request)
     {
-        if (User::where("user_id", $request->request->get("clientId"))->exists() && !User::where("user_id", $request->request->get("clientId"))->value("identity_verified")) {
+        if (User::where("user_id", $request->request->get("clientId"))->exists() && User::where("user_id", $request->request->get("clientId"))->value("identity_verification_status") != "verified") {
             if ($request->request->get("status")["overall"] == "APPROVED" || $request->request->get("status")["overall"] == "DENIED" || $request->request->get("status")["overall"] == "SUSPECTED") {
                 $status = true;
                 $body_key = "identity_verification_success_body";
@@ -334,8 +334,8 @@ class UserController extends Controller
                         $media_manager = new MediaManager();
                         $data = $media_manager->uploadMedia("image", $request->request->get("fileUrls")["FACE"], "users");
                         if (isset($data) && isset($data["url"]) && isset($data["public_id"])) {
-                            if (!User::where("user_id", "!=", $request->request->get("clientId"))->where("identity_verified", true)->where("first_name", ucwords(strtolower($request->request->get("data")["docFirstName"])))->where("last_name", ucwords(strtolower($request->request->get("data")["docLastName"])))->where("dob", $dob)->where("gender", ucwords(strtolower($request->request->get("data")["docSex"])))->exists()) {
-                                User::find($request->request->get("clientId"))->update(["first_name" => ucwords(strtolower($request->request->get("data")["docFirstName"])), "last_name" => ucwords(strtolower($request->request->get("data")["docLastName"])), "dob" => $dob, "gender" => strtolower($request->request->get("data")["docSex"]), "nationality" => $request->request->get("data")["docNationality"], "image_url" => $data["url"] . "+ " . $data["public_id"], "identity_verified" => true, "identity_verification_id" => $request->request->get("scanRef")]);
+                            if (!User::where("user_id", "!=", $request->request->get("clientId"))->where("identity_verification_status", "verified")->where("first_name", ucwords(strtolower($request->request->get("data")["docFirstName"])))->where("last_name", ucwords(strtolower($request->request->get("data")["docLastName"])))->where("dob", $dob)->where("gender", ucwords(strtolower($request->request->get("data")["docSex"])))->exists()) {
+                                User::find($request->request->get("clientId"))->update(["first_name" => ucwords(strtolower($request->request->get("data")["docFirstName"])), "last_name" => ucwords(strtolower($request->request->get("data")["docLastName"])), "dob" => $dob, "gender" => strtolower($request->request->get("data")["docSex"]), "nationality" => $request->request->get("data")["docNationality"], "image_url" => $data["url"] . "+ " . $data["public_id"], "identity_verification_status" => "verified", "identity_verification_id" => $request->request->get("scanRef")]);
                             } else {
                                 $body_key = "identity_verification_success_duplicate_verification";
                             }
@@ -363,8 +363,8 @@ class UserController extends Controller
                             $media_manager = new MediaManager();
                             $data = $media_manager->uploadMedia("image", $request->request->get("fileUrls")["FACE"], "users");
                             if (isset($data) && isset($data["url"]) && isset($data["public_id"])) {
-                                if (!User::where("user_id", "!=", $request->request->get("clientId"))->where("identity_verified", true)->where("first_name", ucwords(strtolower($request->request->get("data")["docFirstName"])))->where("last_name", ucwords(strtolower($request->request->get("data")["docLastName"])))->where("dob", $dob)->where("gender", ucwords(strtolower($request->request->get("data")["docSex"])))->exists()) {
-                                    User::find($request->request->get("clientId"))->update(["first_name" => ucwords(strtolower($request->request->get("data")["docFirstName"])), "last_name" => ucwords(strtolower($request->request->get("data")["docLastName"])), "dob" => $dob, "gender" => strtolower($request->request->get("data")["docSex"]), "nationality" => $request->request->get("data")["docNationality"], "image_url" => $data["url"] . "+ " . $data["public_id"], "identity_verified" => true, "identity_verification_id" => $request->request->get("scanRef")]);
+                                if (!User::where("user_id", "!=", $request->request->get("clientId"))->where("identity_verification_status", "verified")->where("first_name", ucwords(strtolower($request->request->get("data")["docFirstName"])))->where("last_name", ucwords(strtolower($request->request->get("data")["docLastName"])))->where("dob", $dob)->where("gender", ucwords(strtolower($request->request->get("data")["docSex"])))->exists()) {
+                                    User::find($request->request->get("clientId"))->update(["first_name" => ucwords(strtolower($request->request->get("data")["docFirstName"])), "last_name" => ucwords(strtolower($request->request->get("data")["docLastName"])), "dob" => $dob, "gender" => strtolower($request->request->get("data")["docSex"]), "nationality" => $request->request->get("data")["docNationality"], "image_url" => $data["url"] . "+ " . $data["public_id"], "identity_verification_status" => "verified", "identity_verification_id" => $request->request->get("scanRef")]);
                                 } else {
                                     $body_key = "identity_verification_success_duplicate_verification";
                                 }
@@ -404,7 +404,7 @@ class UserController extends Controller
     public function update(Request $request)
     {
         if ($request->request->has("first_name") && $request->filled("first_name") || $request->request->has("last_name") && $request->filled("last_name") || $request->request->has("dob") && $request->filled("dob")) {
-            if (User::where("user_id", $request->request->get("user_id"))->value("identity_verified")) {
+            if (User::where("user_id", $request->request->get("user_id"))->value("identity_verification_status") == "verified") {
                 return response()->json([
                     "status" => false,
                     "message" => "This user's identity has been verified so they can not update their name or dob.",
@@ -490,8 +490,8 @@ class UserController extends Controller
 
     public function createPaymentMethod(Request $request)
     {
-        $user_identity_verified = User::where("user_id", $request->request->get("user_id"))->value("identity_verified");
-        if ($user_identity_verified) {
+        $user_identity_verification_status = User::where("user_id", $request->request->get("user_id"))->value("identity_verification_status");
+        if ($user_identity_verification_status == "verified") {
             $user_email_verified = User::where("user_id", $request->request->get("user_id"))->value("email_verified");
             if ($user_email_verified) {
                 $payment_manager = new PaymentManager();
