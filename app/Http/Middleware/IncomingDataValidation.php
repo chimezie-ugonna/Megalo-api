@@ -227,12 +227,12 @@ class IncomingDataValidation
                         "status" => false,
                         "message" => "There is nothing to update."
                     ], 400)->throwResponse();
-                } else if (!$request->request->has("full_name") && !$request->request->has("dob")) {
+                } else if (!$request->request->has("full_name") && !$request->request->has("dob") && !$request->request->has("identity_verification_status_pending")) {
                     return response()->json([
                         "status" => false,
                         "message" => "You provided an invalid key."
                     ], 400)->throwResponse();
-                } else if (!$request->filled("full_name") && !$request->filled("dob")) {
+                } else if (!$request->filled("full_name") && !$request->filled("dob") && !$request->filled("identity_verification_status_pending")) {
                     return response()->json([
                         "status" => false,
                         "message" => "There is no data to update."
