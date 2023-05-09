@@ -403,6 +403,8 @@ class UserController extends Controller
                     "redirection_page" => "",
                     "redirection_page_id" => ""
                 ), array(), "user_specific");
+            } else if ($request->request->get("status")["overall"] == "REVIEWING" && User::where("user_id", $request->request->get("clientId"))->value("identity_verification_status") != "pending") {
+                User::find($request->request->get("clientId"))->update(["identity_verification_status" => "unverified"]);
             }
         }
         return response()->json([
