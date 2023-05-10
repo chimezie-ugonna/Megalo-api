@@ -423,9 +423,6 @@ class UserController extends Controller
                 ], 403);
             }
         }
-        if ($request->request->has("identity_verification_status_pending") && $request->filled("identity_verification_status_pending") && $request->request->get("identity_verification_status_pending") && User::where("user_id", $request->request->get("user_id"))->value("identity_verification_status") == "unverified") {
-            $request->request->add(["identity_verification_status" => "pending"]);
-        }
         User::find($request->request->get("user_id"))->update($request->all());
         return response()->json([
             "status" => true,

@@ -209,7 +209,6 @@ class IncomingDataValidation
                     "is_admin" => ["bail", "prohibited"],
                     "email_verified" => ["bail", "prohibited"],
                     "identity_verification_status" => ["bail", "prohibited"],
-                    "identity_verification_status_pending" => ["bail", "filled", "boolean"],
                     "identity_verification_id" => ["bail", "prohibited"],
                     "phone_number" => ["bail", "prohibited"],
                     "full_name" => ["bail", "filled", "not_in:null"],
@@ -227,12 +226,12 @@ class IncomingDataValidation
                         "status" => false,
                         "message" => "There is nothing to update."
                     ], 400)->throwResponse();
-                } else if (!$request->request->has("full_name") && !$request->request->has("dob") && !$request->request->has("identity_verification_status_pending")) {
+                } else if (!$request->request->has("full_name") && !$request->request->has("dob")) {
                     return response()->json([
                         "status" => false,
                         "message" => "You provided an invalid key."
                     ], 400)->throwResponse();
-                } else if (!$request->filled("full_name") && !$request->filled("dob") && !$request->filled("identity_verification_status_pending")) {
+                } else if (!$request->filled("full_name") && !$request->filled("dob")) {
                     return response()->json([
                         "status" => false,
                         "message" => "There is no data to update."
