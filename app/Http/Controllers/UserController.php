@@ -316,42 +316,11 @@ class UserController extends Controller
     public function verifyIdentityWebhook(Request $request)
     {
         if (User::where("user_id", $request->request->get("clientId"))->exists() && User::where("user_id", $request->request->get("clientId"))->value("identity_verification_status") != "verified") {
-            if ($request->request->get("status")["overall"] == "APPROVED" || $request->request->get("status")["overall"] == "DENIED" || $request->request->get("status")["overall"] == "SUSPECTED") {
-                $status = "verified";
-                $body_key = "identity_verification_success_body";
-                if ($request->request->get("status")["overall"] == "APPROVED") {
-                    $today = new DateTime(date("Y-m-d"));
-                    $bday = new DateTime($request->request->get("data")["docDob"]);
-                    $interval = $today->diff($bday);
-                    $age_estimate = $request->request->get("data")["ageEstimate"];
-                    if (intval($interval->y) < 18) {
-                        $status = "under_age";
-                        $body_key = "identity_verification_success_under_age";
-                    } else if ($age_estimate == "UNDER_13") {
-                        $status = "under_age";
-                        $body_key = "identity_verification_success_estimate_under_age";
-                    } else {
-                        $date_obj = DateTime::createFromFormat("Y-m-d", $request->request->get("data")["docDob"]);
-                        $dob = $date_obj->format("d/m/Y");
-                        $media_manager = new MediaManager();
-                        $data = $media_manager->uploadMedia("image", $request->request->get("fileUrls")["FACE"], "users");
-                        if (isset($data) && isset($data["url"]) && isset($data["public_id"])) {
-                            if (!User::where("user_id", "!=", $request->request->get("clientId"))->where("identity_verification_status", "verified")->where("first_name", ucwords(strtolower($request->request->get("data")["docFirstName"])))->where("last_name", ucwords(strtolower($request->request->get("data")["docLastName"])))->where("dob", $dob)->where("gender", ucwords(strtolower($request->request->get("data")["docSex"])))->exists()) {
-                                User::find($request->request->get("clientId"))->update(["first_name" => ucwords(strtolower($request->request->get("data")["docFirstName"])), "last_name" => ucwords(strtolower($request->request->get("data")["docLastName"])), "dob" => $dob, "gender" => strtolower($request->request->get("data")["docSex"]), "nationality" => $request->request->get("data")["docNationality"], "image_url" => $data["url"] . "+ " . $data["public_id"], "identity_verification_status" => "verified", "identity_verification_id" => $request->request->get("scanRef")]);
-                            } else {
-                                $status = "duplicate";
-                                $body_key = "identity_verification_success_duplicate_verification";
-                            }
-                        } else {
-                            $status = "unverified";
-                            $body_key = "identity_verification_failed_image_upload_error";
-                        }
-                    }
-                } else if ($request->request->get("status")["overall"] == "DENIED") {
-                    $status = "unverified";
-                    $body_key = "identity_verification_failed_body";
-                } else if ($request->request->get("status")["overall"] == "SUSPECTED") {
-                    if ($request->request->get("status")["autoDocument"] == "DOC_VALIDATED" && $request->request->get("status")["manualDocument"] == "DOC_VALIDATED" && $request->request->get("status")["autoFace"] == "FACE_MATCH" && $request->request->get("status")["manualFace"] == "FACE_MATCH") {
+            if ($request->request->get("final")) {
+                if ($request->request->get("status")["overall"] == "APPROVED" || $request->request->get("status")["overall"] == "DENIED" || $request->request->get("status")["overall"] == "SUSPECTED") {
+                    $status = "verified";
+                    $body_key = "identity_verification_success_body";
+                    if ($request->request->get("status")["overall"] == "APPROVED") {
                         $today = new DateTime(date("Y-m-d"));
                         $bday = new DateTime($request->request->get("data")["docDob"]);
                         $interval = $today->diff($bday);
@@ -379,31 +348,64 @@ class UserController extends Controller
                                 $body_key = "identity_verification_failed_image_upload_error";
                             }
                         }
-                    } else {
+                    } else if ($request->request->get("status")["overall"] == "DENIED") {
                         $status = "unverified";
                         $body_key = "identity_verification_failed_body";
+                    } else if ($request->request->get("status")["overall"] == "SUSPECTED") {
+                        if ($request->request->get("status")["autoDocument"] == "DOC_VALIDATED" && $request->request->get("status")["manualDocument"] == "DOC_VALIDATED" && $request->request->get("status")["autoFace"] == "FACE_MATCH" && $request->request->get("status")["manualFace"] == "FACE_MATCH") {
+                            $today = new DateTime(date("Y-m-d"));
+                            $bday = new DateTime($request->request->get("data")["docDob"]);
+                            $interval = $today->diff($bday);
+                            $age_estimate = $request->request->get("data")["ageEstimate"];
+                            if (intval($interval->y) < 18) {
+                                $status = "under_age";
+                                $body_key = "identity_verification_success_under_age";
+                            } else if ($age_estimate == "UNDER_13") {
+                                $status = "under_age";
+                                $body_key = "identity_verification_success_estimate_under_age";
+                            } else {
+                                $date_obj = DateTime::createFromFormat("Y-m-d", $request->request->get("data")["docDob"]);
+                                $dob = $date_obj->format("d/m/Y");
+                                $media_manager = new MediaManager();
+                                $data = $media_manager->uploadMedia("image", $request->request->get("fileUrls")["FACE"], "users");
+                                if (isset($data) && isset($data["url"]) && isset($data["public_id"])) {
+                                    if (!User::where("user_id", "!=", $request->request->get("clientId"))->where("identity_verification_status", "verified")->where("first_name", ucwords(strtolower($request->request->get("data")["docFirstName"])))->where("last_name", ucwords(strtolower($request->request->get("data")["docLastName"])))->where("dob", $dob)->where("gender", ucwords(strtolower($request->request->get("data")["docSex"])))->exists()) {
+                                        User::find($request->request->get("clientId"))->update(["first_name" => ucwords(strtolower($request->request->get("data")["docFirstName"])), "last_name" => ucwords(strtolower($request->request->get("data")["docLastName"])), "dob" => $dob, "gender" => strtolower($request->request->get("data")["docSex"]), "nationality" => $request->request->get("data")["docNationality"], "image_url" => $data["url"] . "+ " . $data["public_id"], "identity_verification_status" => "verified", "identity_verification_id" => $request->request->get("scanRef")]);
+                                    } else {
+                                        $status = "duplicate";
+                                        $body_key = "identity_verification_success_duplicate_verification";
+                                    }
+                                } else {
+                                    $status = "unverified";
+                                    $body_key = "identity_verification_failed_image_upload_error";
+                                }
+                            }
+                        } else {
+                            $status = "unverified";
+                            $body_key = "identity_verification_failed_body";
+                        }
                     }
-                }
 
-                if ($status != "verified") {
-                    User::find($request->request->get("clientId"))->update(["identity_verification_status" => "unverified"]);
-                }
+                    if ($status != "verified") {
+                        User::find($request->request->get("clientId"))->update(["identity_verification_status" => "unverified"]);
+                    }
 
-                $notification_manager = new NotificationManager();
-                if ($status == "unverified") {
-                    $title_key = "identity_verification_failed_title";
-                } else {
-                    $title_key = "identity_verification_success_title";
+                    $notification_manager = new NotificationManager();
+                    if ($status == "unverified") {
+                        $title_key = "identity_verification_failed_title";
+                    } else {
+                        $title_key = "identity_verification_success_title";
+                    }
+                    $notification_manager->sendNotification(array(
+                        "receiver_user_id" => $request->request->get("clientId"),
+                        "title_key" => $title_key,
+                        "body_key" => $body_key,
+                        "tappable" => false,
+                        "redirection_page" => "",
+                        "redirection_page_id" => ""
+                    ), array(), "user_specific");
                 }
-                $notification_manager->sendNotification(array(
-                    "receiver_user_id" => $request->request->get("clientId"),
-                    "title_key" => $title_key,
-                    "body_key" => $body_key,
-                    "tappable" => false,
-                    "redirection_page" => "",
-                    "redirection_page_id" => ""
-                ), array(), "user_specific");
-            } else if (User::where("user_id", $request->request->get("clientId"))->value("identity_verification_status") != "pending") {
+            } else if ($request->request->get("status")["overall"] == "REVIEWING" && User::where("user_id", $request->request->get("clientId"))->value("identity_verification_status") != "pending") {
                 User::find($request->request->get("clientId"))->update(["identity_verification_status" => "pending"]);
             }
         }
