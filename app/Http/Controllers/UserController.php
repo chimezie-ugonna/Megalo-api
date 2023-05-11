@@ -214,10 +214,11 @@ class UserController extends Controller
     public function read(Request $request)
     {
         if (User::where("user_id", $request->request->get("user_id"))->exists()) {
+            $data = collect(User::where("user_id", $request->request->get("user_id"))->get())->toArray();
             return response()->json([
                 "status" => true,
                 "message" => "User data retrieved successfully.",
-                "data" => User::where("user_id", $request->request->get("user_id"))->get()
+                "data" => $data
             ], 200);
         } else {
             return response()->json([
