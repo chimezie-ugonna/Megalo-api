@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use App\Custom\PaymentManager;
 use App\Custom\SmsManager;
 use App\Models\Earning;
+use App\Models\Notification;
 use App\Models\Property;
 use App\Models\Referral;
 use App\Models\User;
@@ -214,7 +215,12 @@ class UserController extends Controller
     public function read(Request $request)
     {
         if (User::where("user_id", $request->request->get("user_id"))->exists()) {
-            $data = collect(User::where("user_id", $request->request->get("user_id"))->get())->toArray();
+            $data = collect(User::where("user_id", $request->request->get("user_id"))->get());
+            $data = $data->map(function ($item) use ($request) {
+                $has_unseen_notification = Notification::where("receiver_user_id", $request->request->get("user_id"))->where("seen", false)->exists();
+                $item->has_unseen_notification = $has_unseen_notification;
+                return $item;
+            });
             return response()->json([
                 "status" => true,
                 "message" => "User data retrieved successfully.",
