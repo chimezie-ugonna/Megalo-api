@@ -255,7 +255,7 @@ class UserController extends Controller
         return response()->json([
             "status" => true,
             "message" => "All user data retrieved successfully.",
-            "data" => User::latest()->paginate(10)
+            "data" => User::latest()->simplePaginate(10)
         ], 200);
     }
 
