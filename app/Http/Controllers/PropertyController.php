@@ -198,7 +198,7 @@ class PropertyController extends Controller
         return response()->json([
             "status" => true,
             "message" => "All property data retrieved successfully.",
-            "data" => Property::latest()->get()
+            "data" => Property::latest()->simplePaginate(10)
         ], 200);
     }
 

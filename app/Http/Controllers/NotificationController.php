@@ -57,7 +57,7 @@ class NotificationController extends Controller
         return response()->json([
             "status" => true,
             "message" => "All notification data retrieved successfully.",
-            "data" => Notification::latest()->get()
+            "data" => Notification::latest()->simplePaginate(10)
         ], 200);
     }
 

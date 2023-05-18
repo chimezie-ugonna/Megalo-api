@@ -34,7 +34,7 @@ class LoginController extends Controller
         return response()->json([
             "status" => true,
             "message" => "All login data retrieved successfully.",
-            "data" => Login::latest("updated_at")->get()
+            "data" => Login::latest("updated_at")->simplePaginate(10)
         ], 200);
     }
 
