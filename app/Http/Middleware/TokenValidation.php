@@ -76,7 +76,6 @@ class TokenValidation
                                 "api/v1/login/read_all",
                                 "api/v1/property/create",
                                 "api/v1/property/pay_dividend",
-                                "api/v1/property/read_all",
                                 "api/v1/property/read_paid_dividend",
                                 "api/v1/property/update",
                                 "api/v1/property/delete",
