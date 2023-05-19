@@ -250,12 +250,12 @@ class UserController extends Controller
         }
     }
 
-    public function readAll()
+    public function readAll(Request $request)
     {
         return response()->json([
             "status" => true,
             "message" => "All user data retrieved successfully.",
-            "data" => User::latest()->simplePaginate(10)
+            "data" => User::latest()->simplePaginate($request->get("item_count_per_page"))
         ], 200);
     }
 

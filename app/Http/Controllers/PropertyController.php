@@ -193,12 +193,12 @@ class PropertyController extends Controller
         }
     }
 
-    public function readAll()
+    public function readAll(Request $request)
     {
         return response()->json([
             "status" => true,
             "message" => "All property data retrieved successfully.",
-            "data" => Property::latest()->simplePaginate(10)
+            "data" => Property::latest()->simplePaginate($request->get("item_count_per_page"))
         ], 200);
     }
 

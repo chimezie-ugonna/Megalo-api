@@ -52,12 +52,12 @@ class NotificationController extends Controller
         }
     }
 
-    public function readAll()
+    public function readAll(Request $request)
     {
         return response()->json([
             "status" => true,
             "message" => "All notification data retrieved successfully.",
-            "data" => Notification::latest()->simplePaginate(10)
+            "data" => Notification::latest()->simplePaginate($request->get("item_count_per_page"))
         ], 200);
     }
 

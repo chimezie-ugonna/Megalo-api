@@ -142,12 +142,12 @@ class InvestmentController extends Controller
         }
     }
 
-    public function readAll()
+    public function readAll(Request $request)
     {
         return response()->json([
             "status" => true,
             "message" => "All investment data retrieved successfully.",
-            "data" => Investment::latest()->simplePaginate(10)
+            "data" => Investment::latest()->simplePaginate($request->get("item_count_per_page"))
         ], 200);
     }
 

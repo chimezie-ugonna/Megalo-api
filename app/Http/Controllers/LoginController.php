@@ -29,12 +29,12 @@ class LoginController extends Controller
         ], 200);
     }
 
-    public function readAll()
+    public function readAll(Request $request)
     {
         return response()->json([
             "status" => true,
             "message" => "All login data retrieved successfully.",
-            "data" => Login::latest("updated_at")->simplePaginate(10)
+            "data" => Login::latest("updated_at")->simplePaginate($request->get("item_count_per_page"))
         ], 200);
     }
 

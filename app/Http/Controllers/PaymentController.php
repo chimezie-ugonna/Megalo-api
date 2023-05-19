@@ -104,12 +104,12 @@ class PaymentController extends Controller
         }
     }
 
-    public function readAll()
+    public function readAll(Request $request)
     {
         return response()->json([
             "status" => true,
             "message" => "All payment data retrieved successfully.",
-            "data" => Payment::latest()->simplePaginate(10)
+            "data" => Payment::latest()->simplePaginate($request->get("item_count_per_page"))
         ], 200);
     }
 

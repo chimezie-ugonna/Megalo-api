@@ -304,10 +304,28 @@ class IncomingDataValidation
                 $request->validate([
                     "property_id" => ["bail", "required"]
                 ]);
+            } else if ($request->path() == "api/v1/investment/read_all") {
+                $request->validate([
+                    "item_count_per_page" => ["bail", "filled", "numeric", "gte:2"]
+                ]);
+                if (!$request->request->has("item_count_per_page")) {
+                    $request->request->add([
+                        "item_count_per_page" => 10
+                    ]);
+                }
             } else if ($request->path() == "api/v1/property/read") {
                 $request->validate([
                     "property_id" => ["bail", "required"]
                 ]);
+            } else if ($request->path() == "api/v1/property/read_all") {
+                $request->validate([
+                    "item_count_per_page" => ["bail", "filled", "numeric", "gte:2"]
+                ]);
+                if (!$request->request->has("item_count_per_page")) {
+                    $request->request->add([
+                        "item_count_per_page" => 10
+                    ]);
+                }
             } else if ($request->path() == "api/v1/property/read_paid_dividend") {
                 $request->validate([
                     "property_id" => ["bail", "required"]
@@ -316,6 +334,15 @@ class IncomingDataValidation
                 $request->validate([
                     "payment_id" => ["bail", "required"]
                 ]);
+            } else if ($request->path() == "api/v1/payment/read_all") {
+                $request->validate([
+                    "item_count_per_page" => ["bail", "filled", "numeric", "gte:2"]
+                ]);
+                if (!$request->request->has("item_count_per_page")) {
+                    $request->request->add([
+                        "item_count_per_page" => 10
+                    ]);
+                }
             } else if ($request->path() == "api/v1/payment/convert_currency") {
                 $request->validate([
                     "amount" => ["bail", "required", "numeric", "gt:0"],
@@ -331,6 +358,15 @@ class IncomingDataValidation
                 $request->validate([
                     "notification_id" => ["bail", "required"]
                 ]);
+            } else if ($request->path() == "api/v1/notification/read_all") {
+                $request->validate([
+                    "item_count_per_page" => ["bail", "filled", "numeric", "gte:2"]
+                ]);
+                if (!$request->request->has("item_count_per_page")) {
+                    $request->request->add([
+                        "item_count_per_page" => 10
+                    ]);
+                }
             } else if ($request->path() == "api/v1/user/read_earning") {
                 $request->validate([
                     "property_id" => ["bail", "required"]
@@ -349,6 +385,24 @@ class IncomingDataValidation
                     "action" => ["bail", "required", "in:deposit,withdrawal"],
                     "type" => ["bail", "required", "in:card,bank_account"]
                 ]);
+            } else if ($request->path() == "api/v1/user/read_all") {
+                $request->validate([
+                    "item_count_per_page" => ["bail", "filled", "numeric", "gte:2"]
+                ]);
+                if (!$request->request->has("item_count_per_page")) {
+                    $request->request->add([
+                        "item_count_per_page" => 10
+                    ]);
+                }
+            } else if ($request->path() == "api/v1/login/read_all") {
+                $request->validate([
+                    "item_count_per_page" => ["bail", "filled", "numeric", "gte:2"]
+                ]);
+                if (!$request->request->has("item_count_per_page")) {
+                    $request->request->add([
+                        "item_count_per_page" => 10
+                    ]);
+                }
             }
         } else if ($request->isMethod("delete")) {
             if ($request->path() == "api/v1/property/delete") {
