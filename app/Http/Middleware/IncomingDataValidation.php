@@ -517,7 +517,7 @@ class IncomingDataValidation
                     "page" => ["bail", "filled", "numeric", "gte:1"]
                 ]);
                 if (!$request->request->has("page")) {
-                    $request->request->add([
+                    $request->add([
                         "page" => 2
                     ]);
                 }
