@@ -255,7 +255,7 @@ class UserController extends Controller
         return response()->json([
             "status" => true,
             "message" => "All user data retrieved successfully.",
-            "data" => User::latest()->simplePaginate($request->get("item_count_per_page"))
+            "data" => User::latest()->simplePaginate($request->get("limit"))
         ], 200);
     }
 
@@ -264,7 +264,7 @@ class UserController extends Controller
         return response()->json([
             "status" => true,
             "message" => "User earning data retrieved successfully.",
-            "data" => Earning::where("user_id", $request->request->get("user_id"))->where("property_id", $request->get("property_id"))->latest()->get()
+            "data" => Earning::where("user_id", $request->request->get("user_id"))->where("property_id", $request->get("property_id"))->latest()->simplePaginate($request->get("limit"))
         ], 200);
     }
 
@@ -273,7 +273,7 @@ class UserController extends Controller
         return response()->json([
             "status" => true,
             "message" => "All user earning data retrieved successfully.",
-            "data" => Earning::where("user_id", $request->request->get("user_id"))->latest()->get()
+            "data" => Earning::where("user_id", $request->request->get("user_id"))->latest()->simplePaginate($request->get("limit"))
         ], 200);
     }
 

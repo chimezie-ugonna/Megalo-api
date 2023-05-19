@@ -198,7 +198,7 @@ class PropertyController extends Controller
         return response()->json([
             "status" => true,
             "message" => "All property data retrieved successfully.",
-            "data" => Property::latest()->simplePaginate($request->get("item_count_per_page"))
+            "data" => Property::latest()->simplePaginate($request->get("limit"))
         ], 200);
     }
 
@@ -207,7 +207,7 @@ class PropertyController extends Controller
         return response()->json([
             "status" => true,
             "message" => "All paid dividend data retrieved successfully.",
-            "data" => PaidDividend::where("property_id", $request->get("property_id"))->latest()->get()
+            "data" => PaidDividend::where("property_id", $request->get("property_id"))->latest()->simplePaginate($request->get("limit"))
         ], 200);
     }
 

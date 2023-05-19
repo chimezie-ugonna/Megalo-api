@@ -109,7 +109,7 @@ class PaymentController extends Controller
         return response()->json([
             "status" => true,
             "message" => "All payment data retrieved successfully.",
-            "data" => Payment::latest()->simplePaginate($request->get("item_count_per_page"))
+            "data" => Payment::latest()->simplePaginate($request->get("limit"))
         ], 200);
     }
 
@@ -118,7 +118,7 @@ class PaymentController extends Controller
         return response()->json([
             "status" => true,
             "message" => "Payment data retrieved successfully.",
-            "data" => Payment::where("user_id", $request->request->get("user_id"))->latest()->get()
+            "data" => Payment::where("user_id", $request->request->get("user_id"))->latest()->simplePaginate($request->get("limit"))
         ], 200);
     }
 

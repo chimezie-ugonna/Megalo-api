@@ -221,17 +221,17 @@ class PaymentManager
 
   function listAllAccountPaymentMethod($account_id, $data)
   {
-    if (!array_key_exists("limit", $data)) {
-      return $this->stripe->accounts->allExternalAccounts(
-        $account_id,
-        ["object" => $data["type"]]
-      );
-    } else {
-      return $this->stripe->accounts->allExternalAccounts(
-        $account_id,
-        ["object" => $data["type"], "limit" => $data["limit"]]
-      );
+    $parameters = ["object" => $data["type"]];
+    if (array_key_exists("limit", $data)) {
+      $parameters["limit"] = $data["limit"];
     }
+    if (array_key_exists("starting_after", $data)) {
+      $parameters["starting_after"] = $data["starting_after"];
+    }
+    return $this->stripe->accounts->allExternalAccounts(
+      $account_id,
+      $parameters
+    );
   }
 
   function retrieveBalance()
@@ -307,17 +307,17 @@ class PaymentManager
 
   function listAllCustomerPaymentMethod($customer_id, $data)
   {
-    if (!array_key_exists("limit", $data)) {
-      return $this->stripe->customers->allSources(
-        $customer_id,
-        ["object" => $data["type"]]
-      );
-    } else {
-      return $this->stripe->customers->allSources(
-        $customer_id,
-        ["object" => $data["type"], "limit" => $data["limit"]]
-      );
+    $parameters = ["object" => $data["type"]];
+    if (array_key_exists("limit", $data)) {
+      $parameters["limit"] = $data["limit"];
     }
+    if (array_key_exists("starting_after", $data)) {
+      $parameters["starting_after"] = $data["starting_after"];
+    }
+    return $this->stripe->customers->allSources(
+      $customer_id,
+      $parameters
+    );
   }
 
   function deposit($customer_id, $data)

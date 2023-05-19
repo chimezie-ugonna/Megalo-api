@@ -147,7 +147,7 @@ class InvestmentController extends Controller
         return response()->json([
             "status" => true,
             "message" => "All investment data retrieved successfully.",
-            "data" => Investment::latest()->simplePaginate($request->get("item_count_per_page"))
+            "data" => Investment::latest()->simplePaginate($request->get("limit"))
         ], 200);
     }
 
@@ -156,7 +156,7 @@ class InvestmentController extends Controller
         return response()->json([
             "status" => true,
             "message" => "Investment data retrieved successfully.",
-            "data" => Investment::where("property_id", $request->get("property_id"))->where("user_id", $request->request->get("user_id"))->latest()->get()
+            "data" => Investment::where("property_id", $request->get("property_id"))->where("user_id", $request->request->get("user_id"))->get()
         ], 200);
     }
 
@@ -165,7 +165,7 @@ class InvestmentController extends Controller
         return response()->json([
             "status" => true,
             "message" => "Investment data retrieved successfully.",
-            "data" => Investment::where("user_id", $request->request->get("user_id"))->latest()->get()
+            "data" => Investment::where("user_id", $request->request->get("user_id"))->latest()->simplePaginate($request->get("limit"))
         ], 200);
     }
 
@@ -174,7 +174,7 @@ class InvestmentController extends Controller
         return response()->json([
             "status" => true,
             "message" => "Investment data retrieved successfully.",
-            "data" => Investment::where("property_id", $request->get("property_id"))->join("users", "users.user_id", "=", "investments.user_id")->select("investments.*", "users.first_name", "users.last_name")->latest()->get()
+            "data" => Investment::where("property_id", $request->get("property_id"))->join("users", "users.user_id", "=", "investments.user_id")->select("investments.*", "users.first_name", "users.last_name")->latest()->simplePaginate($request->get("limit"))
         ], 200);
     }
 

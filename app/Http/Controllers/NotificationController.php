@@ -57,7 +57,7 @@ class NotificationController extends Controller
         return response()->json([
             "status" => true,
             "message" => "All notification data retrieved successfully.",
-            "data" => Notification::latest()->simplePaginate($request->get("item_count_per_page"))
+            "data" => Notification::latest()->simplePaginate($request->get("limit"))
         ], 200);
     }
 
@@ -66,7 +66,7 @@ class NotificationController extends Controller
         return response()->json([
             "status" => true,
             "message" => "Notification data retrieved successfully.",
-            "data" => Notification::where("receiver_user_id", $request->request->get("user_id"))->latest()->get()
+            "data" => Notification::where("receiver_user_id", $request->request->get("user_id"))->latest()->simplePaginate($request->get("limit"))
         ], 200);
     }
 

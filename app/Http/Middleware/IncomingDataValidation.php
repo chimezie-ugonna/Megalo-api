@@ -300,17 +300,54 @@ class IncomingDataValidation
                 }
             }
         } else if ($request->isMethod("get")) {
-            if ($request->path() == "api/v1/investment/read_user_and_property_specific" || $request->path() == "api/v1/investment/read_property_specific") {
+            if ($request->path() == "api/v1/investment/read_user_and_property_specific") {
                 $request->validate([
                     "property_id" => ["bail", "required"]
                 ]);
+            } else if ($request->path() == "api/v1/investment/read_property_specific") {
+                $request->validate([
+                    "property_id" => ["bail", "required"],
+                    "limit" => ["bail", "filled", "numeric", "gte:1", "lte:100"],
+                    "page" => ["bail", "filled", "numeric", "gte:1"]
+                ]);
+                if (!$request->request->has("page")) {
+                    $request->request->add([
+                        "page" => 1
+                    ]);
+                }
+                if (!$request->request->has("limit")) {
+                    $request->request->add([
+                        "limit" => 10
+                    ]);
+                }
             } else if ($request->path() == "api/v1/investment/read_all") {
                 $request->validate([
-                    "item_count_per_page" => ["bail", "filled", "numeric", "gte:2"]
+                    "limit" => ["bail", "filled", "numeric", "gte:1", "lte:100"],
+                    "page" => ["bail", "filled", "numeric", "gte:1"]
                 ]);
-                if (!$request->request->has("item_count_per_page")) {
+                if (!$request->request->has("page")) {
                     $request->request->add([
-                        "item_count_per_page" => 10
+                        "page" => 1
+                    ]);
+                }
+                if (!$request->request->has("limit")) {
+                    $request->request->add([
+                        "limit" => 10
+                    ]);
+                }
+            } else if ($request->path() == "api/v1/investment/read_user_specific") {
+                $request->validate([
+                    "limit" => ["bail", "filled", "numeric", "gte:1", "lte:100"],
+                    "page" => ["bail", "filled", "numeric", "gte:1"]
+                ]);
+                if (!$request->request->has("page")) {
+                    $request->request->add([
+                        "page" => 1
+                    ]);
+                }
+                if (!$request->request->has("limit")) {
+                    $request->request->add([
+                        "limit" => 10
                     ]);
                 }
             } else if ($request->path() == "api/v1/property/read") {
@@ -319,28 +356,67 @@ class IncomingDataValidation
                 ]);
             } else if ($request->path() == "api/v1/property/read_all") {
                 $request->validate([
-                    "item_count_per_page" => ["bail", "filled", "numeric", "gte:2"]
+                    "limit" => ["bail", "filled", "numeric", "gte:1", "lte:100"],
+                    "page" => ["bail", "filled", "numeric", "gte:1"]
                 ]);
-                if (!$request->request->has("item_count_per_page")) {
+                if (!$request->request->has("page")) {
                     $request->request->add([
-                        "item_count_per_page" => 10
+                        "page" => 1
+                    ]);
+                }
+                if (!$request->request->has("limit")) {
+                    $request->request->add([
+                        "limit" => 10
                     ]);
                 }
             } else if ($request->path() == "api/v1/property/read_paid_dividend") {
                 $request->validate([
-                    "property_id" => ["bail", "required"]
+                    "property_id" => ["bail", "required"],
+                    "limit" => ["bail", "filled", "numeric", "gte:1", "lte:100"],
+                    "page" => ["bail", "filled", "numeric", "gte:1"]
                 ]);
+                if (!$request->request->has("page")) {
+                    $request->request->add([
+                        "page" => 1
+                    ]);
+                }
+                if (!$request->request->has("limit")) {
+                    $request->request->add([
+                        "limit" => 10
+                    ]);
+                }
             } else if ($request->path() == "api/v1/payment/read" || $request->path() == "api/v1/payment/read_user_and_payment_specific") {
                 $request->validate([
                     "payment_id" => ["bail", "required"]
                 ]);
             } else if ($request->path() == "api/v1/payment/read_all") {
                 $request->validate([
-                    "item_count_per_page" => ["bail", "filled", "numeric", "gte:2"]
+                    "limit" => ["bail", "filled", "numeric", "gte:1", "lte:100"],
+                    "page" => ["bail", "filled", "numeric", "gte:1"]
                 ]);
-                if (!$request->request->has("item_count_per_page")) {
+                if (!$request->request->has("page")) {
                     $request->request->add([
-                        "item_count_per_page" => 10
+                        "page" => 1
+                    ]);
+                }
+                if (!$request->request->has("limit")) {
+                    $request->request->add([
+                        "limit" => 10
+                    ]);
+                }
+            } else if ($request->path() == "api/v1/payment/read_user_specific") {
+                $request->validate([
+                    "limit" => ["bail", "filled", "numeric", "gte:1", "lte:100"],
+                    "page" => ["bail", "filled", "numeric", "gte:1"]
+                ]);
+                if (!$request->request->has("page")) {
+                    $request->request->add([
+                        "page" => 1
+                    ]);
+                }
+                if (!$request->request->has("limit")) {
+                    $request->request->add([
+                        "limit" => 10
                     ]);
                 }
             } else if ($request->path() == "api/v1/payment/convert_currency") {
@@ -360,17 +436,65 @@ class IncomingDataValidation
                 ]);
             } else if ($request->path() == "api/v1/notification/read_all") {
                 $request->validate([
-                    "item_count_per_page" => ["bail", "filled", "numeric", "gte:2"]
+                    "limit" => ["bail", "filled", "numeric", "gte:1", "lte:100"],
+                    "page" => ["bail", "filled", "numeric", "gte:1"]
                 ]);
-                if (!$request->request->has("item_count_per_page")) {
+                if (!$request->request->has("page")) {
                     $request->request->add([
-                        "item_count_per_page" => 10
+                        "page" => 1
+                    ]);
+                }
+                if (!$request->request->has("limit")) {
+                    $request->request->add([
+                        "limit" => 10
+                    ]);
+                }
+            } else if ($request->path() == "api/v1/notification/read_user_specific") {
+                $request->validate([
+                    "limit" => ["bail", "filled", "numeric", "gte:1", "lte:100"],
+                    "page" => ["bail", "filled", "numeric", "gte:1"]
+                ]);
+                if (!$request->request->has("page")) {
+                    $request->request->add([
+                        "page" => 1
+                    ]);
+                }
+                if (!$request->request->has("limit")) {
+                    $request->request->add([
+                        "limit" => 10
                     ]);
                 }
             } else if ($request->path() == "api/v1/user/read_earning") {
                 $request->validate([
-                    "property_id" => ["bail", "required"]
+                    "property_id" => ["bail", "required"],
+                    "limit" => ["bail", "filled", "numeric", "gte:1", "lte:100"],
+                    "page" => ["bail", "filled", "numeric", "gte:1"]
                 ]);
+                if (!$request->request->has("page")) {
+                    $request->request->add([
+                        "page" => 1
+                    ]);
+                }
+                if (!$request->request->has("limit")) {
+                    $request->request->add([
+                        "limit" => 10
+                    ]);
+                }
+            } else if ($request->path() == "api/v1/user/read_all_earning") {
+                $request->validate([
+                    "limit" => ["bail", "filled", "numeric", "gte:1", "lte:100"],
+                    "page" => ["bail", "filled", "numeric", "gte:1"]
+                ]);
+                if (!$request->request->has("page")) {
+                    $request->request->add([
+                        "page" => 1
+                    ]);
+                }
+                if (!$request->request->has("limit")) {
+                    $request->request->add([
+                        "limit" => 10
+                    ]);
+                }
             } else if ($request->path() == "api/v1/user/read_specific") {
                 $request->validate([
                     "user_id" => ["bail", "required"]
@@ -383,24 +507,38 @@ class IncomingDataValidation
             } else if ($request->path() == "api/v1/user/read_all_payment_method") {
                 $request->validate([
                     "action" => ["bail", "required", "in:deposit,withdrawal"],
-                    "type" => ["bail", "required", "in:card,bank_account"]
+                    "type" => ["bail", "required", "in:card,bank_account"],
+                    "limit" => ["bail", "filled", "numeric", "gte:1", "lte:100"],
+                    "starting_after" => ["bail", "filled", "not_in:null"]
                 ]);
             } else if ($request->path() == "api/v1/user/read_all") {
                 $request->validate([
-                    "item_count_per_page" => ["bail", "filled", "numeric", "gte:2"]
+                    "limit" => ["bail", "filled", "numeric", "gte:1", "lte:100"],
+                    "page" => ["bail", "filled", "numeric", "gte:1"]
                 ]);
-                if (!$request->request->has("item_count_per_page")) {
+                if (!$request->request->has("page")) {
                     $request->request->add([
-                        "item_count_per_page" => 10
+                        "page" => 1
+                    ]);
+                }
+                if (!$request->request->has("limit")) {
+                    $request->request->add([
+                        "limit" => 10
                     ]);
                 }
             } else if ($request->path() == "api/v1/login/read_all") {
                 $request->validate([
-                    "item_count_per_page" => ["bail", "filled", "numeric", "gte:2"]
+                    "limit" => ["bail", "filled", "numeric", "gte:1", "lte:100"],
+                    "page" => ["bail", "filled", "numeric", "gte:1"]
                 ]);
-                if (!$request->request->has("item_count_per_page")) {
+                if (!$request->request->has("page")) {
                     $request->request->add([
-                        "item_count_per_page" => 10
+                        "page" => 1
+                    ]);
+                }
+                if (!$request->request->has("limit")) {
+                    $request->request->add([
+                        "limit" => 10
                     ]);
                 }
             }
