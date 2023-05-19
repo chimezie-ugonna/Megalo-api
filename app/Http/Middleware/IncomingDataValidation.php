@@ -310,11 +310,6 @@ class IncomingDataValidation
                     "limit" => ["bail", "filled", "numeric", "gte:1", "lte:100"],
                     "page" => ["bail", "filled", "numeric", "gte:1"]
                 ]);
-                if (!$request->request->has("page")) {
-                    $request->request->add([
-                        "page" => 1
-                    ]);
-                }
                 if (!$request->request->has("limit")) {
                     $request->request->add([
                         "limit" => 10
@@ -325,11 +320,6 @@ class IncomingDataValidation
                     "limit" => ["bail", "filled", "numeric", "gte:1", "lte:100"],
                     "page" => ["bail", "filled", "numeric", "gte:1"]
                 ]);
-                if (!$request->request->has("page")) {
-                    $request->request->add([
-                        "page" => 1
-                    ]);
-                }
                 if (!$request->request->has("limit")) {
                     $request->request->add([
                         "limit" => 10
@@ -340,11 +330,6 @@ class IncomingDataValidation
                     "limit" => ["bail", "filled", "numeric", "gte:1", "lte:100"],
                     "page" => ["bail", "filled", "numeric", "gte:1"]
                 ]);
-                if (!$request->request->has("page")) {
-                    $request->request->add([
-                        "page" => 1
-                    ]);
-                }
                 if (!$request->request->has("limit")) {
                     $request->request->add([
                         "limit" => 10
@@ -359,11 +344,6 @@ class IncomingDataValidation
                     "limit" => ["bail", "filled", "numeric", "gte:1", "lte:100"],
                     "page" => ["bail", "filled", "numeric", "gte:1"]
                 ]);
-                if (!$request->request->has("page")) {
-                    $request->request->add([
-                        "page" => 1
-                    ]);
-                }
                 if (!$request->request->has("limit")) {
                     $request->request->add([
                         "limit" => 10
@@ -375,11 +355,6 @@ class IncomingDataValidation
                     "limit" => ["bail", "filled", "numeric", "gte:1", "lte:100"],
                     "page" => ["bail", "filled", "numeric", "gte:1"]
                 ]);
-                if (!$request->request->has("page")) {
-                    $request->request->add([
-                        "page" => 1
-                    ]);
-                }
                 if (!$request->request->has("limit")) {
                     $request->request->add([
                         "limit" => 10
@@ -394,11 +369,6 @@ class IncomingDataValidation
                     "limit" => ["bail", "filled", "numeric", "gte:1", "lte:100"],
                     "page" => ["bail", "filled", "numeric", "gte:1"]
                 ]);
-                if (!$request->request->has("page")) {
-                    $request->request->add([
-                        "page" => 1
-                    ]);
-                }
                 if (!$request->request->has("limit")) {
                     $request->request->add([
                         "limit" => 10
@@ -409,11 +379,6 @@ class IncomingDataValidation
                     "limit" => ["bail", "filled", "numeric", "gte:1", "lte:100"],
                     "page" => ["bail", "filled", "numeric", "gte:1"]
                 ]);
-                if (!$request->request->has("page")) {
-                    $request->request->add([
-                        "page" => 1
-                    ]);
-                }
                 if (!$request->request->has("limit")) {
                     $request->request->add([
                         "limit" => 10
@@ -439,11 +404,6 @@ class IncomingDataValidation
                     "limit" => ["bail", "filled", "numeric", "gte:1", "lte:100"],
                     "page" => ["bail", "filled", "numeric", "gte:1"]
                 ]);
-                if (!$request->request->has("page")) {
-                    $request->request->add([
-                        "page" => 1
-                    ]);
-                }
                 if (!$request->request->has("limit")) {
                     $request->request->add([
                         "limit" => 10
@@ -454,11 +414,6 @@ class IncomingDataValidation
                     "limit" => ["bail", "filled", "numeric", "gte:1", "lte:100"],
                     "page" => ["bail", "filled", "numeric", "gte:1"]
                 ]);
-                if (!$request->request->has("page")) {
-                    $request->request->add([
-                        "page" => 1
-                    ]);
-                }
                 if (!$request->request->has("limit")) {
                     $request->request->add([
                         "limit" => 10
@@ -470,11 +425,6 @@ class IncomingDataValidation
                     "limit" => ["bail", "filled", "numeric", "gte:1", "lte:100"],
                     "page" => ["bail", "filled", "numeric", "gte:1"]
                 ]);
-                if (!$request->request->has("page")) {
-                    $request->request->add([
-                        "page" => 1
-                    ]);
-                }
                 if (!$request->request->has("limit")) {
                     $request->request->add([
                         "limit" => 10
@@ -485,11 +435,6 @@ class IncomingDataValidation
                     "limit" => ["bail", "filled", "numeric", "gte:1", "lte:100"],
                     "page" => ["bail", "filled", "numeric", "gte:1"]
                 ]);
-                if (!$request->request->has("page")) {
-                    $request->request->add([
-                        "page" => 1
-                    ]);
-                }
                 if (!$request->request->has("limit")) {
                     $request->request->add([
                         "limit" => 10
@@ -516,11 +461,6 @@ class IncomingDataValidation
                     "limit" => ["bail", "filled", "numeric", "gte:1", "lte:100"],
                     "page" => ["bail", "filled", "numeric", "gte:1"]
                 ]);
-                if (!$request->request->has("page")) {
-                    $request->add([
-                        "page" => 2
-                    ]);
-                }
                 if (!$request->request->has("limit")) {
                     $request->request->add([
                         "limit" => 10
@@ -531,11 +471,6 @@ class IncomingDataValidation
                     "limit" => ["bail", "filled", "numeric", "gte:1", "lte:100"],
                     "page" => ["bail", "filled", "numeric", "gte:1"]
                 ]);
-                if (!$request->request->has("page")) {
-                    $request->request->add([
-                        "page" => 1
-                    ]);
-                }
                 if (!$request->request->has("limit")) {
                     $request->request->add([
                         "limit" => 10
