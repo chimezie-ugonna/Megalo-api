@@ -11,6 +11,7 @@ use App\Custom\NotificationManager;
 use Illuminate\Http\Request;
 use App\Custom\PaymentManager;
 use App\Custom\SmsManager;
+use App\Custom\WebSocket;
 use App\Models\Earning;
 use App\Models\Notification;
 use App\Models\Property;
@@ -219,6 +220,10 @@ class UserController extends Controller
             $data = $data->map(function ($item) use ($request) {
                 $has_unseen_notification = Notification::where("receiver_user_id", $request->request->get("user_id"))->where("seen", false)->exists();
                 $item->has_unseen_notification = $has_unseen_notification;
+                $item->pusher_app_key = getenv("PUSHER_APP_KEY");
+                $item->pusher_app_cluster = getenv("PUSHER_APP_CLUSTER");
+                $item->pusher_channel_name = getenv("PUSHER_CHANNEL_NAME");
+                $item->pusher_event_name = getenv("PUSHER_EVENT_NAME");
                 return $item;
             });
             return response()->json([
@@ -323,6 +328,7 @@ class UserController extends Controller
     public function verifyIdentityWebhook(Request $request)
     {
         if (User::where("user_id", $request->request->get("clientId"))->exists() && User::where("user_id", $request->request->get("clientId"))->value("identity_verification_status") != "verified") {
+            $websocket = new WebSocket();
             if ($request->request->get("final") && $request->request->get("status")["overall"] == "APPROVED" || $request->request->get("final") && $request->request->get("status")["overall"] == "DENIED" || $request->request->get("final") && $request->request->get("status")["overall"] == "SUSPECTED") {
                 $status = "verified";
                 $body_key = "identity_verification_success_body";
@@ -394,6 +400,7 @@ class UserController extends Controller
 
                 if ($status != "verified") {
                     User::find($request->request->get("clientId"))->update(["identity_verification_status" => "unverified"]);
+                    $websocket->trigger(["type" => "identity_verification", "status" => "unverified"]);
                 }
 
                 $notification_manager = new NotificationManager();
@@ -412,6 +419,7 @@ class UserController extends Controller
                 ), array(), "user_specific");
             } else if (User::where("user_id", $request->request->get("clientId"))->value("identity_verification_status") != "pending") {
                 User::find($request->request->get("clientId"))->update(["identity_verification_status" => "pending"]);
+                $websocket->trigger(["type" => "identity_verification", "status" => "pending"]);
             }
         }
         return response()->json([
