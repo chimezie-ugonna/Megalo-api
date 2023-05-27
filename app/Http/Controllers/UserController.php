@@ -40,7 +40,6 @@ class UserController extends Controller
             ]);
         } else {
             if ($request->request->has("update") && $request->filled("update") && $request->request->get("update") && User::where("user_id", "!=", $request->request->get("user_id"))->where("phone_number", $request->request->get("phone_number"))->exists()) {
-                $localization = new Localization($request->header("app-language-code", ""), []);
                 return response()->json([
                     "status" => false,
                     "message" => "The phone number provided has been taken."
@@ -63,7 +62,6 @@ class UserController extends Controller
 
         if ($request->request->get("type") == "sms") {
             if ($request->request->has("update") && $request->filled("update") && $request->request->get("update") && User::where("user_id", "!=", $request->request->get("user_id"))->where("phone_number", $request->request->get("phone_number"))->exists()) {
-                $localization = new Localization($request->header("app-language-code", ""), []);
                 return response()->json([
                     "status" => false,
                     "message" => "The phone number provided has been taken."
@@ -114,7 +112,6 @@ class UserController extends Controller
                     "data" => $data
                 ], 200);
             } else if ($status->status == "pending") {
-                $localization = new Localization($request->header("app-language-code", ""), []);
                 return response()->json([
                     "status" => false,
                     "message" => "The otp verification was unsuccessful. Code is incorrect."
@@ -174,7 +171,6 @@ class UserController extends Controller
                         $has_referral = true;
                     }
                 } else {
-                    $localization = new Localization($request->header("app-language-code", ""), []);
                     return response()->json([
                         "status" => false,
                         "message" => "Invalid referral code."
