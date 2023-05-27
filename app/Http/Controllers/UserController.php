@@ -43,8 +43,7 @@ class UserController extends Controller
                 $localization = new Localization($request->header("app-language-code", ""), []);
                 return response()->json([
                     "status" => false,
-                    "message" => "The phone number provided has been taken.",
-                    "client_message" => $localization->getText("taken_phone_number")
+                    "message" => "The phone number provided has been taken."
                 ], 409);
             }
             $send = new SmsManager();
@@ -67,8 +66,7 @@ class UserController extends Controller
                 $localization = new Localization($request->header("app-language-code", ""), []);
                 return response()->json([
                     "status" => false,
-                    "message" => "The phone number provided has been taken.",
-                    "client_message" => $localization->getText("taken_phone_number")
+                    "message" => "The phone number provided has been taken."
                 ], 409);
             }
         }
@@ -119,8 +117,7 @@ class UserController extends Controller
                 $localization = new Localization($request->header("app-language-code", ""), []);
                 return response()->json([
                     "status" => false,
-                    "message" => "The otp verification was unsuccessful. Code is incorrect.",
-                    "client_message" => $localization->getText("incorrect_otp_code")
+                    "message" => "The otp verification was unsuccessful. Code is incorrect."
                 ], 403);
             } else {
                 return response()->json([
@@ -180,8 +177,7 @@ class UserController extends Controller
                     $localization = new Localization($request->header("app-language-code", ""), []);
                     return response()->json([
                         "status" => false,
-                        "message" => "Invalid referral code.",
-                        "client_message" => $localization->getText("invalid_referral_code")
+                        "message" => "Invalid referral code."
                     ], 404);
                 }
             }
