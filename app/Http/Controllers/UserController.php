@@ -77,6 +77,7 @@ class UserController extends Controller
 
     public function verifyOtp(Request $request)
     {
+        $websocket = new WebSocket();
         /*if ($request->request->get("type") == "email") {
             $send = new EmailManager();
             $status = $send->verifyOtp($request->request->get("email"), $request->request->get("otp"));
@@ -90,6 +91,7 @@ class UserController extends Controller
                 $message = "Otp was successfully verified.";
                 if ($request->request->get("type") == "email") {
                     User::find($request->request->get("user_id"))->update(["email" => $request->request->get("email"), "email_verified" => true]);
+                    $websocket->trigger(["user_id" => $request->request->get("user_id"), "type" => "email_verification", "status" => true]);
                     $message = "Otp was successfully verified and email was updated successfully.";
                 } else {
                     if ($request->request->has("update") && $request->filled("update") && $request->request->get("update")) {
@@ -133,6 +135,7 @@ class UserController extends Controller
         $message = "The otp was not verified because our twilio credit is exhausted. But for testing purposes, this response is successful.";
         if ($request->request->get("type") == "email") {
             User::find($request->request->get("user_id"))->update(["email" => $request->request->get("email"), "email_verified" => true]);
+            $websocket->trigger(["user_id" => $request->request->get("user_id"), "type" => "email_verification", "status" => true]);
             $message = "The otp was not verified because our twilio credit is exhausted. But for testing purposes, this response is successful and email was updated successfully.";
         } else {
             if ($request->request->has("update") && $request->filled("update") && $request->request->get("update")) {
@@ -392,7 +395,7 @@ class UserController extends Controller
 
                 if ($status != "verified") {
                     User::find($request->request->get("clientId"))->update(["identity_verification_status" => "unverified"]);
-                    $websocket->trigger(["type" => "identity_verification", "status" => "unverified"]);
+                    $websocket->trigger(["user_id" => $request->request->get("clientId"), "type" => "identity_verification", "status" => "unverified"]);
                 }
 
                 $notification_manager = new NotificationManager();
@@ -411,7 +414,7 @@ class UserController extends Controller
                 ), array(), "user_specific");
             } else if (User::where("user_id", $request->request->get("clientId"))->value("identity_verification_status") != "pending") {
                 User::find($request->request->get("clientId"))->update(["identity_verification_status" => "pending"]);
-                $websocket->trigger(["type" => "identity_verification", "status" => "pending"]);
+                $websocket->trigger(["user_id" => $request->request->get("clientId"), "type" => "identity_verification", "status" => "pending"]);
             }
         }
         return response()->json([
