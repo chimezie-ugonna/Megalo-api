@@ -91,7 +91,7 @@ class UserController extends Controller
                 $message = "Otp was successfully verified.";
                 if ($request->request->get("type") == "email") {
                     User::find($request->request->get("user_id"))->update(["email" => $request->request->get("email"), "email_verified" => true]);
-                    $websocket->trigger(["user_id" => $request->request->get("user_id"), "type" => "email_verification", "status" => true]);
+                    $websocket->trigger(["user_id" => $request->request->get("user_id"), "type" => "email_verification", "email" => $request->request->get("email"), "status" => true]);
                     $message = "Otp was successfully verified and email was updated successfully.";
                 } else {
                     if ($request->request->has("update") && $request->filled("update") && $request->request->get("update")) {
@@ -135,7 +135,7 @@ class UserController extends Controller
         $message = "The otp was not verified because our twilio credit is exhausted. But for testing purposes, this response is successful.";
         if ($request->request->get("type") == "email") {
             User::find($request->request->get("user_id"))->update(["email" => $request->request->get("email"), "email_verified" => true]);
-            $websocket->trigger(["user_id" => $request->request->get("user_id"), "type" => "email_verification", "status" => true]);
+            $websocket->trigger(["user_id" => $request->request->get("user_id"), "type" => "email_verification", "email" => $request->request->get("email"), "status" => true]);
             $message = "The otp was not verified because our twilio credit is exhausted. But for testing purposes, this response is successful and email was updated successfully.";
         } else {
             if ($request->request->has("update") && $request->filled("update") && $request->request->get("update")) {
@@ -434,6 +434,8 @@ class UserController extends Controller
             }
         }
         User::find($request->request->get("user_id"))->update($request->all());
+        $websocket = new WebSocket();
+        $websocket->trigger(["user_id" => $request->request->get("user_id"), "type" => "user_data_update", "first_name" => $request->request->get("first_name"), "last_name" => $request->request->get("last_name")]);
         return response()->json([
             "status" => true,
             "message" => "User data updated successfully.",

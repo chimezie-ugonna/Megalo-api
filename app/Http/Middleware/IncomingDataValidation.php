@@ -270,10 +270,11 @@ class IncomingDataValidation
                 ]);
             } else if ($request->path() == "api/v1/notification/update") {
                 $request->validate([
-                    "notification_id" => ["bail", "required"],
-                    "seen" => ["bail", "filled", "boolean"],
+                    "notification_id" => ["bail", "prohibited_if:seen_all,true,1", "required_without:seen_all"],
+                    "seen_all" => ["bail", "filled", "boolean"],
+                    "seen" => ["bail", "filled", "boolean", "prohibited_if:seen_all,true,1"],
+                    "tapped" => ["bail", "filled", "boolean", "prohibited_if:seen_all,true,1"],
                     "tappable" => ["bail", "prohibited"],
-                    "tapped" => ["bail", "filled", "boolean"],
                     "redirection_page" => ["bail", "prohibited"],
                     "redirection_page_id" => ["bail", "prohibited"],
                     "sender_user_id" => ["bail", "prohibited"],

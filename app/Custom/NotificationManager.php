@@ -90,8 +90,15 @@ class NotificationManager
             }
           }
         }
-
+        $trigger = false;
+        if (!Notification::where("receiver_user_id", $user_id)->where("seen", false)->exists()) {
+          $trigger = true;
+        }
         Notification::Create($array);
+        if ($trigger) {
+          $websocket = new WebSocket();
+          $websocket->trigger(["user_id" => $user_id, "type" => "has_unseen_notification", "status" => true]);
+        }
       }
     }
   }

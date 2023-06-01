@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Custom\NotificationManager;
+use App\Custom\WebSocket;
 use App\Models\Notification;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -83,17 +84,29 @@ class NotificationController extends Controller
 
     public function update(Request $request)
     {
-        if (Notification::where("notification_id", $request->request->get("notification_id"))->exists()) {
-            Notification::where("notification_id", $request->request->get("notification_id"))->update($request->except(["user_id"]));
+        if ($request->request->has("seen_all") && $request->filled("seen_all") && $request->request->get("seen_all")) {
+            if (Notification::where("receiver_user_id", $request->request->get("user_id"))->where("seen", false)->exists()) {
+                Notification::where("receiver_user_id", $request->request->get("user_id"))->update(["seen" => true]);
+                $websocket = new WebSocket();
+                $websocket->trigger(["user_id" => $request->request->get("user_id"), "type" => "has_unseen_notification", "status" => false]);
+            }
             return response()->json([
                 "status" => true,
                 "message" => "Notification data updated successfully.",
             ], 200);
         } else {
-            return response()->json([
-                "status" => false,
-                "message" => "Notification data not found."
-            ], 404);
+            if (Notification::where("notification_id", $request->request->get("notification_id"))->exists()) {
+                Notification::where("notification_id", $request->request->get("notification_id"))->update($request->except(["user_id"]));
+                return response()->json([
+                    "status" => true,
+                    "message" => "Notification data updated successfully.",
+                ], 200);
+            } else {
+                return response()->json([
+                    "status" => false,
+                    "message" => "Notification data not found."
+                ], 404);
+            }
         }
     }
 
