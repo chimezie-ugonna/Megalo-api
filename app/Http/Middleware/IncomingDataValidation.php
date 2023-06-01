@@ -283,17 +283,17 @@ class IncomingDataValidation
                     "body" => ["bail", "prohibited"]
                 ]);
 
-                if (sizeof($request->all()) <= 1) {
+                if (sizeof($request->all()) < 1 || sizeof($request->all()) == 1 && $request->request->has("notification_id")) {
                     return response()->json([
                         "status" => false,
                         "message" => "There is nothing to update."
                     ], 400)->throwResponse();
-                } else if (!$request->request->has("seen") && !$request->request->has("tapped")) {
+                } else if (!$request->request->has("seen") && !$request->request->has("tapped") && !$request->request->has("seen_all")) {
                     return response()->json([
                         "status" => false,
                         "message" => "You provided an invalid key."
                     ], 400)->throwResponse();
-                } else if (!$request->filled("seen") && !$request->filled("tapped")) {
+                } else if (!$request->filled("seen") && !$request->filled("tapped") && !$request->filled("seen_all")) {
                     return response()->json([
                         "status" => false,
                         "message" => "There is no data to update."
