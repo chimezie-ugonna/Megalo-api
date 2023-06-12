@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Custom\MediaManager;
 use App\Custom\NotificationManager;
+use App\Custom\WebSocket;
 use App\Models\Earning;
 use App\Models\Investment;
 use App\Models\PaidDividend;
@@ -42,6 +43,9 @@ class PropertyController extends Controller
         if ($status) {
             $property = Property::Create($request->all());
             Property::find($property->property_id)->propertyValueHistory()->create(["property_id" => $property->property_id, "value_usd" => $property->value_usd, "value_annual_change_percentage" => $property->value_average_annual_change_percentage]);
+            $websocket = new WebSocket();
+            $request->request->add(["type" => "new_property"]);
+            $websocket->trigger($request->all());
             $notification_manager = new NotificationManager();
             $notification_manager->sendNotification(array(
                 "title_key" => "new_property_available_title",
@@ -267,6 +271,13 @@ class PropertyController extends Controller
                         $request->request->add(["value_usd" => 0, "percentage_available" => 0, "monthly_earning_usd" => 0, "value_average_annual_change_percentage" => 0, "company_percentage" => 0]);
                     }
                     Property::where("property_id", $request->request->get("property_id"))->update($request->except(["user_id"]));
+                    $websocket = new WebSocket();
+                    $data = collect(Property::where("property_id", $request->request->get("property_id"))->get());
+                    $data = $data->map(function ($item) {
+                        $item->type = "update_property";
+                        return $item;
+                    });
+                    $websocket->trigger($data);
                     $investor_user_ids = Investment::where("property_id", $request->request->get("property_id"))->get()->pluck("user_id")->unique();
                     $notification_manager = new NotificationManager();
                     if ($request->request->has("value_usd") && $request->filled("value_usd") && $request->request->get("value_usd") > $current_property_value) {
@@ -389,6 +400,9 @@ class PropertyController extends Controller
                 Property::find($request->get("property_id"))->earning()->delete();
                 Property::find($request->get("property_id"))->propertyValueHistory()->delete();
                 Property::destroy($request->get("property_id"));
+                $websocket = new WebSocket();
+                $request->request->add(["type" => "delete_property"]);
+                $websocket->trigger($request->all());
                 return response()->json([
                     "status" => true,
                     "message" => "Property data deleted successfully.",
