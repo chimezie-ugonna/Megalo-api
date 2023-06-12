@@ -272,12 +272,8 @@ class PropertyController extends Controller
                     }
                     Property::where("property_id", $request->request->get("property_id"))->update($request->except(["user_id"]));
                     $websocket = new WebSocket();
-                    $data = collect(Property::where("property_id", $request->request->get("property_id"))->get());
-                    $data = $data->map(function ($item) {
-                        $item->type = "update_property";
-                        return $item;
-                    });
-                    $websocket->trigger($data);
+                    $request->request->add(["type" => "update_property"]);
+                    $websocket->trigger($request->all());
                     $investor_user_ids = Investment::where("property_id", $request->request->get("property_id"))->get()->pluck("user_id")->unique();
                     $notification_manager = new NotificationManager();
                     if ($request->request->has("value_usd") && $request->filled("value_usd") && $request->request->get("value_usd") > $current_property_value) {
