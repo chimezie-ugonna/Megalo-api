@@ -9,6 +9,7 @@ use App\Models\Earning;
 use App\Models\Investment;
 use App\Models\PaidDividend;
 use App\Models\Property;
+use App\Models\PropertyValueHistory;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -212,6 +213,15 @@ class PropertyController extends Controller
             "status" => true,
             "message" => "All paid dividend data retrieved successfully.",
             "data" => PaidDividend::where("property_id", $request->get("property_id"))->latest()->simplePaginate($request->get("limit"))
+        ], 200);
+    }
+
+    public function readPropertyValueHistory(Request $request)
+    {
+        return response()->json([
+            "status" => true,
+            "message" => "All property value data retrieved successfully.",
+            "data" => PropertyValueHistory::where("property_id", $request->get("property_id"))->latest()->simplePaginate($request->get("limit"))
         ], 200);
     }
 

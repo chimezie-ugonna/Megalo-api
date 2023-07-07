@@ -361,6 +361,17 @@ class IncomingDataValidation
                         "limit" => 10
                     ]);
                 }
+            } else if ($request->path() == "api/v1/property/read_property_value_history") {
+                $request->validate([
+                    "property_id" => ["bail", "required"],
+                    "limit" => ["bail", "filled", "numeric", "gte:1", "lte:100"],
+                    "page" => ["bail", "filled", "numeric", "gte:1"]
+                ]);
+                if (!$request->request->has("limit")) {
+                    $request->request->add([
+                        "limit" => 10
+                    ]);
+                }
             } else if ($request->path() == "api/v1/payment/read" || $request->path() == "api/v1/payment/read_user_and_payment_specific") {
                 $request->validate([
                     "payment_id" => ["bail", "required"]
