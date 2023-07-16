@@ -177,10 +177,10 @@ class PropertyController extends Controller
                 $data["potential_earning"] = $potential_earning;
             } else {
                 for ($i = 0; $i < 10; $i++) {
-                    $potential_property_value = $current_property_value * (1 + ($value_average_annual_change_percentage / 100)) ** $i++;
+                    $potential_property_value = $current_property_value * (1 + ($value_average_annual_change_percentage / 100)) ** ($i + 1);
                     $potential_investment_value = ($investment_percentage / 100) * $potential_property_value;
 
-                    $potential_property_earning = $current_property_monthly_earning * ($i++ * 12);
+                    $potential_property_earning = $current_property_monthly_earning * (($i + 1) * 12);
                     $potential_earning = ($investment_percentage / 100) * $potential_property_earning;
 
                     $data[$i] = ["potential_investment_value" => $potential_investment_value, "potential_earning" => $potential_earning];
