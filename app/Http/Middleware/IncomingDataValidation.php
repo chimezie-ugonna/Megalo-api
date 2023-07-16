@@ -132,7 +132,7 @@ class IncomingDataValidation
                 $request->validate([
                     "property_id" => ["bail", "required"],
                     "amount_usd" => ["bail", "required", "numeric", "gte:0.50", "lte:999999.99"],
-                    "time_period" => ["bail", "required", "numeric"]
+                    "time_period" => ["bail", "filled", "numeric"]
                 ]);
             } else if ($request->path() == "api/v1/payment/create") {
                 $request->validate([
