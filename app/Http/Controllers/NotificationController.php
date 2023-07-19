@@ -77,7 +77,8 @@ class NotificationController extends Controller
             "status" => true,
             "message" => "Data retrieved successfully.",
             "data" => [
-                ["title_key" => "appreciation_title", "body_key" => "appreciation_body", "description" => "This is a notification to appreciate the recipient(s) for using Megalo."]
+                ["title_key" => "appreciation_title", "body_key" => "appreciation_body", "description" => "This is a notification to appreciate the recipient(s) for using Megalo."],
+                ["title_key" => "test", "body_key" => "test", "description" => "This is a test notification"]
             ]
         ], 200);
     }
