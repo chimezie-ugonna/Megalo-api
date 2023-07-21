@@ -283,7 +283,7 @@ class UserController extends Controller
         return response()->json([
             "status" => true,
             "message" => "Dashboard data retrieved successfully.",
-            "data" => ["user_count" => User::count(), "property_count" => Property::count(), "investor_count" => count(Investment::all()->pluck("user_id")->unique()), "all_property_value" => Property::all()->sum("value_usd")]
+            "data" => ["user_count" => User::count(), "property_count" => Property::count(), "investor_count" => count(Investment::all()->pluck("user_id")->unique()), "all_property_value" => Property::all()->sum("value_usd"), "all_investment_value" => Investment::all()->sum("amount_invested_usd")]
         ], 200);
     }
 
