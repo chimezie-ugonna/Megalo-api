@@ -13,6 +13,7 @@ use App\Custom\PaymentManager;
 use App\Custom\SmsManager;
 use App\Custom\WebSocket;
 use App\Models\Earning;
+use App\Models\Investment;
 use App\Models\Notification;
 use App\Models\Property;
 use App\Models\Referral;
@@ -282,7 +283,7 @@ class UserController extends Controller
         return response()->json([
             "status" => true,
             "message" => "Dashboard data retrieved successfully.",
-            "data" => ["user_count" => User::count(), "property_count" => Property::count(), "all_property_value" => Property::all()->sum("value_usd")]
+            "data" => ["user_count" => User::count(), "property_count" => Property::count(), "investor_count" => count(Investment::all()->pluck("user_id")->unique()), "all_property_value" => Property::all()->sum("value_usd")]
         ], 200);
     }
 
