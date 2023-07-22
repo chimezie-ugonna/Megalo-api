@@ -93,6 +93,13 @@ class TokenValidation
                                         "message" => "Unauthorized access, only admins can access this endpoint."
                                     ], 403);
                                 }
+
+                                if ($request->header("access-type") != "" && $request->header("access-type") != "web" && $request->header("access-type") != "postman") {
+                                    return response()->json([
+                                        "status" => false,
+                                        "message" => "Unauthorized access, this endpoint can not be accessed with the provided access-type header."
+                                    ], 403);
+                                }
                             }
 
                             switch ($request->path()) {

@@ -216,11 +216,26 @@ class PropertyController extends Controller
     public function read(Request $request)
     {
         if (Property::where("property_id", $request->get("property_id"))->exists()) {
-            return response()->json([
-                "status" => true,
-                "message" => "Property data retrieved successfully.",
-                "data" => Property::where("property_id", $request->get("property_id"))->get()
-            ], 200);
+            if (!Property::where("property_id", $request->request->get("property_id"))->value("sold")) {
+                return response()->json([
+                    "status" => true,
+                    "message" => "Property data retrieved successfully.",
+                    "data" => Property::where("property_id", $request->get("property_id"))->get()
+                ], 200);
+            } else {
+                if (User::where("user_id", $request->request->get("user_id"))->value("is_admin") && $request->header("access-type") != "mobile") {
+                    return response()->json([
+                        "status" => true,
+                        "message" => "Property data retrieved successfully.",
+                        "data" => Property::where("property_id", $request->get("property_id"))->get()
+                    ], 200);
+                } else {
+                    return response()->json([
+                        "status" => false,
+                        "message" => "This property has been sold and its details can no longer be read without authorized access."
+                    ], 403);
+                }
+            }
         } else {
             return response()->json([
                 "status" => false,
@@ -231,17 +246,17 @@ class PropertyController extends Controller
 
     public function readAll(Request $request)
     {
-        if (!User::where("user_id", $request->request->get("user_id"))->value("is_admin")) {
+        if (User::where("user_id", $request->request->get("user_id"))->value("is_admin") && $request->header("access-type") != "mobile") {
             return response()->json([
                 "status" => true,
                 "message" => "All property data retrieved successfully.",
-                "data" => Property::where("sold", false)->latest()->simplePaginate($request->get("limit"))
+                "data" => Property::latest()->simplePaginate($request->get("limit"))
             ], 200);
         } else {
             return response()->json([
                 "status" => true,
                 "message" => "All property data retrieved successfully.",
-                "data" => Property::latest()->simplePaginate($request->get("limit"))
+                "data" => Property::where("sold", false)->latest()->simplePaginate($request->get("limit"))
             ], 200);
         }
     }
@@ -409,7 +424,7 @@ class PropertyController extends Controller
             } else {
                 return response()->json([
                     "status" => false,
-                    "message" => "This property has been sold so its details can not be edited any longer."
+                    "message" => "This property has been sold so its details can not be updated any longer."
                 ], 403);
             }
         } else {
