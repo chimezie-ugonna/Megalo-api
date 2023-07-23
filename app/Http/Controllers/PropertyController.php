@@ -257,7 +257,7 @@ class PropertyController extends Controller
                 "status" => true,
                 "message" => "All property data retrieved successfully.",
                 "data" => Property::where("sold", false)->latest()->simplePaginate($request->get("limit"))
-            ], 200);
+            ], 400);
         }
     }
 
