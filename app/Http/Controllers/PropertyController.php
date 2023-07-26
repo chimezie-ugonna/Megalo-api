@@ -272,28 +272,34 @@ class PropertyController extends Controller
     {
         if (Property::where("property_id", $request->get("property_id"))->exists()) {
             if (!Property::where("property_id", $request->request->get("property_id"))->value("sold")) {
+                $all_paid_dividend_amount = PaidDividend::where("property_id", $request->get("property_id"))->exists() ? PaidDividend::where("property_id", $request->get("property_id"))->sum("amount_usd") : 0;
+                $dividend_percentage_increase = (Property::where("property_id", $request->get("property_id"))->exists() && PaidDividend::where("property_id", $request->get("property_id"))->exists()) ? ((Property::where("property_id", $request->get("property_id"))->value("monthly_earning_usd") - PaidDividend::where("property_id", $request->get("property_id"))->oldest()->first()->amount_usd) / PaidDividend::where("property_id", $request->get("property_id"))->oldest()->first()->amount_usd) * 100 : 0;
+                $value_percentage_increase = (Property::where("property_id", $request->get("property_id"))->exists() && PropertyValueHistory::where("property_id", $request->get("property_id"))->exists()) ? ((Property::where("property_id", $request->get("property_id"))->value("value_usd") - PropertyValueHistory::where("property_id", $request->get("property_id"))->oldest()->first()->value_usd) / PropertyValueHistory::where("property_id", $request->get("property_id"))->oldest()->first()->value_usd) * 100 : 0;
                 return response()->json([
                     "status" => true,
                     "message" => "Property metric data retrieved successfully.",
                     "data" => [
                         "paid_dividend_count" => PaidDividend::where("property_id", $request->get("property_id"))->count(),
                         "investor_count" => Investment::where("property_id", $request->get("property_id"))->count(),
-                        "all_paid_dividend_amount" => PaidDividend::where("property_id", $request->get("property_id"))->sum("amount_usd"),
-                        "dividend_percentage_increase" => ((Property::where("property_id", $request->get("property_id"))->value("monthly_earning_usd") - PaidDividend::where("property_id", $request->get("property_id"))->oldest()->first()->amount_usd) / PaidDividend::where("property_id", $request->get("property_id"))->oldest()->first()->amount_usd) * 100,
-                        "value_percentage_increase" => ((Property::where("property_id", $request->get("property_id"))->value("value_usd") - PropertyValueHistory::where("property_id", $request->get("property_id"))->oldest()->first()->value_usd) / PropertyValueHistory::where("property_id", $request->get("property_id"))->oldest()->first()->value_usd) * 100
+                        "all_paid_dividend_amount" => $all_paid_dividend_amount,
+                        "dividend_percentage_increase" => $dividend_percentage_increase,
+                        "value_percentage_increase" => $value_percentage_increase
                     ]
                 ], 200);
             } else {
                 if (User::where("user_id", $request->request->get("user_id"))->value("is_admin") && $request->header("access-type") != "mobile") {
+                    $all_paid_dividend_amount = PaidDividend::where("property_id", $request->get("property_id"))->exists() ? PaidDividend::where("property_id", $request->get("property_id"))->sum("amount_usd") : 0;
+                    $dividend_percentage_increase = (Property::where("property_id", $request->get("property_id"))->exists() && PaidDividend::where("property_id", $request->get("property_id"))->exists()) ? ((Property::where("property_id", $request->get("property_id"))->value("monthly_earning_usd") - PaidDividend::where("property_id", $request->get("property_id"))->oldest()->first()->amount_usd) / PaidDividend::where("property_id", $request->get("property_id"))->oldest()->first()->amount_usd) * 100 : 0;
+                    $value_percentage_increase = (Property::where("property_id", $request->get("property_id"))->exists() && PropertyValueHistory::where("property_id", $request->get("property_id"))->exists()) ? ((Property::where("property_id", $request->get("property_id"))->value("value_usd") - PropertyValueHistory::where("property_id", $request->get("property_id"))->oldest()->first()->value_usd) / PropertyValueHistory::where("property_id", $request->get("property_id"))->oldest()->first()->value_usd) * 100 : 0;
                     return response()->json([
                         "status" => true,
                         "message" => "Property metric data retrieved successfully.",
                         "data" => [
                             "paid_dividend_count" => PaidDividend::where("property_id", $request->get("property_id"))->count(),
                             "investor_count" => Investment::where("property_id", $request->get("property_id"))->count(),
-                            "all_paid_dividend_amount" => PaidDividend::where("property_id", $request->get("property_id"))->sum("amount_usd"),
-                            "dividend_percentage_increase" => ((Property::where("property_id", $request->get("property_id"))->value("monthly_earning_usd") - PaidDividend::where("property_id", $request->get("property_id"))->oldest()->first()->amount_usd) / PaidDividend::where("property_id", $request->get("property_id"))->oldest()->first()->amount_usd) * 100,
-                            "value_percentage_increase" => ((Property::where("property_id", $request->get("property_id"))->value("value_usd") - PropertyValueHistory::where("property_id", $request->get("property_id"))->oldest()->first()->value_usd) / PropertyValueHistory::where("property_id", $request->get("property_id"))->oldest()->first()->value_usd) * 100
+                            "all_paid_dividend_amount" => $all_paid_dividend_amount,
+                            "dividend_percentage_increase" => $dividend_percentage_increase,
+                            "value_percentage_increase" => $value_percentage_increase
                         ]
                     ], 200);
                 } else {
