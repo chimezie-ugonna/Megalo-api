@@ -63,6 +63,7 @@ Route::middleware([EnsureSecureUrl::class, CheckHeader::class, IncomingDataValid
         Route::post("/property/calculate_potential", "calculatePotential");
         Route::get("/property/read", "read");
         Route::get("/property/read_all", "readAll");
+        Route::get("/property/read_metric", "readMetric");
         Route::get("/property/read_paid_dividend", "readPaidDividend");
         Route::get("/property/read_property_value_history", "readPropertyValueHistory");
         Route::put("/property/update", "update");

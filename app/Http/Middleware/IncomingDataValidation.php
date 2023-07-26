@@ -350,6 +350,10 @@ class IncomingDataValidation
                         "limit" => 10
                     ]);
                 }
+            } else if ($request->path() == "api/v1/property/read_metric") {
+                $request->validate([
+                    "property_id" => ["bail", "required"]
+                ]);
             } else if ($request->path() == "api/v1/property/read_paid_dividend") {
                 $request->validate([
                     "property_id" => ["bail", "required"],

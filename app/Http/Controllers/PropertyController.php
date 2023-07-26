@@ -268,6 +268,49 @@ class PropertyController extends Controller
         }
     }
 
+    public function readMetric(Request $request)
+    {
+        if (Property::where("property_id", $request->get("property_id"))->exists()) {
+            if (!Property::where("property_id", $request->request->get("property_id"))->value("sold")) {
+                return response()->json([
+                    "status" => true,
+                    "message" => "Property metric data retrieved successfully.",
+                    "data" => [
+                        "paid_dividend_count" => PaidDividend::where("property_id", $request->get("property_id"))->count(),
+                        "investor_count" => Investment::where("property_id", $request->get("property_id"))->count(),
+                        "all_paid_dividend_amount" => PaidDividend::where("property_id", $request->get("property_id"))->sum("amount_usd"),
+                        "dividend_percentage_increase" => ((Property::where("property_id", $request->get("property_id"))->value("monthly_earning_usd") - PaidDividend::where("property_id", $request->get("property_id"))->oldest()->first()->amount_usd) / PaidDividend::where("property_id", $request->get("property_id"))->oldest()->first()->amount_usd) * 100,
+                        "value_percentage_increase" => ((Property::where("property_id", $request->get("property_id"))->value("value_usd") - PropertyValueHistory::where("property_id", $request->get("property_id"))->oldest()->first()->value_usd) / PropertyValueHistory::where("property_id", $request->get("property_id"))->oldest()->first()->value_usd) * 100
+                    ]
+                ], 200);
+            } else {
+                if (User::where("user_id", $request->request->get("user_id"))->value("is_admin") && $request->header("access-type") != "mobile") {
+                    return response()->json([
+                        "status" => true,
+                        "message" => "Property metric data retrieved successfully.",
+                        "data" => [
+                            "paid_dividend_count" => PaidDividend::where("property_id", $request->get("property_id"))->count(),
+                            "investor_count" => Investment::where("property_id", $request->get("property_id"))->count(),
+                            "all_paid_dividend_amount" => PaidDividend::where("property_id", $request->get("property_id"))->sum("amount_usd"),
+                            "dividend_percentage_increase" => ((Property::where("property_id", $request->get("property_id"))->value("monthly_earning_usd") - PaidDividend::where("property_id", $request->get("property_id"))->oldest()->first()->amount_usd) / PaidDividend::where("property_id", $request->get("property_id"))->oldest()->first()->amount_usd) * 100,
+                            "value_percentage_increase" => ((Property::where("property_id", $request->get("property_id"))->value("value_usd") - PropertyValueHistory::where("property_id", $request->get("property_id"))->oldest()->first()->value_usd) / PropertyValueHistory::where("property_id", $request->get("property_id"))->oldest()->first()->value_usd) * 100
+                        ]
+                    ], 200);
+                } else {
+                    return response()->json([
+                        "status" => false,
+                        "message" => "This property has been sold and its metric can no longer be read without authorized access."
+                    ], 403);
+                }
+            }
+        } else {
+            return response()->json([
+                "status" => false,
+                "message" => "Property data not found."
+            ], 404);
+        }
+    }
+
     public function readPaidDividend(Request $request)
     {
         return response()->json([
