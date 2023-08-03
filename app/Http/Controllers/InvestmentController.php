@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Custom\NotificationManager;
 use App\Custom\PaymentManager;
+use App\Custom\WebSocket;
 use App\Models\Investment;
 use App\Models\Property;
 use App\Models\Referral;
@@ -41,6 +42,8 @@ class InvestmentController extends Controller
                                     $request->request->add(["percentage" => $investment_percentage]);
                                     Investment::updateOrCreate(["user_id" => $request->request->get("user_id"), "property_id" => $request->request->get("property_id")], $request->all());
                                     Property::where("property_id", $request->request->get("property_id"))->update(["percentage_available" => $new_property_percentage_available]);
+                                    $websocket = new WebSocket();
+                                    $websocket->trigger(["type" => "update_property", "percentage_available" => $new_property_percentage_available]);
                                     $new_user_balance = $user_balance - $amount_invested_usd;
                                     User::where("user_id", $request->request->get("user_id"))->update(["balance_usd" => $new_user_balance]);
 
@@ -214,6 +217,8 @@ class InvestmentController extends Controller
 
                 Investment::where("property_id", $request->request->get("property_id"))->where("user_id", $request->request->get("user_id"))->update($request->except(["amount_usd"]));
                 Property::where("property_id", $request->request->get("property_id"))->update(["percentage_available" => $new_property_percentage_available]);
+                $websocket = new WebSocket();
+                $websocket->trigger(["type" => "update_property", "percentage_available" => $new_property_percentage_available]);
 
                 $user_balance = User::where("user_id", $request->request->get("user_id"))->value("balance_usd");
                 $new_user_balance = $user_balance + ($request->request->get("amount_usd") - $fee);
