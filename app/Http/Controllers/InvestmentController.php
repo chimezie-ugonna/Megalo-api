@@ -100,7 +100,7 @@ class InvestmentController extends Controller
                                     return response()->json([
                                         "status" => true,
                                         "message" => "Investment created successfully.",
-                                        "data" => ["user_balance" => $new_user_balance, "property_value" => $property_value, "percentage_available" => $new_property_percentage_available, "investment_percentage" => $investment_percentage]
+                                        "data" => ["balance_usd" => $new_user_balance, "value_usd" => $property_value, "percentage_available" => $new_property_percentage_available, "investment_percentage" => $investment_percentage]
                                     ], 201);
                                 } else {
                                     return response()->json([
