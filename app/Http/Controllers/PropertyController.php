@@ -169,25 +169,19 @@ class PropertyController extends Controller
                         $current_property_monthly_earning = Property::where("property_id", $request->request->get("property_id"))->value("monthly_earning_usd");
 
                         $data = array();
+                        $time_period = 10;
                         if ($request->request->has("time_period") && $request->filled("time_period")) {
-                            $potential_property_value = $current_property_value * (1 + ($value_average_annual_change_percentage / 100)) ** $request->request->get("time_period");
+                            $time_period = $request->request->get("time_period");
+                        }
+
+                        for ($i = 0; $i < $time_period; $i++) {
+                            $potential_property_value = $current_property_value * (1 + ($value_average_annual_change_percentage / 100)) ** ($i + 1);
                             $potential_investment_value = ($investment_percentage / 100) * $potential_property_value;
 
-                            $potential_property_earning = $current_property_monthly_earning * ($request->request->get("time_period") * 12);
+                            $potential_property_earning = $current_property_monthly_earning * (($i + 1) * 12);
                             $potential_earning = ($investment_percentage / 100) * $potential_property_earning;
 
-                            $data["potential_investment_value"] = $potential_investment_value;
-                            $data["potential_earning"] = $potential_earning;
-                        } else {
-                            for ($i = 0; $i < 10; $i++) {
-                                $potential_property_value = $current_property_value * (1 + ($value_average_annual_change_percentage / 100)) ** ($i + 1);
-                                $potential_investment_value = ($investment_percentage / 100) * $potential_property_value;
-
-                                $potential_property_earning = $current_property_monthly_earning * (($i + 1) * 12);
-                                $potential_earning = ($investment_percentage / 100) * $potential_property_earning;
-
-                                $data[$i] = ["potential_investment_value" => $potential_investment_value, "potential_earning" => $potential_earning];
-                            }
+                            $data[$i] = ["potential_investment_value" => $potential_investment_value, "potential_earning" => $potential_earning];
                         }
                         return response()->json([
                             "status" => true,
