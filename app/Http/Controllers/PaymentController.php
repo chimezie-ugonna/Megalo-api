@@ -19,7 +19,7 @@ class PaymentController extends Controller
             if ($user_email_verified) {
                 $user_balance = User::where("user_id", $request->request->get("user_id"))->value("balance_usd");
                 $payment_manager = new PaymentManager();
-                $fee = $payment_manager->getPaymentProcessingFee($request->request->get("amount_usd"), $request->request->get("type"));
+                $fee = $payment_manager->getPaymentProcessingFeeUsd($request->request->get("amount_usd"), $request->request->get("type"));
                 if ($request->request->get("type") == "deposit") {
                     if (User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id") != "") {
                         $list_all_customer_card_response = $payment_manager->manage(array("type" => "list_all_customer_payment_method", "customer_id" => User::where("user_id", $request->request->get("user_id"))->value("payment_customer_id"), "data" => ["type" => "card", "limit" => 1]));
@@ -272,11 +272,11 @@ class PaymentController extends Controller
         $payment_manager = new PaymentManager();
         $list = array();
         if ($request->get("type") == "fee") {
-            $list["payment_processing_fee_deposit_usd"] = $payment_manager->getPaymentProcessingFee($request->get("amount_usd"), "deposit");
-            $list["payment_processing_fee_withdrawal_usd"] = $payment_manager->getPaymentProcessingFee($request->get("amount_usd"), "withdrawal");
-            $list["early_liquidation_fee_usd"] = $payment_manager->getEarlyLiquidationFee($request->get("amount_usd"));
+            $list["payment_processing_fee_deposit_usd"] = $payment_manager->getPaymentProcessingFeeUsd($request->get("amount_usd"), "deposit");
+            $list["payment_processing_fee_withdrawal_usd"] = $payment_manager->getPaymentProcessingFeeUsd($request->get("amount_usd"), "withdrawal");
+            $list["early_liquidation_fee_usd"] = $payment_manager->getEarlyLiquidationFeeUsd($request->get("amount_usd"));
         } else {
-            $list["referral_bonus_usd"] = $payment_manager->getReferralBonus();
+            $list["referral_bonus_usd"] = $payment_manager->getReferralBonusUsd();
         }
         return response()->json([
             "status" => true,

@@ -13,7 +13,7 @@ class PerformWithdrawal
     {
         $request = ["user_id" => $user_id, "payment_id" => $payment_id, "amount_usd" => $amount_usd, "type" => $type];
         $payment_manager = new PaymentManager();
-        $fee = $payment_manager->getPaymentProcessingFee($request["amount_usd"], $request["type"]);
+        $fee = $payment_manager->getPaymentProcessingFeeUsd($request["amount_usd"], $request["type"]);
         $user_balance = User::where("user_id", $request["user_id"])->value("balance_usd");
         if ($user_balance >= $request["amount_usd"] + $fee) {
             $list_all_account_card_response = $payment_manager->manage(array("type" => "list_all_account_payment_method", "account_id" => User::where("user_id", $request["user_id"])->value("payment_account_id"), "data" => ["type" => "card", "limit" => 1]));

@@ -14,7 +14,8 @@ class Referral extends Model
         "referrer_user_id",
         "referree_phone_number",
         "referree_user_id",
-        "rewarded"
+        "rewarded",
+        "reward_usd"
     ];
 
     protected $casts = [

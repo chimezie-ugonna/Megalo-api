@@ -354,7 +354,7 @@ class PaymentManager
     );
   }
 
-  function getPaymentProcessingFee($amount_usd, $type)
+  function getPaymentProcessingFeeUsd($amount_usd, $type)
   {
     if ($type == "withdrawal") {
       return ($amount_usd * 0.029) + 0.10;
@@ -363,12 +363,12 @@ class PaymentManager
     }
   }
 
-  function getEarlyLiquidationFee($amount_usd)
+  function getEarlyLiquidationFeeUsd($amount_usd)
   {
     return $amount_usd * 0.03;
   }
 
-  function getReferralBonus()
+  function getReferralBonusUsd()
   {
     return 5;
   }

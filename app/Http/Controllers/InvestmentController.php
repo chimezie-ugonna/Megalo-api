@@ -55,7 +55,7 @@ class InvestmentController extends Controller
                                                 $total_amount_invested_usd += $amount_invested_usd;
                                             }
                                             if ($total_amount_invested_usd >= 100) {
-                                                $referral_payment_usd = $payment_manager->getReferralBonus();
+                                                $referral_payment_usd = $payment_manager->getReferralBonusUsd();
                                                 if (Referral::where("referree_phone_number", User::where("user_id", $request->request->get("user_id"))->value("phone_number"))->where("rewarded", false)->exists()) {
                                                     $referrer_user_id = Referral::where("referree_phone_number", User::where("user_id", $request->request->get("user_id"))->value("phone_number"))->where("rewarded", false)->value("referrer_user_id");
                                                     $referree_user_id = Referral::where("referree_phone_number", User::where("user_id", $request->request->get("user_id"))->value("phone_number"))->where("rewarded", false)->value("referree_user_id");
@@ -93,7 +93,7 @@ class InvestmentController extends Controller
                                                     ), array("referral_payment_usd" => $referral_payment_usd), "user_specific");
                                                 }
 
-                                                Referral::where("referrer_user_id", $referrer_user_id)->where("referree_user_id", $referree_user_id)->update(["rewarded" => true]);
+                                                Referral::where("referrer_user_id", $referrer_user_id)->where("referree_user_id", $referree_user_id)->update(["rewarded" => true, "reward_usd" => $referral_payment_usd]);
                                             }
                                         }
                                     }
@@ -193,10 +193,10 @@ class InvestmentController extends Controller
             $current_month = date("m");
             $payment_manager = new PaymentManager();
             if ($current_year == $initial_investment_year) {
-                $fee = $payment_manager->getEarlyLiquidationFee($request->request->get("amount_usd"));
+                $fee = $payment_manager->getEarlyLiquidationFeeUsd($request->request->get("amount_usd"));
             } else if (($current_year - $initial_investment_year) <= 1) {
                 if ($current_month < $initial_investment_month) {
-                    $fee = $payment_manager->getEarlyLiquidationFee($request->request->get("amount_usd"));
+                    $fee = $payment_manager->getEarlyLiquidationFeeUsd($request->request->get("amount_usd"));
                 }
             }
             $current_investment_percentage = Investment::where("user_id", $request->request->get("user_id"))->where("property_id", $request->request->get("property_id"))->value("percentage");
