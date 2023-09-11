@@ -372,4 +372,9 @@ class PaymentManager
   {
     return 5;
   }
+
+  function getReferralBonusMinimumInvestmentAmountUsd()
+  {
+    return 20;
+  }
 }

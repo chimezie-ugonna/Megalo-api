@@ -54,7 +54,7 @@ class InvestmentController extends Controller
                                             foreach ($referree_investments as $amount_invested_usd) {
                                                 $total_amount_invested_usd += $amount_invested_usd;
                                             }
-                                            if ($total_amount_invested_usd >= 20) {
+                                            if ($total_amount_invested_usd >= $payment_manager->getReferralBonusMinimumInvestmentAmountUsd()) {
                                                 $referral_payment_usd = $payment_manager->getReferralBonusUsd();
                                                 if (Referral::where("referree_phone_number", User::where("user_id", $request->request->get("user_id"))->value("phone_number"))->where("rewarded", false)->exists()) {
                                                     $referrer_user_id = Referral::where("referree_phone_number", User::where("user_id", $request->request->get("user_id"))->value("phone_number"))->where("rewarded", false)->value("referrer_user_id");
