@@ -289,10 +289,11 @@ class UserController extends Controller
 
     public function readReferralData(Request $request)
     {
+        $payment_manager = new PaymentManager();
         return response()->json([
             "status" => true,
             "message" => "Referral data retrieved successfully.",
-            "data" => ["total_referral" => Referral::where("referrer_user_id", $request->request->get("user_id"))->count(), "total_rewarded" => Referral::where("referrer_user_id", $request->request->get("user_id"))->where("rewarded", true)->count(), "total_pending" => Referral::where("referrer_user_id", $request->request->get("user_id"))->where("rewarded", false)->count(), "total_reward" => Referral::where("referrer_user_id", $request->request->get("user_id"))->sum("reward_usd")]
+            "data" => ["total_referral" => Referral::where("referrer_user_id", $request->request->get("user_id"))->count(), "total_rewarded" => Referral::where("referrer_user_id", $request->request->get("user_id"))->where("rewarded", true)->count(), "total_pending" => Referral::where("referrer_user_id", $request->request->get("user_id"))->where("rewarded", false)->count(), "total_reward" => Referral::where("referrer_user_id", $request->request->get("user_id"))->sum("reward_usd"), "reward" => $payment_manager->getReferralBonusUsd()]
         ], 200);
     }
 
