@@ -377,4 +377,9 @@ class PaymentManager
   {
     return 20;
   }
+
+  function getMinimumInvestmentAmountUsd()
+  {
+    return 0.5;
+  }
 }
