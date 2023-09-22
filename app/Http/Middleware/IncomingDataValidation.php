@@ -422,7 +422,7 @@ class IncomingDataValidation
                 ]);
                 if (!$request->request->has("limit")) {
                     $request->request->add([
-                        "limit" => 10
+                        "limit" => 20
                     ]);
                 }
             } else if ($request->path() == "api/v1/notification/read_user_specific") {
@@ -432,7 +432,7 @@ class IncomingDataValidation
                 ]);
                 if (!$request->request->has("limit")) {
                     $request->request->add([
-                        "limit" => 10
+                        "limit" => 20
                     ]);
                 }
             } else if ($request->path() == "api/v1/user/read_earning") {
@@ -472,6 +472,17 @@ class IncomingDataValidation
                     "limit" => ["bail", "filled", "numeric", "gte:1", "lte:100"],
                     "starting_after" => ["bail", "filled", "not_in:null"]
                 ]);
+            } else if ($request->path() == "api/v1/user/read_referree") {
+                $request->validate([
+                    "limit" => ["bail", "filled", "numeric", "gte:1", "lte:100"],
+                    "page" => ["bail", "filled", "numeric", "gte:1"],
+                    "type" => ["bail", "filled", "in:completed,pending"]
+                ]);
+                if (!$request->request->has("limit")) {
+                    $request->request->add([
+                        "limit" => 20
+                    ]);
+                }
             } else if ($request->path() == "api/v1/user/read_all") {
                 $request->validate([
                     "limit" => ["bail", "filled", "numeric", "gte:1", "lte:100"],

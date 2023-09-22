@@ -297,6 +297,27 @@ class UserController extends Controller
         ], 200);
     }
 
+    public function readReferree(Request $request)
+    {
+        if ($request->request->has("type") && $request->filled("type")) {
+            $rewarded = false;
+            if ($request->get("limit") == "completed") {
+                $rewarded = true;
+            }
+            return response()->json([
+                "status" => true,
+                "message" => "Referree data retrieved successfully.",
+                "data" => Referral::where("referrer_user_id", $request->request->get("user_id"))->where("rewarded", $rewarded)->join("users", "users.user_id", "=", "referrals.referree_user_id")->select("referrals.*", "users.first_name", "users.last_name")->latest()->simplePaginate($request->get("limit"))
+            ], 200);
+        } else {
+            return response()->json([
+                "status" => true,
+                "message" => "Referree data retrieved successfully.",
+                "data" => Referral::where("referrer_user_id", $request->request->get("user_id"))->join("users", "users.user_id", "=", "referrals.referree_user_id")->select("referrals.*", "users.first_name", "users.last_name")->latest()->simplePaginate($request->get("limit"))
+            ], 200);
+        }
+    }
+
     public function verifyIdentity(Request $request)
     {
         if (User::where("user_id", $request->request->get("user_id"))->value("identity_verification_status") != "verified") {
