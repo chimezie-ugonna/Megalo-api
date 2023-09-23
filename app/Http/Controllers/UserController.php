@@ -299,9 +299,9 @@ class UserController extends Controller
 
     public function readReferree(Request $request)
     {
-        if ($request->request->has("type") && $request->filled("type")) {
+        if ($request->has("type") && $request->filled("type")) {
             $rewarded = false;
-            if ($request->get("limit") == "completed") {
+            if ($request->get("type") == "completed") {
                 $rewarded = true;
             }
             return response()->json([
