@@ -19,6 +19,7 @@ use App\Models\Property;
 use App\Models\Referral;
 use App\Models\User;
 use DateTime;
+use Jenssegers\Agent\Agent;
 
 class UserController extends Controller
 {
@@ -443,6 +444,24 @@ class UserController extends Controller
         return response()->json([
             "status" => true,
             "message" => "Callback received successfully."
+        ], 200);
+    }
+
+    public function redirectAppDownload(Request $request)
+    {
+        $agent = new Agent();
+        return response()->json([
+            "status" => true,
+            "data" => [
+                "browser" => $agent->browser(),
+                "browser_version" => $agent->version($agent->browser()),
+                "platform" => $agent->platform(),
+                "platform_version" => $agent->version($agent->platform()),
+                "languages" => $agent->languages(),
+                "device" => $agent->device(),
+                "device_type" => $agent->deviceType(),
+                "robot" => $agent->robot()
+            ],
         ], 200);
     }
 
