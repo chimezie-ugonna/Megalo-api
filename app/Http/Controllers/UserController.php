@@ -447,22 +447,26 @@ class UserController extends Controller
         ], 200);
     }
 
-    public function redirectAppDownload(Request $request)
+    public function redirectAppDownload()
     {
         $agent = new Agent();
-        return response()->json([
-            "status" => true,
-            "data" => [
-                "browser" => $agent->browser(),
-                "browser_version" => $agent->version($agent->browser()),
-                "platform" => $agent->platform(),
-                "platform_version" => $agent->version($agent->platform()),
-                "languages" => $agent->languages(),
-                "device" => $agent->device(),
-                "device_type" => $agent->deviceType(),
-                "robot" => $agent->robot()
-            ],
-        ], 200);
+        if ($agent->isMobile()) {
+            if ($agent->isiOS()) {
+                return redirect("https://apps.apple.com/ng/app/google-more-ways-to-search/id284815942");
+            } else if ($agent->isAndroidOS()) {
+                return redirect("https://play.google.com/store/apps/details?id=com.google.android.googlequicksearchbox&pcampaignid=web_share");
+            } else {
+                return response()->json([
+                    "status" => false,
+                    "message" => "Device is unsupported."
+                ], 400);
+            }
+        } else {
+            return response()->json([
+                "status" => false,
+                "message" => "Device is unsupported."
+            ], 400);
+        }
     }
 
     public function update(Request $request)
