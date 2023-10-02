@@ -16,7 +16,7 @@ class CheckHeader
      */
     public function handle(Request $request, Closure $next)
     {
-        if ($request->path() != "api/v1/user/verify_identity_webhook") {
+        if ($request->path() != "api/v1/user/verify_identity_webhook" && $request->path() != "api/v1/user/redirect_app_download") {
             if ($request->hasHeader("Accept") == null || $request->header("Accept") != "application/json") {
                 return response()->json([
                     "status" => false,

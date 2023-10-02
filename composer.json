@@ -13,6 +13,7 @@
         "doctrine/dbal": "^3.5",
         "firebase/php-jwt": "^6.2",
         "guzzlehttp/guzzle": "^7.2",
+        "jenssegers/agent": "^2.6",
         "laravel/framework": "^9.19",
         "laravel/tinker": "^2.7",
         "pusher/pusher-php-server": "^7.2",
