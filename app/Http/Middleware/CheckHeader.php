@@ -4,7 +4,6 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Jenssegers\Agent\Agent;
 
 class CheckHeader
 {
@@ -17,23 +16,6 @@ class CheckHeader
      */
     public function handle(Request $request, Closure $next)
     {
-        $agent = new Agent();
-        return response()->json([
-            "status" => true,
-            "data" => [
-                "Browser" => $agent->browser(),
-                "Browser Version" => $agent->version($agent->browser()),
-                "Device" => $agent->device(),
-                "Device Version" => $agent->version($agent->device()),
-                "Device Type" => $agent->deviceType(),
-                "Device Type Version" => $agent->version($agent->deviceType()),
-                "Languages" => $agent->languages(),
-                "Platform" => $agent->platform(),
-                "Platform Version" => $agent->version($agent->platform()),
-                "Robot" => $agent->robot()
-            ]
-        ], 200);
-
         if ($request->path() != "api/v1/user/verify_identity_webhook" && $request->path() != "api/v1/user/redirect_app_download") {
             if ($request->hasHeader("Accept") == null || $request->header("Accept") != "application/json") {
                 return response()->json([
