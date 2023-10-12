@@ -309,11 +309,11 @@ class UserController extends Controller
         } else {
             $data = collect(Referral::where("referrer_user_id", $request->request->get("user_id"))->join("users", "users.user_id", "=", "referrals.referree_user_id")->select("referrals.*", "users.first_name", "users.last_name")->latest()->simplePaginate($request->get("limit")));
         }
+        $data->put("user_id", $request->request->get("user_id"));
         $data->put("pusher_app_key", getenv("PUSHER_APP_KEY"));
         $data->put("pusher_app_cluster", getenv("PUSHER_APP_CLUSTER"));
         $data->put("pusher_channel_name", getenv("PUSHER_CHANNEL_NAME"));
         $data->put("pusher_event_name", getenv("PUSHER_EVENT_NAME"));
-        $data->put("user_id", $request->request->get("user_id"));
         return response()->json([
             "status" => true,
             "message" => "Referree data retrieved successfully.",
