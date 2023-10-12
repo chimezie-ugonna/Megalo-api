@@ -92,12 +92,9 @@ class NotificationManager
         }
         $notification = Notification::Create($array);
         $notification_data = collect(Notification::find($notification->notification_id));
-        $notification_data = $notification_data->map(function ($item) use ($user_id) {
-          $item->user_id = $user_id;
-          $item->type = "has_unseen_notification";
-          $item->status = true;
-          return $item;
-        });
+        $notification_data->put("user_id", $user_id);
+        $notification_data->put("type", "has_unseen_notification");
+        $notification_data->put("status", true);
         $websocket = new WebSocket();
         $websocket->trigger($notification_data);
       }
