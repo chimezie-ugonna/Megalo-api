@@ -300,35 +300,32 @@ class UserController extends Controller
 
     public function readReferree(Request $request)
     {
+        $pusher_details = [
+            "pusher_app_key" => getenv("PUSHER_APP_KEY"),
+            "pusher_app_cluster" => getenv("PUSHER_APP_CLUSTER"),
+            "pusher_channel_name" => getenv("PUSHER_CHANNEL_NAME"),
+            "pusher_event_name" => getenv("PUSHER_EVENT_NAME")
+        ];
+
         if ($request->has("type") && $request->filled("type")) {
             $rewarded = false;
             if ($request->get("type") == "completed") {
                 $rewarded = true;
             }
-            $data = collect(Referral::where("referrer_user_id", $request->request->get("user_id"))->where("rewarded", $rewarded)->join("users", "users.user_id", "=", "referrals.referree_user_id")->select("referrals.*", "users.first_name", "users.last_name")->latest()->simplePaginate($request->get("limit")));
-            $data = $data->map(function ($item) {
-                $item->pusher_app_key = getenv("PUSHER_APP_KEY");
-                $item->pusher_app_cluster = getenv("PUSHER_APP_CLUSTER");
-                $item->pusher_channel_name = getenv("PUSHER_CHANNEL_NAME");
-                $item->pusher_event_name = getenv("PUSHER_EVENT_NAME");
-                return $item;
-            });
+            return response()->json([
+                "status" => true,
+                "message" => "Referree data retrieved successfully.",
+                "pusher_details" => $pusher_details,
+                "data" => Referral::where("referrer_user_id", $request->request->get("user_id"))->where("rewarded", $rewarded)->join("users", "users.user_id", "=", "referrals.referree_user_id")->select("referrals.*", "users.first_name", "users.last_name")->latest()->simplePaginate($request->get("limit"))
+            ], 200);
         } else {
-            $data = collect(Referral::where("referrer_user_id", $request->request->get("user_id"))->join("users", "users.user_id", "=", "referrals.referree_user_id")->select("referrals.*", "users.first_name", "users.last_name")->latest()->simplePaginate($request->get("limit")));
-            $data = $data->map(function ($item) {
-                $item->pusher_app_key = getenv("PUSHER_APP_KEY");
-                $item->pusher_app_cluster = getenv("PUSHER_APP_CLUSTER");
-                $item->pusher_channel_name = getenv("PUSHER_CHANNEL_NAME");
-                $item->pusher_event_name = getenv("PUSHER_EVENT_NAME");
-                return $item;
-            });
+            return response()->json([
+                "status" => true,
+                "message" => "Referree data retrieved successfully.",
+                "pusher_details" => $pusher_details,
+                "data" => Referral::where("referrer_user_id", $request->request->get("user_id"))->join("users", "users.user_id", "=", "referrals.referree_user_id")->select("referrals.*", "users.first_name", "users.last_name")->latest()->simplePaginate($request->get("limit"))
+            ], 200);
         }
-
-        return response()->json([
-            "status" => true,
-            "message" => "Referree data retrieved successfully.",
-            "data" => $data
-        ], 200);
     }
 
     public function verifyIdentity(Request $request)
