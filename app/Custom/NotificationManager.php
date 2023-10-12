@@ -91,8 +91,11 @@ class NotificationManager
           }
         }
         $notification = Notification::Create($array);
+        $notification["user_id"] = $user_id;
+        $notification["type"] = "has_unseen_notification";
+        $notification["status"] = true;
         $websocket = new WebSocket();
-        $websocket->trigger(["user_id" => $user_id, "type" => "has_unseen_notification", "status" => true, $notification]);
+        $websocket->trigger($notification);
       }
     }
   }
