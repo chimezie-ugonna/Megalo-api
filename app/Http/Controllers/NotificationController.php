@@ -64,18 +64,10 @@ class NotificationController extends Controller
 
     public function readUserSpecific(Request $request)
     {
-        $data = collect(Notification::where("receiver_user_id", $request->request->get("user_id"))->latest()->simplePaginate($request->get("limit")));
-        $data = $data->map(function ($item) {
-            $item->pusher_app_key = getenv("PUSHER_APP_KEY");
-            $item->pusher_app_cluster = getenv("PUSHER_APP_CLUSTER");
-            $item->pusher_channel_name = getenv("PUSHER_CHANNEL_NAME");
-            $item->pusher_event_name = getenv("PUSHER_EVENT_NAME");
-            return $item;
-        });
         return response()->json([
             "status" => true,
             "message" => "Notification data retrieved successfully.",
-            "data" => $data
+            "data" => Notification::where("receiver_user_id", $request->request->get("user_id"))->latest()->simplePaginate($request->get("limit"))
         ], 200);
     }
 
