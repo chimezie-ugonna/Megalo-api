@@ -214,11 +214,15 @@ class UserController extends Controller
     {
         if (User::where("user_id", $request->request->get("user_id"))->exists()) {
             $data = collect(User::where("user_id", $request->request->get("user_id"))->get());
-            $data->put("has_unseen_notification", Notification::where("receiver_user_id", $request->request->get("user_id"))->where("seen", false)->exists());
-            $data->put("pusher_app_key", getenv("PUSHER_APP_KEY"));
-            $data->put("pusher_app_cluster", getenv("PUSHER_APP_CLUSTER"));
-            $data->put("pusher_channel_name", getenv("PUSHER_CHANNEL_NAME"));
-            $data->put("pusher_event_name", getenv("PUSHER_EVENT_NAME"));
+            $data = $data->map(function ($item) use ($request) {
+                $has_unseen_notification = Notification::where("receiver_user_id", $request->request->get("user_id"))->where("seen", false)->exists();
+                $item->has_unseen_notification = $has_unseen_notification;
+                $item->pusher_app_key = getenv("PUSHER_APP_KEY");
+                $item->pusher_app_cluster = getenv("PUSHER_APP_CLUSTER");
+                $item->pusher_channel_name = getenv("PUSHER_CHANNEL_NAME");
+                $item->pusher_event_name = getenv("PUSHER_EVENT_NAME");
+                return $item;
+            });
             return response()->json([
                 "status" => true,
                 "message" => "User data retrieved successfully.",
