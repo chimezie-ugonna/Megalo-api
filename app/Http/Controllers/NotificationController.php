@@ -69,6 +69,7 @@ class NotificationController extends Controller
         $data->put("pusher_app_cluster", getenv("PUSHER_APP_CLUSTER"));
         $data->put("pusher_channel_name", getenv("PUSHER_CHANNEL_NAME"));
         $data->put("pusher_event_name", getenv("PUSHER_EVENT_NAME"));
+        $data->put("user_id", $request->request->get("user_id"));
         return response()->json([
             "status" => true,
             "message" => "Notification data retrieved successfully.",
