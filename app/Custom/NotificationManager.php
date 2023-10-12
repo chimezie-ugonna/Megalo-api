@@ -91,7 +91,7 @@ class NotificationManager
           }
         }
         $notification = Notification::Create($array);
-        $notification_data = collect(Notification::where("notification_id", $notification->notification_id)->get());
+        $notification_data = collect(Notification::find($notification->notification_id));
         $notification_data = $notification_data->map(function ($item) use ($user_id) {
           $item->user_id = $user_id;
           $item->type = "has_unseen_notification";
